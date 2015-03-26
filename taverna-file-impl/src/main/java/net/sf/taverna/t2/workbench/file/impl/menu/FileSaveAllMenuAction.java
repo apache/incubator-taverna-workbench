@@ -24,9 +24,9 @@ import static net.sf.taverna.t2.workbench.file.impl.menu.FileSaveMenuSection.FIL
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import org.apache.taverna.ui.menu.AbstractMenuAction;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.actions.SaveAllWorkflowsAction;
 
 public class FileSaveAllMenuAction extends AbstractMenuAction {

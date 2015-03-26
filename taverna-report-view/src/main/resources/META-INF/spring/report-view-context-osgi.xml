@@ -8,18 +8,18 @@
 
 	<service ref="ReportManagerConfigurationUIFactory" interface="uk.org.taverna.configuration.ConfigurationUIFactory" />
 
-	<service ref="ReportViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" />
+	<service ref="ReportViewComponentFactory" interface="org.apache.taverna.workbench.ui.zaria.UIComponentFactorySPI" />
 
 	<service ref="ReportOnObjectContextualMenuAction" auto-export="interfaces" />
 
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
-	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
-	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
-	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
-	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" cardinality="0..1" />
-	<reference id="reportManagerConfiguration" interface="net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration" />
+	<reference id="editManager" interface="org.apache.taverna.workbench.edits.EditManager" />
+	<reference id="fileManager" interface="org.apache.taverna.workbench.file.FileManager" />
+	<reference id="menuManager" interface="org.apache.taverna.ui.menu.MenuManager" />
+	<reference id="selectionManager" interface="org.apache.taverna.workbench.selection.SelectionManager" />
+	<reference id="reportManager" interface="org.apache.taverna.workbench.report.ReportManager" />
+	<reference id="workbench" interface="org.apache.taverna.workbench.ui.Workbench" cardinality="0..1" />
+	<reference id="reportManagerConfiguration" interface="org.apache.taverna.workbench.report.config.ReportManagerConfiguration" />
 
-	<list id="visitExplainers" interface="net.sf.taverna.t2.workbench.report.explainer.VisitExplainer" cardinality="0..N"/>
+	<list id="visitExplainers" interface="org.apache.taverna.workbench.report.explainer.VisitExplainer" cardinality="0..N"/>
 
 </beans:beans>

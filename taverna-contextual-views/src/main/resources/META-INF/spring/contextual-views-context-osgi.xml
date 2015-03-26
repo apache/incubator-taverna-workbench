@@ -6,10 +6,10 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ProcessorPredictedBehaviorContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
-	<service ref="ProcessorActivitiesContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
+	<service ref="ProcessorPredictedBehaviorContextualViewFactory" interface="org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
+	<service ref="ProcessorActivitiesContextualViewFactory" interface="org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
-	<reference id="contextualViewFactoryRegistry" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry" />
-	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
+	<reference id="contextualViewFactoryRegistry" interface="org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry" />
+	<reference id="selectionManager" interface="org.apache.taverna.workbench.selection.SelectionManager" />
 
 </beans:beans>

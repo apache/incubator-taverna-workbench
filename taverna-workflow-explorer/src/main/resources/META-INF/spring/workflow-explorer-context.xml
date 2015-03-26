@@ -5,7 +5,7 @@
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="WorkflowExplorerFactory"
-		class="net.sf.taverna.t2.workbench.ui.workflowexplorer.WorkflowExplorerFactory">
+		class="org.apache.taverna.workbench.ui.workflowexplorer.WorkflowExplorerFactory">
 		<property name="editManager" ref="editManager" />
 		<property name="fileManager" ref="fileManager" />
 		<property name="menuManager" ref="menuManager" />

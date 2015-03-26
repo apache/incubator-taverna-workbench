@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="RetryConfigureMenuAction" class="net.sf.taverna.t2.workbench.retry.RetryConfigureMenuAction">
+	<bean id="RetryConfigureMenuAction" class="org.apache.taverna.workbench.retry.RetryConfigureMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
-	<bean id="RetryContextualViewFactory" class="net.sf.taverna.t2.workbench.retry.RetryContextualViewFactory">
+	<bean id="RetryContextualViewFactory" class="org.apache.taverna.workbench.retry.RetryContextualViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>

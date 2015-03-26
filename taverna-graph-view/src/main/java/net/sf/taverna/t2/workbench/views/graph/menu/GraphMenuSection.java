@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.views.graph.menu;
 
 import java.net.URI;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
+import org.apache.taverna.ui.menu.AbstractMenuSection;
 
 /**
  * @author Alex Nenadic

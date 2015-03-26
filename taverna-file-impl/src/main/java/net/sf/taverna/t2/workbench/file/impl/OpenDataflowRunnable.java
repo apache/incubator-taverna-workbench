@@ -4,9 +4,9 @@
 package net.sf.taverna.t2.workbench.file.impl;
 
 import static java.lang.Thread.sleep;
-import net.sf.taverna.t2.workbench.file.FileType;
-import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
+import org.apache.taverna.workbench.file.FileType;
+import org.apache.taverna.workbench.file.exceptions.OpenException;
+import org.apache.taverna.workbench.ui.SwingWorkerCompletionWaiter;
 import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**

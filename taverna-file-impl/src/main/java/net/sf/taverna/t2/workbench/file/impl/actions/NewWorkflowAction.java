@@ -23,14 +23,14 @@ package net.sf.taverna.t2.workbench.file.impl.actions;
 import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.VK_N;
 import static javax.swing.KeyStroke.getKeyStroke;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.newIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.newIcon;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.FileManager;
 
 import org.apache.log4j.Logger;
 

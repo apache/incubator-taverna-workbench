@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="BasicExplainer" class="net.sf.taverna.t2.workbench.report.explainer.BasicExplainer">
+	<bean id="BasicExplainer" class="org.apache.taverna.workbench.report.explainer.BasicExplainer">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />

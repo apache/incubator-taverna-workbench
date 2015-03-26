@@ -1,0 +1,2 @@
+org.apache.taverna.workbench.ui.impl.UserRegistrationHook
+org.apache.taverna.workbench.ui.impl.SetConsoleLoggerStartup

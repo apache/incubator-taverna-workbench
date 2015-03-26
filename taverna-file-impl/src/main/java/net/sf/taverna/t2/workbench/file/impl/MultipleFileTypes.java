@@ -25,7 +25,7 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
-import net.sf.taverna.t2.workbench.file.FileType;
+import org.apache.taverna.workbench.file.FileType;
 
 public class MultipleFileTypes extends FileFilter {
 	private String description;

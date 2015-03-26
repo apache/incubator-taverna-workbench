@@ -1,0 +1,9 @@
+# Needs to be first AbstractConfigureActivityMenuAction to be
+# picked up as the automatic 'configure' action for template services
+org.apache.taverna.workbench.file.importworkflow.menu.ReplaceNestedWorkflowMenuAction
+
+org.apache.taverna.workbench.file.importworkflow.menu.AddNestedWorkflowMenuAction
+org.apache.taverna.workbench.file.importworkflow.menu.ImportWorkflowMenuAction
+org.apache.taverna.workbench.file.importworkflow.menu.MergeWorkflowMenuAction
+
+org.apache.taverna.activities.dataflow.menu.EditNestedDataflowMenuAction

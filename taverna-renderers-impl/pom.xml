@@ -34,7 +34,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Private-Package>org.fife.ui.hex.*,net.sf.taverna.t2.renderers.impl</Private-Package>
+						<Private-Package>org.fife.ui.hex.*,org.apache.taverna.renderers.impl</Private-Package>
 					</instructions>
 				</configuration>
 			</plugin>

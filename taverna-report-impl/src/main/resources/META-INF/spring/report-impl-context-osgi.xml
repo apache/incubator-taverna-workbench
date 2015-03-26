@@ -6,18 +6,18 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<!-- <service ref="ProcessorFragilityChecker" interface="net.sf.taverna.t2.visit.fragility.FragilityChecker" /> -->
+	<!-- <service ref="ProcessorFragilityChecker" interface="org.apache.taverna.visit.fragility.FragilityChecker" /> -->
 
-	<!-- <service ref="FragilityCheck" interface="net.sf.taverna.t2.visit.VisitKind" /> -->
+	<!-- <service ref="FragilityCheck" interface="org.apache.taverna.visit.VisitKind" /> -->
 
-	<service ref="ReportManagerImpl" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
+	<service ref="ReportManagerImpl" interface="org.apache.taverna.workbench.report.ReportManager" />
 
-	<service ref="ReportManagerConfiguration" interface="net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration" />
+	<service ref="ReportManagerConfiguration" interface="org.apache.taverna.workbench.report.config.ReportManagerConfiguration" />
 
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
+	<reference id="editManager" interface="org.apache.taverna.workbench.edits.EditManager" />
+	<reference id="fileManager" interface="org.apache.taverna.workbench.file.FileManager" />
 	<reference id="configurationManager" interface="uk.org.taverna.configuration.ConfigurationManager" />
 
-	<set id="visitors" interface="net.sf.taverna.t2.visit.Visitor" cardinality="0..N" />
+	<set id="visitors" interface="org.apache.taverna.visit.Visitor" cardinality="0..N" />
 
 </beans:beans>

@@ -26,7 +26,7 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
+import org.apache.taverna.ui.menu.AbstractMenuAction;
 
 /**
  * An action that zooms a diagram image

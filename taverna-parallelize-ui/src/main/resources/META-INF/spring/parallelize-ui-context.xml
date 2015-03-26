@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ParallelizeConfigureMenuAction" class="net.sf.taverna.t2.workbench.parallelize.ParallelizeConfigureMenuAction">
+	<bean id="ParallelizeConfigureMenuAction" class="org.apache.taverna.workbench.parallelize.ParallelizeConfigureMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
-	<bean id="ParallelizeContextualViewFactory" class="net.sf.taverna.t2.workbench.parallelize.ParallelizeContextualViewFactory">
+	<bean id="ParallelizeContextualViewFactory" class="org.apache.taverna.workbench.parallelize.ParallelizeContextualViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>

@@ -6,14 +6,14 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="AdvancedImageRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="HexBinaryRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="TextRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="TextRtfRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="TextXMLRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
+	<service ref="AdvancedImageRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<service ref="HexBinaryRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<service ref="TextRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<service ref="TextRtfRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<service ref="TextXMLRenderer" interface="org.apache.taverna.renderers.Renderer" />
 
-	<service ref="RendererRegistry" interface="net.sf.taverna.t2.renderers.RendererRegistry" />
+	<service ref="RendererRegistry" interface="org.apache.taverna.renderers.RendererRegistry" />
 
-	<list id="renderers" interface="net.sf.taverna.t2.renderers.Renderer" cardinality="0..N" />
+	<list id="renderers" interface="org.apache.taverna.renderers.Renderer" cardinality="0..N" />
 
 </beans:beans>

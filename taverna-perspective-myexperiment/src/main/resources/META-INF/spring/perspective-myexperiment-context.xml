@@ -3,18 +3,18 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="MyExperimentConfigurationUIFactory" class="net.sf.taverna.t2.workbench.myexperiment.config.MyExperimentConfigurationUIFactory">
+	<bean id="MyExperimentConfigurationUIFactory" class="org.apache.taverna.workbench.myexperiment.config.MyExperimentConfigurationUIFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 	</bean>
 
-	<bean id="MainComponentFactory" class="net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentFactory">
+	<bean id="MainComponentFactory" class="org.apache.taverna.ui.perspectives.myexperiment.MainComponentFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 	</bean>
 
-	<bean id="MyExperimentPerspective" class="net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective" />
+	<bean id="MyExperimentPerspective" class="org.apache.taverna.ui.perspectives.myexperiment.MyExperimentPerspective" />
 
-	<bean id="MainComponentShutdownHook" class="net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentShutdownHook" />
+	<bean id="MainComponentShutdownHook" class="org.apache.taverna.ui.perspectives.myexperiment.MainComponentShutdownHook" />
 
 </beans>

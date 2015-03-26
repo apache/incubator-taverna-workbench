@@ -6,8 +6,8 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<!-- <service ref="ProcessorFragilityChecker" interface="net.sf.taverna.t2.visit.fragility.FragilityChecker" /> -->
+	<!-- <service ref="ProcessorFragilityChecker" interface="org.apache.taverna.visit.fragility.FragilityChecker" /> -->
 
-	<!-- <service ref="FragilityCheck" interface="net.sf.taverna.t2.visit.VisitKind" /> -->
+	<!-- <service ref="FragilityCheck" interface="org.apache.taverna.visit.VisitKind" /> -->
 
 </beans:beans>

@@ -6,13 +6,13 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="BasicExplainer" interface="net.sf.taverna.t2.workbench.report.explainer.VisitExplainer" />
+	<service ref="BasicExplainer" interface="org.apache.taverna.workbench.report.explainer.VisitExplainer" />
 
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
-	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
-	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
-	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
+	<reference id="editManager" interface="org.apache.taverna.workbench.edits.EditManager" />
+	<reference id="fileManager" interface="org.apache.taverna.workbench.file.FileManager" />
+	<reference id="reportManager" interface="org.apache.taverna.workbench.report.ReportManager" />
+	<reference id="selectionManager" interface="org.apache.taverna.workbench.selection.SelectionManager" />
+	<reference id="activityIconManager" interface="org.apache.taverna.workbench.activityicons.ActivityIconManager" />
 
 	<list id="configurationUIFactories" interface="uk.org.taverna.configuration.ConfigurationUIFactory" cardinality="0..N" />
 

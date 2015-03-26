@@ -26,12 +26,12 @@ import static java.awt.GridBagConstraints.RELATIVE;
 import static java.awt.GridBagConstraints.REMAINDER;
 import static java.awt.GridBagConstraints.WEST;
 import static javax.swing.SwingConstants.LEFT;
-import static net.sf.taverna.t2.workbench.helper.Helper.showHelp;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.allportIcon;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.blobIcon;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.horizontalIcon;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.noportIcon;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.verticalIcon;
+import static org.apache.taverna.workbench.helper.Helper.showHelp;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.allportIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.blobIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.horizontalIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.noportIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.verticalIcon;
 import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ALIGNMENT;
 import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ANIMATION_ENABLED;
 import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ANIMATION_SPEED;
@@ -57,8 +57,8 @@ import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
-import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
+import org.apache.taverna.workbench.models.graph.Graph.Alignment;
+import org.apache.taverna.workbench.models.graph.GraphController.PortStyle;
 
 /**
  * UI for GraphViewConfiguration.

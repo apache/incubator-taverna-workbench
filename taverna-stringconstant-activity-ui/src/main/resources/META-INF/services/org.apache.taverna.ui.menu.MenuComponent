@@ -1,0 +1,3 @@
+org.apache.taverna.activities.stringconstant.menu.AddStringConstantTemplateAction
+org.apache.taverna.activities.stringconstant.menu.AddStringConstantTemplateMenuAction
+org.apache.taverna.activities.stringconstant.menu.ConfigureStringConstantMenuAction

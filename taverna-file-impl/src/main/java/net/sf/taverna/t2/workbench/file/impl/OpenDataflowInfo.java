@@ -22,8 +22,8 @@ package net.sf.taverna.t2.workbench.file.impl;
 
 import java.util.Date;
 
-import net.sf.taverna.t2.workbench.file.DataflowInfo;
-import net.sf.taverna.t2.workbench.file.FileType;
+import org.apache.taverna.workbench.file.DataflowInfo;
+import org.apache.taverna.workbench.file.FileType;
 
 /**
  * Information about an open dataflow.

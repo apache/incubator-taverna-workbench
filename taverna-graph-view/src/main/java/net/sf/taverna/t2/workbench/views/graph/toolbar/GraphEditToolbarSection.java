@@ -20,11 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.toolbar;
 
-import static net.sf.taverna.t2.ui.menu.DefaultToolBar.DEFAULT_TOOL_BAR;
+import static org.apache.taverna.ui.menu.DefaultToolBar.DEFAULT_TOOL_BAR;
 
 import java.net.URI;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
+import org.apache.taverna.ui.menu.AbstractMenuSection;
 
 /**
  * @author Alex Nenadic

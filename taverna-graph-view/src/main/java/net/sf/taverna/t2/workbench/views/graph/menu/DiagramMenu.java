@@ -22,11 +22,11 @@ package net.sf.taverna.t2.workbench.views.graph.menu;
 
 import static java.awt.event.KeyEvent.VK_V;
 import static javax.swing.Action.MNEMONIC_KEY;
-import static net.sf.taverna.t2.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
+import static org.apache.taverna.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
 
 import java.net.URI;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenu;
+import org.apache.taverna.ui.menu.AbstractMenu;
 
 public class DiagramMenu extends AbstractMenu {
 	public static final URI DIAGRAM = URI

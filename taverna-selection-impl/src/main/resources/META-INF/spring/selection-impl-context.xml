@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="selectionManager" class="net.sf.taverna.t2.workbench.selection.impl.SelectionManagerImpl" >
+	<bean id="selectionManager" class="org.apache.taverna.workbench.selection.impl.SelectionManagerImpl" >
 		<property name="fileManager" ref="fileManager"/>
 		<property name="editManager" ref="editManager"/>
 		<property name="perspectives" ref="perspectives"/>

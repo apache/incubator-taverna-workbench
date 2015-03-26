@@ -4,21 +4,21 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="MenuManagerImpl" class="net.sf.taverna.t2.ui.menu.impl.MenuManagerImpl">
+	<bean id="MenuManagerImpl" class="org.apache.taverna.ui.menu.impl.MenuManagerImpl">
 		<property name="menuComponents" ref="menuComponents" />
 		<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
-	<bean id="FileMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.FileMenu" />
-	<bean id="EditMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.EditMenu" />
-	<bean id="AdvancedMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.AdvancedMenu" />
-	<bean id="HelpMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu" />
+	<bean id="FileMenu" class="org.apache.taverna.workbench.ui.impl.menu.FileMenu" />
+	<bean id="EditMenu" class="org.apache.taverna.workbench.ui.impl.menu.EditMenu" />
+	<bean id="AdvancedMenu" class="org.apache.taverna.workbench.ui.impl.menu.AdvancedMenu" />
+	<bean id="HelpMenu" class="org.apache.taverna.workbench.ui.impl.menu.HelpMenu" />
 	<bean id="OnlineHelpMenuAction"
-		class="net.sf.taverna.t2.workbench.ui.impl.menu.OnlineHelpMenuAction" />
+		class="org.apache.taverna.workbench.ui.impl.menu.OnlineHelpMenuAction" />
 	<bean id="FeedbackMenuAction"
-		class="net.sf.taverna.t2.workbench.ui.impl.menu.FeedbackMenuAction" />
+		class="org.apache.taverna.workbench.ui.impl.menu.FeedbackMenuAction" />
 	<bean id="ShowLogsAndDataMenuAction"
-		class="net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsAndDataMenuAction">
+		class="org.apache.taverna.workbench.ui.impl.menu.ShowLogsAndDataMenuAction">
 		<property name="applicationConfiguration" ref="applicationConfiguration" />
 	</bean>
 

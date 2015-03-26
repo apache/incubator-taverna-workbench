@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ProcessorPredictedBehaviorContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorPredictedBehaviorContextualViewFactory" />
-	<bean id="ProcessorActivitiesContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorActivitiesContextualViewFactory">
+	<bean id="ProcessorPredictedBehaviorContextualViewFactory" class="org.apache.taverna.workbench.ui.views.contextualviews.processor.ProcessorPredictedBehaviorContextualViewFactory" />
+	<bean id="ProcessorActivitiesContextualViewFactory" class="org.apache.taverna.workbench.ui.views.contextualviews.processor.ProcessorActivitiesContextualViewFactory">
 			<property name="contextualViewFactoryRegistry" ref="contextualViewFactoryRegistry" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>

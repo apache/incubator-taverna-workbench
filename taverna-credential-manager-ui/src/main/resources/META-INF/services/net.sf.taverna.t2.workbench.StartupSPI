@@ -1,2 +1,0 @@
-net.sf.taverna.t2.workbench.ui.credentialmanager.startup.InitialiseSSLStartupHook
-net.sf.taverna.t2.workbench.ui.credentialmanager.startup.SetCredManAuthenticatorStartupHook

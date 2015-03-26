@@ -1,0 +1,9 @@
+org.apache.taverna.workbench.ui.views.contextualviews.outputport.OutputPortContextualViewFactory
+org.apache.taverna.workbench.ui.views.contextualviews.inputport.InputPortContextualViewFactory
+org.apache.taverna.workbench.ui.views.contextualviews.dataflowoutputport.DataflowOutputPortContextualViewFactory
+org.apache.taverna.workbench.ui.views.contextualviews.dataflowinputport.DataflowInputPortContextualViewFactory
+org.apache.taverna.workbench.ui.views.contextualviews.datalink.DatalinkContextualViewFactory
+org.apache.taverna.workbench.ui.views.contextualviews.condition.ConditionContextualViewFactory
+org.apache.taverna.workbench.ui.views.contextualviews.merge.MergeContextualViewFactory
+org.apache.taverna.workbench.ui.views.contextualviews.annotated.AnnotatedContextualViewFactory
+org.apache.taverna.workbench.ui.views.contextualviews.dataflow.DataflowContextualViewFactory

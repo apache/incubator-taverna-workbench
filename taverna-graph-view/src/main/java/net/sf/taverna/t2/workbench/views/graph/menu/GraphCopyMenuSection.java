@@ -24,7 +24,7 @@ import static net.sf.taverna.t2.workbench.views.graph.menu.GraphMenuSection.GRAP
 
 import java.net.URI;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
+import org.apache.taverna.ui.menu.AbstractMenuSection;
 
 /**
  * ???

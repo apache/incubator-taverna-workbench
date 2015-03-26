@@ -8,7 +8,7 @@
 
 	<service ref="GraphViewConfigurationUIFactory" interface="uk.org.taverna.configuration.ConfigurationUIFactory" />
 
-	<service ref="GraphViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" />
+	<service ref="GraphViewComponentFactory" interface="org.apache.taverna.workbench.ui.zaria.UIComponentFactorySPI" />
 
 	<service ref="GraphEditToolbarSection" auto-export="interfaces" />
 	<service ref="GraphDeleteToolbarSection" auto-export="interfaces" />
@@ -34,12 +34,12 @@
 	<service ref="ZoomOutMenuAction" auto-export="interfaces" />
 	<service ref="ResetDiagramMenuAction" auto-export="interfaces" />
 
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
-	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
-	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
-	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
-	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<reference id="editManager" interface="org.apache.taverna.workbench.edits.EditManager" />
+	<reference id="fileManager" interface="org.apache.taverna.workbench.file.FileManager" />
+	<reference id="menuManager" interface="org.apache.taverna.ui.menu.MenuManager" />
+	<reference id="selectionManager" interface="org.apache.taverna.workbench.selection.SelectionManager" />
+	<reference id="colourManager" interface="org.apache.taverna.workbench.configuration.colour.ColourManager" />
+	<reference id="workbenchConfiguration" interface="org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration" />
 	<reference id="configurationManager" interface="uk.org.taverna.configuration.ConfigurationManager" />
 	<reference id="serviceRegistry" interface="uk.org.taverna.commons.services.ServiceRegistry" />
 

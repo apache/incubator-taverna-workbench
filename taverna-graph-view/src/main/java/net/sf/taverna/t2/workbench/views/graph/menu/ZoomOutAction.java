@@ -29,8 +29,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import org.apache.taverna.ui.menu.DesignOrResultsAction;
+import org.apache.taverna.workbench.icons.WorkbenchIcons;
 
 @SuppressWarnings("serial")
 public class ZoomOutAction extends AbstractAction implements

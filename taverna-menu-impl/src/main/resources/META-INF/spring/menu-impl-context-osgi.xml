@@ -6,7 +6,7 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="MenuManagerImpl" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
+	<service ref="MenuManagerImpl" interface="org.apache.taverna.ui.menu.MenuManager" />
 
 	<service ref="FileMenu" auto-export="interfaces" />
 	<service ref="EditMenu" auto-export="interfaces" />
@@ -17,9 +17,9 @@
 	<service ref="ShowLogsAndDataMenuAction" auto-export="interfaces" />
 
 	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
-	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
+	<reference id="selectionManager" interface="org.apache.taverna.workbench.selection.SelectionManager" />
 
-	<list id="menuComponents" interface="net.sf.taverna.t2.ui.menu.MenuComponent" cardinality="0..N" greedy-proxying="true">
+	<list id="menuComponents" interface="org.apache.taverna.ui.menu.MenuComponent" cardinality="0..N" greedy-proxying="true">
 		<listener ref="MenuManagerImpl" bind-method="update" unbind-method="update" />
 	</list>
 

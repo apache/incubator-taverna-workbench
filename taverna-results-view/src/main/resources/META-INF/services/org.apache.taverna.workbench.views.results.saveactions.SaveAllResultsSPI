@@ -1,0 +1,3 @@
+org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsAsXML
+org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsAsExcel
+org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsToFileSystem

@@ -6,7 +6,7 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="LoadInputsFromXML" interface="net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI" />
-	<service ref="SaveInputsAsXML" interface="net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI" />
+	<service ref="LoadInputsFromXML" interface="org.apache.taverna.reference.ui.referenceactions.ReferenceActionSPI" />
+	<service ref="SaveInputsAsXML" interface="org.apache.taverna.reference.ui.referenceactions.ReferenceActionSPI" />
 
 </beans:beans>

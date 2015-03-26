@@ -31,7 +31,7 @@ import static javax.swing.JOptionPane.showInputDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static javax.swing.JOptionPane.showOptionDialog;
 import static javax.swing.KeyStroke.getKeyStroke;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.openurlIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.openurlIcon;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -40,7 +40,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.FileManager;
 
 import org.apache.log4j.Logger;
 

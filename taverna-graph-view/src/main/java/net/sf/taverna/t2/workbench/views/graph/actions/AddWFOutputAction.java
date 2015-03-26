@@ -29,11 +29,11 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
-import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import org.apache.taverna.ui.menu.DesignOnlyAction;
+import org.apache.taverna.workbench.design.actions.AddDataflowOutputAction;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.icons.WorkbenchIcons;
+import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**

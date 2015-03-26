@@ -3,31 +3,31 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="t2ConfigurationFrame" class="net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrameImpl">
+	<bean id="t2ConfigurationFrame" class="org.apache.taverna.workbench.ui.impl.configuration.ui.T2ConfigurationFrameImpl">
 		<property name="configurationUIFactories" ref="configurationUIFactories" />
 	</bean>
 
-	<bean id="WorkbenchConfigurationUIFactory" class="net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfigurationUIFactory">
+	<bean id="WorkbenchConfigurationUIFactory" class="org.apache.taverna.workbench.ui.impl.configuration.WorkbenchConfigurationUIFactory">
 		<property name="workbenchConfiguration">
 			<ref local="WorkbenchConfiguration"/>
 		</property>
 	</bean>
 
-	<bean id="WorkbenchPreferencesSection" class="net.sf.taverna.t2.workbench.ui.impl.configuration.ui.WorkbenchPreferencesSection" />
-	<bean id="WorkbenchConfigurationMenu" class="net.sf.taverna.t2.workbench.ui.impl.configuration.ui.WorkbenchConfigurationMenu">
+	<bean id="WorkbenchPreferencesSection" class="org.apache.taverna.workbench.ui.impl.configuration.ui.WorkbenchPreferencesSection" />
+	<bean id="WorkbenchConfigurationMenu" class="org.apache.taverna.workbench.ui.impl.configuration.ui.WorkbenchConfigurationMenu">
 		<property name="t2ConfigurationFrame">
 			<ref local="t2ConfigurationFrame"/>
 		</property>
 	</bean>
 
-	<bean id="ColourManager" class="net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManagerImpl">
+	<bean id="ColourManager" class="org.apache.taverna.workbench.ui.impl.configuration.colour.ColourManagerImpl">
 		<constructor-arg ref="configurationManager"/>
 	</bean>
-	<bean id="WorkbenchConfiguration" class="net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfigurationImpl">
+	<bean id="WorkbenchConfiguration" class="org.apache.taverna.workbench.ui.impl.configuration.WorkbenchConfigurationImpl">
 		<constructor-arg ref="configurationManager"/>
 		<property name="applicationConfiguration" ref="applicationConfiguration" />
 	</bean>
-	<bean id="MimeTypeManager" class="net.sf.taverna.t2.workbench.ui.impl.configuration.mimetype.MimeTypeManagerImpl">
+	<bean id="MimeTypeManager" class="org.apache.taverna.workbench.ui.impl.configuration.mimetype.MimeTypeManagerImpl">
 		<constructor-arg ref="configurationManager"/>
 	</bean>
 

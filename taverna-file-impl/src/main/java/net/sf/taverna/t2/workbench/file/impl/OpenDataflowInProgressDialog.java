@@ -22,8 +22,8 @@
 package net.sf.taverna.t2.workbench.file.impl;
 
 import static java.awt.BorderLayout.CENTER;
-import static net.sf.taverna.t2.workbench.MainWindow.getMainWindow;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.workingIcon;
+import static org.apache.taverna.workbench.MainWindow.getMainWindow;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.workingIcon;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -32,7 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import org.apache.taverna.workbench.helper.HelpEnabledDialog;
 
 /**
  * Dialog that is popped up while we are opening a workflow.

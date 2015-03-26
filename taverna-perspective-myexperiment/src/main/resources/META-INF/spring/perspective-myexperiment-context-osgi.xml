@@ -8,13 +8,13 @@
 
 	<service ref="MyExperimentConfigurationUIFactory" interface="uk.org.taverna.configuration.ConfigurationUIFactory" />
 
-	<service ref="MainComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" />
+	<service ref="MainComponentFactory" interface="org.apache.taverna.workbench.ui.zaria.UIComponentFactorySPI" />
 
-	<service ref="MyExperimentPerspective" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" />
+	<service ref="MyExperimentPerspective" interface="org.apache.taverna.workbench.ui.zaria.PerspectiveSPI" />
 
-	<service ref="MainComponentShutdownHook" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
+	<service ref="MainComponentShutdownHook" interface="org.apache.taverna.workbench.ShutdownSPI" />
 
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
+	<reference id="editManager" interface="org.apache.taverna.workbench.edits.EditManager" />
+	<reference id="fileManager" interface="org.apache.taverna.workbench.file.FileManager" />
 
 </beans:beans>

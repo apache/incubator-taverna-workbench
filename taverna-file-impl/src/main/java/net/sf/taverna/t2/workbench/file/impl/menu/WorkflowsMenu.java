@@ -24,7 +24,7 @@ import static java.awt.event.KeyEvent.VK_0;
 import static java.awt.event.KeyEvent.VK_W;
 import static javax.swing.Action.MNEMONIC_KEY;
 import static javax.swing.SwingUtilities.invokeLater;
-import static net.sf.taverna.t2.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
+import static org.apache.taverna.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -36,13 +36,13 @@ import javax.swing.JRadioButtonMenuItem;
 
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.Observer;
-import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
-import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.AbstractDataflowEvent;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import org.apache.taverna.ui.menu.AbstractMenuCustom;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.edits.EditManager.AbstractDataflowEditEvent;
+import org.apache.taverna.workbench.edits.EditManager.EditManagerEvent;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.events.AbstractDataflowEvent;
+import org.apache.taverna.workbench.file.events.FileManagerEvent;
 import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public class WorkflowsMenu extends AbstractMenuCustom {

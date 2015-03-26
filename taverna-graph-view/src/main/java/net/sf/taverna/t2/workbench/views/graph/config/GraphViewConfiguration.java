@@ -26,8 +26,8 @@ import java.util.Map;
 import uk.org.taverna.configuration.AbstractConfigurable;
 import uk.org.taverna.configuration.ConfigurationManager;
 
-import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
-import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
+import org.apache.taverna.workbench.models.graph.Graph.Alignment;
+import org.apache.taverna.workbench.models.graph.GraphController.PortStyle;
 
 /**
  * Configuration for the GraphViewComponent.

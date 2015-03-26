@@ -1,0 +1,6 @@
+org.apache.taverna.workbench.run.menu.FileRunMenuAction
+org.apache.taverna.workbench.run.menu.FileValidateMenuAction
+org.apache.taverna.workbench.run.menu.FileRunMenuSection
+
+org.apache.taverna.workbench.run.toolbar.RunToolbarSection
+org.apache.taverna.workbench.run.toolbar.RunToolbarAction

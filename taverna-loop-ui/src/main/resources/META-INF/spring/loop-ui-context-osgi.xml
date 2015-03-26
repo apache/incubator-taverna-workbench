@@ -6,16 +6,16 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="AddLoopFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI" />
+	<service ref="AddLoopFactory" interface="org.apache.taverna.workbench.ui.views.contextualviews.AddLayerFactorySPI" />
 
 	<service ref="LoopConfigureMenuAction" auto-export="interfaces" />
 	<service ref="LoopAddMenuAction" auto-export="interfaces" />
 	<service ref="LoopRemoveMenuAction" auto-export="interfaces" />
 
-	<service ref="LoopContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
+	<service ref="LoopContextualViewFactory" interface="org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
-    <reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
+	<reference id="editManager" interface="org.apache.taverna.workbench.edits.EditManager" />
+	<reference id="fileManager" interface="org.apache.taverna.workbench.file.FileManager" />
+    <reference id="selectionManager" interface="org.apache.taverna.workbench.selection.SelectionManager" />
     <reference id="applicationConfig" interface="uk.org.taverna.configuration.app.ApplicationConfiguration"/>
 </beans:beans>

@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.file.impl.menu;
 
 import java.net.URI;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
+import org.apache.taverna.ui.menu.AbstractMenuSection;
 
 public class FileOpenMenuSection extends AbstractMenuSection {
 	public static final URI FILE_URI = URI

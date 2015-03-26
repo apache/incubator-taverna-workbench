@@ -6,10 +6,10 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="JMolRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="SeqVistaRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="SVGRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="PDFRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="HTMLBrowserRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
+	<service ref="JMolRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<service ref="SeqVistaRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<service ref="SVGRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<service ref="PDFRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<service ref="HTMLBrowserRenderer" interface="org.apache.taverna.renderers.Renderer" />
 
 </beans:beans>

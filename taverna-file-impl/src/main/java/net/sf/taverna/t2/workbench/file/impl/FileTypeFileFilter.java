@@ -24,7 +24,7 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
-import net.sf.taverna.t2.workbench.file.FileType;
+import org.apache.taverna.workbench.file.FileType;
 
 public class FileTypeFileFilter extends FileFilter {
 	private final FileType fileType;

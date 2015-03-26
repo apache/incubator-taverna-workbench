@@ -1,0 +1,3 @@
+org.apache.taverna.workbench.ui.credentialmanager.menu.CredentialManagerMenu
+#net.sf.taverna.t2.workbench.ui.credentialmanager.toolbar.CredentialManagerToolbarAction
+#net.sf.taverna.t2.workbench.ui.credentialmanager.toolbar.CredentialManagerToolbarSection

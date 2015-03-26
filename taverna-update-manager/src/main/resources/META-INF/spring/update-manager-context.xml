@@ -5,7 +5,7 @@
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="UpdateMenuAction"
-		class="net.sf.taverna.t2.workbench.update.impl.menu.UpdateMenuAction">
+		class="org.apache.taverna.workbench.update.impl.menu.UpdateMenuAction">
 		<property name="updateManager" ref="updateManager" />
 	</bean>
 

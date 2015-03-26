@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl;
 
-import net.sf.taverna.t2.workbench.file.FileType;
+import org.apache.taverna.workbench.file.FileType;
 
 public class T2FlowFileType extends FileType {
 	public static final String APPLICATION_VND_TAVERNA_T2FLOW_XML = "application/vnd.taverna.t2flow+xml";

@@ -1,0 +1,5 @@
+org.apache.taverna.workbench.run.cleanup.ReferenceDatabaseCleanUpShutdownHook
+org.apache.taverna.workbench.run.cleanup.ReferenceServiceShutdownHook
+org.apache.taverna.workbench.run.cleanup.RemoveDataflowRunsShutdownHook
+org.apache.taverna.workbench.run.cleanup.StoreRunIdsToDeleteLaterShutdownHook
+org.apache.taverna.workbench.run.cleanup.WorkflowRunStatusShutdownHook

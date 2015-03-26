@@ -36,7 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import org.apache.taverna.workbench.helper.HelpEnabledDialog;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;

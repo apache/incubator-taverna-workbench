@@ -5,13 +5,13 @@
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="StringConstantActivityIcon"
-		class="net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantActivityIcon" />
+		class="org.apache.taverna.activities.stringconstant.servicedescriptions.StringConstantActivityIcon" />
 
 	<bean id="StringConstantTemplateService"
-		class="net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService" />
+		class="org.apache.taverna.activities.stringconstant.servicedescriptions.StringConstantTemplateService" />
 
 	<bean id="AddStringConstantTemplateAction"
-		class="net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateAction">
+		class="org.apache.taverna.activities.stringconstant.menu.AddStringConstantTemplateAction">
 		<property name="editManager" ref="editManager" />
 		<property name="menuManager" ref="menuManager" />
 		<property name="selectionManager" ref="selectionManager" />
@@ -20,7 +20,7 @@
 		<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
 	<bean id="AddStringConstantTemplateMenuAction"
-		class="net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateMenuAction">
+		class="org.apache.taverna.activities.stringconstant.menu.AddStringConstantTemplateMenuAction">
 		<property name="editManager" ref="editManager" />
 		<property name="menuManager" ref="menuManager" />
 		<property name="selectionManager" ref="selectionManager" />
@@ -29,7 +29,7 @@
 		<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
 	<bean id="ConfigureStringConstantMenuAction"
-		class="net.sf.taverna.t2.activities.stringconstant.menu.ConfigureStringConstantMenuAction">
+		class="org.apache.taverna.activities.stringconstant.menu.ConfigureStringConstantMenuAction">
 		<property name="editManager" ref="editManager" />
 		<property name="fileManager" ref="fileManager" />
 		<property name="activityIconManager" ref="activityIconManager" />
@@ -38,7 +38,7 @@
 	</bean>
 
 	<bean id="StringConstantActivityViewFactory"
-		class="net.sf.taverna.t2.activities.stringconstant.views.StringConstantActivityViewFactory">
+		class="org.apache.taverna.activities.stringconstant.views.StringConstantActivityViewFactory">
 		<property name="editManager" ref="editManager" />
 		<property name="fileManager" ref="fileManager" />
 		<property name="activityIconManager" ref="activityIconManager" />

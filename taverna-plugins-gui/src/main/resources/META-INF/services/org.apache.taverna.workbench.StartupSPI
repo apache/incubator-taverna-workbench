@@ -1,0 +1,2 @@
+org.apache.taverna.raven.plugins.ui.CheckForUpdatesStartupHook
+org.apache.taverna.raven.plugins.ui.CheckForNoticeStartupHook

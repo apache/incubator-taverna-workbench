@@ -29,16 +29,16 @@ import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.KeyStroke.getKeyStroke;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.closeIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.closeIcon;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.exceptions.UnsavedException;
 
 import org.apache.log4j.Logger;
 

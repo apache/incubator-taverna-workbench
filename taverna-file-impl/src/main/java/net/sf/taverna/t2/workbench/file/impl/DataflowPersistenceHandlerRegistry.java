@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
-import net.sf.taverna.t2.workbench.file.FileType;
+import org.apache.taverna.workbench.file.DataflowPersistenceHandler;
+import org.apache.taverna.workbench.file.FileType;
 
 import org.apache.commons.collections.Factory;
 

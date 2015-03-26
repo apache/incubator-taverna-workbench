@@ -3,13 +3,13 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="AdvancedImageRenderer" class="net.sf.taverna.t2.renderers.impl.AdvancedImageRenderer" />
-	<bean id="HexBinaryRenderer" class="net.sf.taverna.t2.renderers.impl.HexBinaryRenderer" />
-	<bean id="TextRenderer" class="net.sf.taverna.t2.renderers.impl.TextRenderer" />
-	<bean id="TextRtfRenderer" class="net.sf.taverna.t2.renderers.impl.TextRtfRenderer" />
-	<bean id="TextXMLRenderer" class="net.sf.taverna.t2.renderers.impl.TextXMLRenderer" />
+	<bean id="AdvancedImageRenderer" class="org.apache.taverna.renderers.impl.AdvancedImageRenderer" />
+	<bean id="HexBinaryRenderer" class="org.apache.taverna.renderers.impl.HexBinaryRenderer" />
+	<bean id="TextRenderer" class="org.apache.taverna.renderers.impl.TextRenderer" />
+	<bean id="TextRtfRenderer" class="org.apache.taverna.renderers.impl.TextRtfRenderer" />
+	<bean id="TextXMLRenderer" class="org.apache.taverna.renderers.impl.TextXMLRenderer" />
 
-	<bean id="RendererRegistry" class="net.sf.taverna.t2.renderers.impl.RendererRegistryImpl">
+	<bean id="RendererRegistry" class="org.apache.taverna.renderers.impl.RendererRegistryImpl">
 			<property name="renderers" ref="renderers" />
 	</bean>
 

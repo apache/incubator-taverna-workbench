@@ -20,9 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.hooks;
 
-import net.sf.taverna.t2.workbench.ShutdownSPI;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import org.apache.taverna.workbench.ShutdownSPI;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.actions.CloseAllWorkflowsAction;
 
 /**

@@ -34,7 +34,7 @@ import static javax.swing.JOptionPane.showMessageDialog;
 import static javax.swing.JOptionPane.showOptionDialog;
 import static javax.swing.KeyStroke.getKeyStroke;
 import static javax.swing.SwingUtilities.invokeLater;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.openIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.openIcon;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -47,9 +47,9 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.FileType;
-import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.FileType;
+import org.apache.taverna.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
 
 import org.apache.log4j.Logger;

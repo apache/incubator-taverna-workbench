@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="FileRunMenuSection" class="net.sf.taverna.t2.workbench.run.menu.FileRunMenuSection" />
-	<bean id="RunToolbarSection" class="net.sf.taverna.t2.workbench.run.toolbar.RunToolbarSection" />
+	<bean id="FileRunMenuSection" class="org.apache.taverna.workbench.run.menu.FileRunMenuSection" />
+	<bean id="RunToolbarSection" class="org.apache.taverna.workbench.run.toolbar.RunToolbarSection" />
 
-	<bean id="FileRunMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileRunMenuAction">
+	<bean id="FileRunMenuAction" class="org.apache.taverna.workbench.run.menu.FileRunMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />
@@ -14,17 +14,17 @@
 			<property name="runService" ref="runService" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="FileOpenRunMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileOpenRunMenuAction">
+	<bean id="FileOpenRunMenuAction" class="org.apache.taverna.workbench.run.menu.FileOpenRunMenuAction">
 			<property name="runService" ref="runService" />
 			<property name="applicationConfiguration" ref="applicationConfiguration" />
 	</bean>
-	<bean id="FileValidateMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileValidateMenuAction">
+	<bean id="FileValidateMenuAction" class="org.apache.taverna.workbench.run.menu.FileValidateMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />
 			<property name="workbench" ref="workbench" />
 	</bean>
-	<bean id="RunToolbarAction" class="net.sf.taverna.t2.workbench.run.toolbar.RunToolbarAction">
+	<bean id="RunToolbarAction" class="org.apache.taverna.workbench.run.toolbar.RunToolbarAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />
@@ -33,7 +33,7 @@
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
-	<bean id="WorkflowRunStatusShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.WorkflowRunStatusShutdownHook">
+	<bean id="WorkflowRunStatusShutdownHook" class="org.apache.taverna.workbench.run.cleanup.WorkflowRunStatusShutdownHook">
 			<property name="runService" ref="runService" />
 			<property name="applicationConfiguration" ref="applicationConfiguration" />
 	</bean>

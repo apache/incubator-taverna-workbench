@@ -5,11 +5,11 @@
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="PluginMenuAction"
-		class="net.sf.taverna.t2.workbench.plugin.impl.menu.PluginMenuAction">
+		class="org.apache.taverna.workbench.plugin.impl.menu.PluginMenuAction">
 		<property name="pluginManagerView" ref="pluginManagerView" />
 	</bean>
 
-	<bean id="pluginManagerView" class="net.sf.taverna.t2.workbench.plugin.impl.PluginManagerView">
+	<bean id="pluginManagerView" class="org.apache.taverna.workbench.plugin.impl.PluginManagerView">
 		<property name="pluginManager" ref="pluginManager" />
 	</bean>
 </beans>

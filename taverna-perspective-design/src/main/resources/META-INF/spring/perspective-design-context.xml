@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="DesignPerspective" class="net.sf.taverna.t2.ui.perspectives.design.DesignPerspective">
+	<bean id="DesignPerspective" class="org.apache.taverna.ui.perspectives.design.DesignPerspective">
 			<property name="graphViewComponentFactory" ref="graphViewComponentFactory" />
 			<property name="servicePanelComponentFactory" ref="servicePanelComponentFactory" />
 			<property name="contextualViewComponentFactory" ref="contextualViewComponentFactory" />

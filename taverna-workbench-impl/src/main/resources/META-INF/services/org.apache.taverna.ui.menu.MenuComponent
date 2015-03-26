@@ -1,0 +1,17 @@
+org.apache.taverna.workbench.ui.impl.menu.FileMenu
+org.apache.taverna.workbench.ui.impl.menu.ExitAction
+
+org.apache.taverna.workbench.ui.impl.menu.EditMenu
+
+org.apache.taverna.workbench.ui.impl.menu.AdvancedMenu
+org.apache.taverna.workbench.ui.impl.menu.DisplayPerspectivesMenu
+org.apache.taverna.workbench.ui.impl.menu.EditPerspectivesMenu
+
+org.apache.taverna.workbench.ui.impl.menu.HelpMenu
+org.apache.taverna.workbench.ui.impl.menu.OnlineHelpMenuAction
+org.apache.taverna.workbench.ui.impl.menu.FeedbackMenuAction
+
+#org.apache.taverna.workbench.ui.impl.menu.ViewShowMenuSection
+#org.apache.taverna.workbench.ui.impl.menu.ChangePerspectiveMenuAction
+
+org.apache.taverna.workbench.ui.impl.menu.ShowLogsAndDataMenuAction

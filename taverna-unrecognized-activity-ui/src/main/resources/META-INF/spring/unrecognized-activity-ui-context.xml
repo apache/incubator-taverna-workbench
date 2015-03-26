@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="UnrecognizedActivityViewFactory" class="net.sf.taverna.t2.activities.unrecognized.views.UnrecognizedActivityViewFactory">
+	<bean id="UnrecognizedActivityViewFactory" class="org.apache.taverna.activities.unrecognized.views.UnrecognizedActivityViewFactory">
 			<property name="colourManager" ref="colourManager" />
 	</bean>
 

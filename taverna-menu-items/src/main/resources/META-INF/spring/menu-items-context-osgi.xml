@@ -41,17 +41,17 @@
 	<service ref="WorkflowOutputPortSection" auto-export="interfaces" />
 	<service ref="WorkflowServiceTemplatesSection" auto-export="interfaces" />
 
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
-	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
-	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" cardinality="0..1" />
-	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
-	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" cardinality="0..1" />
-	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
-	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
-	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+	<reference id="editManager" interface="org.apache.taverna.workbench.edits.EditManager" />
+	<reference id="fileManager" interface="org.apache.taverna.workbench.file.FileManager" />
+	<reference id="menuManager" interface="org.apache.taverna.ui.menu.MenuManager" />
+	<reference id="reportManager" interface="org.apache.taverna.workbench.report.ReportManager" cardinality="0..1" />
+	<reference id="selectionManager" interface="org.apache.taverna.workbench.selection.SelectionManager" />
+	<reference id="workbench" interface="org.apache.taverna.workbench.ui.Workbench" cardinality="0..1" />
+	<reference id="workbenchConfiguration" interface="org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<reference id="activityIconManager" interface="org.apache.taverna.workbench.activityicons.ActivityIconManager" />
+	<reference id="colourManager" interface="org.apache.taverna.workbench.configuration.colour.ColourManager" />
 	<reference id="serviceRegistry" interface="uk.org.taverna.commons.services.ServiceRegistry" />
 
-	<list id="annotationBeans" interface="net.sf.taverna.t2.annotation.AnnotationBeanSPI"/>
+	<list id="annotationBeans" interface="org.apache.taverna.annotation.AnnotationBeanSPI"/>
 
 </beans:beans>

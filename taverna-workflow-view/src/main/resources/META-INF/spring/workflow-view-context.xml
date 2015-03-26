@@ -3,32 +3,32 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="CopyProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyProcessorMenuAction" />
-	<bean id="CopyGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyGraphComponentMenuAction">
+	<bean id="CopyProcessorMenuAction" class="org.apache.taverna.workbench.ui.menu.CopyProcessorMenuAction" />
+	<bean id="CopyGraphComponentMenuAction" class="org.apache.taverna.workbench.ui.menu.CopyGraphComponentMenuAction">
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="PasteGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.PasteGraphComponentMenuAction">
+	<bean id="PasteGraphComponentMenuAction" class="org.apache.taverna.workbench.ui.menu.PasteGraphComponentMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="selectionManager" ref="selectionManager" />
 			<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
-	<bean id="CutProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutProcessorMenuAction">
+	<bean id="CutProcessorMenuAction" class="org.apache.taverna.workbench.ui.menu.CutProcessorMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="CutGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutGraphComponentMenuAction">
+	<bean id="CutGraphComponentMenuAction" class="org.apache.taverna.workbench.ui.menu.CutGraphComponentMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="CutToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.CutToolbarAction">
+	<bean id="CutToolbarAction" class="org.apache.taverna.workbench.ui.toolbar.CutToolbarAction">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="CopyToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.CopyToolbarAction">
+	<bean id="CopyToolbarAction" class="org.apache.taverna.workbench.ui.toolbar.CopyToolbarAction">
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="PasteToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.PasteToolbarAction">
+	<bean id="PasteToolbarAction" class="org.apache.taverna.workbench.ui.toolbar.PasteToolbarAction">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="selectionManager" ref="selectionManager" />

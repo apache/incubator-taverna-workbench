@@ -1,0 +1,7 @@
+org.apache.taverna.renderers.impl.AdvancedImageRenderer
+org.apache.taverna.renderers.impl.HexBinaryRenderer
+org.apache.taverna.renderers.impl.TextRenderer
+org.apache.taverna.renderers.impl.TextRtfRenderer
+org.apache.taverna.renderers.impl.TextXMLRenderer
+
+

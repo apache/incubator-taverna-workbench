@@ -6,6 +6,6 @@
                       http://www.springframework.org/schema/osgi 
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="CheckForUpdatesStartupHook" interface="net.sf.taverna.t2.workbench.StartupSPI" />
+	<service ref="CheckForUpdatesStartupHook" interface="org.apache.taverna.workbench.StartupSPI" />
 
 </beans:beans>

@@ -31,15 +31,15 @@ import javax.swing.JMenuItem;
 
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.Observer;
-import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.FileType;
-import net.sf.taverna.t2.workbench.file.events.AbstractDataflowEvent;
-import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
-import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
-import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
+import org.apache.taverna.ui.menu.AbstractMenuCustom;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.FileType;
+import org.apache.taverna.workbench.file.events.AbstractDataflowEvent;
+import org.apache.taverna.workbench.file.events.ClosedDataflowEvent;
+import org.apache.taverna.workbench.file.events.FileManagerEvent;
+import org.apache.taverna.workbench.file.events.OpenedDataflowEvent;
+import org.apache.taverna.workbench.file.events.SavedDataflowEvent;
+import org.apache.taverna.workbench.file.exceptions.OpenException;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;

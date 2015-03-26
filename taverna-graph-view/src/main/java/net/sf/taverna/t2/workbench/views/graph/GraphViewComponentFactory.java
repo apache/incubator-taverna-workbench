@@ -24,14 +24,14 @@ import javax.swing.ImageIcon;
 
 import org.apache.taverna.commons.services.ServiceRegistry;
 
-import net.sf.taverna.t2.ui.menu.MenuManager;
-import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
-import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
-import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import org.apache.taverna.ui.menu.MenuManager;
+import org.apache.taverna.workbench.configuration.colour.ColourManager;
+import org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.selection.SelectionManager;
+import org.apache.taverna.workbench.ui.zaria.UIComponentFactorySPI;
+import org.apache.taverna.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
 
 /**

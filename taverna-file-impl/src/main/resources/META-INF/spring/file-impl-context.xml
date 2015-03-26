@@ -3,119 +3,119 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="FileCloseMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileCloseMenuAction">
+	<bean id="FileCloseMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileCloseMenuAction">
     	<constructor-arg ref="editManager" />
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="FileNewMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileNewMenuAction">
+	<bean id="FileNewMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileNewMenuAction">
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="FileOpenMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileOpenMenuAction">
+	<bean id="FileOpenMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileOpenMenuAction">
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="FileOpenFromURLMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileOpenFromURLMenuAction">
+	<bean id="FileOpenFromURLMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileOpenFromURLMenuAction">
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="FileOpenMenuSection" class="net.sf.taverna.t2.workbench.file.impl.menu.FileOpenMenuSection" />
-	<bean id="FileOpenRecentMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileOpenRecentMenuAction">
+	<bean id="FileOpenMenuSection" class="org.apache.taverna.workbench.file.impl.menu.FileOpenMenuSection" />
+	<bean id="FileOpenRecentMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileOpenRecentMenuAction">
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
  		<property name="applicationConfiguration" ref="applicationConfiguration"/>
     </bean>
-	<bean id="FileSaveMenuSection" class="net.sf.taverna.t2.workbench.file.impl.menu.FileSaveMenuSection" />
-	<bean id="FileSaveMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileSaveMenuAction">
+	<bean id="FileSaveMenuSection" class="org.apache.taverna.workbench.file.impl.menu.FileSaveMenuSection" />
+	<bean id="FileSaveMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileSaveMenuAction">
     	<constructor-arg ref="editManager" />
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="FileSaveAllMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileSaveAllMenuAction">
+	<bean id="FileSaveAllMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileSaveAllMenuAction">
     	<constructor-arg ref="editManager" />
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="FileSaveAsMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileSaveAsMenuAction">
+	<bean id="FileSaveAsMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileSaveAsMenuAction">
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="WorkflowsMenu" class="net.sf.taverna.t2.workbench.file.impl.menu.WorkflowsMenu">
+	<bean id="WorkflowsMenu" class="org.apache.taverna.workbench.file.impl.menu.WorkflowsMenu">
 	    <constructor-arg ref="editManager" />
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
 	</bean>
-	<bean id="FileCloseAllMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileCloseAllMenuAction">
+	<bean id="FileCloseAllMenuAction" class="org.apache.taverna.workbench.file.impl.menu.FileCloseAllMenuAction">
     	<constructor-arg ref="editManager" />
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="FileToolbarMenuSection" class="net.sf.taverna.t2.workbench.file.impl.toolbar.FileToolbarMenuSection" />
-	<bean id="NewToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.NewToolbarAction">
+	<bean id="FileToolbarMenuSection" class="org.apache.taverna.workbench.file.impl.toolbar.FileToolbarMenuSection" />
+	<bean id="NewToolbarAction" class="org.apache.taverna.workbench.file.impl.toolbar.NewToolbarAction">
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="OpenToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.OpenToolbarAction">
+	<bean id="OpenToolbarAction" class="org.apache.taverna.workbench.file.impl.toolbar.OpenToolbarAction">
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="OpenWorkflowFromURLToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.OpenWorkflowFromURLToolbarAction">
+	<bean id="OpenWorkflowFromURLToolbarAction" class="org.apache.taverna.workbench.file.impl.toolbar.OpenWorkflowFromURLToolbarAction">
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="SaveToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.SaveToolbarAction">
+	<bean id="SaveToolbarAction" class="org.apache.taverna.workbench.file.impl.toolbar.SaveToolbarAction">
     	<constructor-arg ref="editManager" />
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
-	<bean id="CloseToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.CloseToolbarAction">
+	<bean id="CloseToolbarAction" class="org.apache.taverna.workbench.file.impl.toolbar.CloseToolbarAction">
     	<constructor-arg ref="editManager" />
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
 
-	<bean id="T2DataflowOpener" class="net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener">
+	<bean id="T2DataflowOpener" class="org.apache.taverna.workbench.file.impl.T2DataflowOpener">
 			<property name="workflowBundleIO" ref="workflowBundleIO"/>
 	</bean>
 
-	<bean id="WorkflowBundleOpener" class="net.sf.taverna.t2.workbench.file.impl.WorkflowBundleOpener">
+	<bean id="WorkflowBundleOpener" class="org.apache.taverna.workbench.file.impl.WorkflowBundleOpener">
 			<property name="workflowBundleIO" ref="workflowBundleIO"/>
 	</bean>
-	<bean id="WorkflowBundleSaver" class="net.sf.taverna.t2.workbench.file.impl.WorkflowBundleSaver">
+	<bean id="WorkflowBundleSaver" class="org.apache.taverna.workbench.file.impl.WorkflowBundleSaver">
 			<property name="workflowBundleIO" ref="workflowBundleIO"/>
 	</bean>
 
-	<bean id="CloseWorkflowsOnShutdown" class="net.sf.taverna.t2.workbench.file.impl.hooks.CloseWorkflowsOnShutdown">
+	<bean id="CloseWorkflowsOnShutdown" class="org.apache.taverna.workbench.file.impl.hooks.CloseWorkflowsOnShutdown">
     	<constructor-arg ref="editManager" />
     	<constructor-arg>
 			<ref local="FileManagerImpl" />
 		</constructor-arg>
     </bean>
 
-	<bean id="FileManagerImpl" class="net.sf.taverna.t2.workbench.file.impl.FileManagerImpl">
+	<bean id="FileManagerImpl" class="org.apache.taverna.workbench.file.impl.FileManagerImpl">
     	<constructor-arg name="editManager" ref="editManager" />
     	<property name="dataflowPersistenceHandlerRegistry">
     		<ref local="DataflowPersistenceHandlerRegistry"/>
     	</property>
 	</bean>
 
-	<bean id="DataflowPersistenceHandlerRegistry" class="net.sf.taverna.t2.workbench.file.impl.DataflowPersistenceHandlerRegistry">
+	<bean id="DataflowPersistenceHandlerRegistry" class="org.apache.taverna.workbench.file.impl.DataflowPersistenceHandlerRegistry">
     	<property name="dataflowPersistenceHandlers" ref="dataflowPersistenceHandlers" />
 	</bean>
 

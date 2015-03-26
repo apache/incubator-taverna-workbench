@@ -26,9 +26,9 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import org.apache.taverna.ui.menu.AbstractMenuAction;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.DeleteGraphComponentAction;
 
 /**

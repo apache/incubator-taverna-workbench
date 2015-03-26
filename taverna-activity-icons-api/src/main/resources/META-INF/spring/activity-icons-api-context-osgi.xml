@@ -6,10 +6,10 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="DefaultActivityIcon" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI" />
+	<service ref="DefaultActivityIcon" interface="org.apache.taverna.workbench.activityicons.ActivityIconSPI" />
 
-	<service ref="ActivityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
+	<service ref="ActivityIconManager" interface="org.apache.taverna.workbench.activityicons.ActivityIconManager" />
 
-	<list id="activityIcons" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI" cardinality="0..N" />
+	<list id="activityIcons" interface="org.apache.taverna.workbench.activityicons.ActivityIconSPI" cardinality="0..N" />
 
 </beans:beans>

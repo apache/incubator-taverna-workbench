@@ -29,7 +29,7 @@ import static javax.swing.JOptionPane.YES_OPTION;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static javax.swing.KeyStroke.getKeyStroke;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.saveIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.saveIcon;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -38,15 +38,15 @@ import javax.swing.AbstractAction;
 
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.Observer;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
-import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
-import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
-import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
-import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.edits.EditManager.AbstractDataflowEditEvent;
+import org.apache.taverna.workbench.edits.EditManager.EditManagerEvent;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.events.FileManagerEvent;
+import org.apache.taverna.workbench.file.events.SavedDataflowEvent;
+import org.apache.taverna.workbench.file.events.SetCurrentDataflowEvent;
+import org.apache.taverna.workbench.file.exceptions.OverwriteException;
+import org.apache.taverna.workbench.file.exceptions.SaveException;
 
 import org.apache.log4j.Logger;
 

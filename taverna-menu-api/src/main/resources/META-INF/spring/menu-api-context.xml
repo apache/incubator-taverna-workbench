@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="DefaultMenuBar" class="net.sf.taverna.t2.ui.menu.DefaultMenuBar" />
-	<bean id="DefaultToolBar" class="net.sf.taverna.t2.ui.menu.DefaultToolBar" />
-	<bean id="DefaultContextualMenu" class="net.sf.taverna.t2.ui.menu.DefaultContextualMenu" />
+	<bean id="DefaultMenuBar" class="org.apache.taverna.ui.menu.DefaultMenuBar" />
+	<bean id="DefaultToolBar" class="org.apache.taverna.ui.menu.DefaultToolBar" />
+	<bean id="DefaultContextualMenu" class="org.apache.taverna.ui.menu.DefaultContextualMenu" />
 
 </beans>

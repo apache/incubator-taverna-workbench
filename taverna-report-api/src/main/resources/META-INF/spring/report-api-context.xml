@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- <bean id="ProcessorFragilityChecker" class="net.sf.taverna.t2.visit.fragility.ProcessorFragilityChecker" /> -->
+	<!-- <bean id="ProcessorFragilityChecker" class="org.apache.taverna.visit.fragility.ProcessorFragilityChecker" /> -->
 
-	<!-- <bean id="FragilityCheck" class="net.sf.taverna.t2.visit.fragility.FragilityCheck" /> -->
+	<!-- <bean id="FragilityCheck" class="org.apache.taverna.visit.fragility.FragilityCheck" /> -->
 
 </beans>

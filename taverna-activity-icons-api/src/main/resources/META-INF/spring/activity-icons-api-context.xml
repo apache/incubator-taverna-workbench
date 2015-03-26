@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="DefaultActivityIcon" class="net.sf.taverna.t2.workbench.activityicons.DefaultActivityIcon" />
+	<bean id="DefaultActivityIcon" class="org.apache.taverna.workbench.activityicons.DefaultActivityIcon" />
 
-	<bean id="ActivityIconManager" class="net.sf.taverna.t2.workbench.activityicons.impl.ActivityIconManagerImpl">
+	<bean id="ActivityIconManager" class="org.apache.taverna.workbench.activityicons.impl.ActivityIconManagerImpl">
 		<property name="activityIcons" ref="activityIcons" />
 	</bean>
 

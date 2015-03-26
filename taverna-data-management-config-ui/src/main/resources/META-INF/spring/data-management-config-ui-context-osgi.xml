@@ -6,7 +6,7 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="DataManagementConfigurationUIFactory" interface="uk.org.taverna.configuration.ConfigurationUIFactory" />
+	<service ref="DataManagementConfigurationUIFactory" interface="org.apache.taverna.configuration.ConfigurationUIFactory" />
 
 	<reference id="databaseConfiguration" interface="uk.org.taverna.configuration.database.DatabaseConfiguration" />
 	<reference id="databaseManager" interface="uk.org.taverna.configuration.database.DatabaseManager" />

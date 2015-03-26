@@ -6,12 +6,12 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ServiceDescriptionRegistryImpl" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry"/>
-	<service ref="ServiceDescriptionsConfigurationImpl" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionsConfiguration"/>
+	<service ref="ServiceDescriptionRegistryImpl" interface="org.apache.taverna.servicedescriptions.ServiceDescriptionRegistry"/>
+	<service ref="ServiceDescriptionsConfigurationImpl" interface="org.apache.taverna.servicedescriptions.ServiceDescriptionsConfiguration"/>
 
 	<reference id="configurationManager" interface="uk.org.taverna.configuration.ConfigurationManager" />
 	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
 
-	<list id="serviceDescriptionProviders" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider" cardinality="0..N" greedy-proxying="true"/>
+	<list id="serviceDescriptionProviders" interface="org.apache.taverna.servicedescriptions.ServiceDescriptionProvider" cardinality="0..N" greedy-proxying="true"/>
 
 </beans:beans>

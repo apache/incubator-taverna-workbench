@@ -23,14 +23,14 @@ package net.sf.taverna.t2.workbench.views.graph.menu;
 import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.VK_EQUALS;
 import static javax.swing.KeyStroke.getKeyStroke;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.zoomInIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.zoomInIcon;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
+import org.apache.taverna.ui.menu.DesignOrResultsAction;
 
 import org.apache.log4j.Logger;
 

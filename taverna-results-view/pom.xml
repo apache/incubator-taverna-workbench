@@ -46,7 +46,11 @@
 			<artifactId>taverna-run-api</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-provenanceconnector</artifactId>
+			<version>${taverna.engine.version}</version>
+		</dependency>
 		<dependency>
   			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>provenanceconnector</artifactId>

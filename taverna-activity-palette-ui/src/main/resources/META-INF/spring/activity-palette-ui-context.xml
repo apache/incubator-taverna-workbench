@@ -5,13 +5,13 @@
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="ServiceDescriptionConfigUIFactory"
-		class="net.sf.taverna.t2.workbench.ui.servicepanel.config.ServiceDescriptionConfigUIFactory">
+		class="org.apache.taverna.workbench.ui.servicepanel.config.ServiceDescriptionConfigUIFactory">
 		<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 		<property name="serviceDescriptionsConfiguration" ref="serviceDescriptionsConfiguration" />
 	</bean>
 
 	<bean id="ServicePanelComponentFactory"
-		class="net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanelComponentFactory">
+		class="org.apache.taverna.workbench.ui.servicepanel.ServicePanelComponentFactory">
 		<property name="editManager" ref="editManager" />
 		<property name="menuManager" ref="menuManager" />
 		<property name="selectionManager" ref="selectionManager" />

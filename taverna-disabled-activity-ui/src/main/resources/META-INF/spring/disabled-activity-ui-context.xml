@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ConfigureDisabledMenuAction" class="net.sf.taverna.t2.activities.disabled.menu.ConfigureDisabledMenuAction">
+	<bean id="ConfigureDisabledMenuAction" class="org.apache.taverna.activities.disabled.menu.ConfigureDisabledMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />
@@ -11,7 +11,7 @@
 			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 
-	<bean id="DisabledActivityViewFactory" class="net.sf.taverna.t2.activities.disabled.views.DisabledActivityViewFactory">
+	<bean id="DisabledActivityViewFactory" class="org.apache.taverna.activities.disabled.views.DisabledActivityViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />

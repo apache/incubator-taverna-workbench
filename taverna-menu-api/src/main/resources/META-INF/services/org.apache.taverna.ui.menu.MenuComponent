@@ -1,0 +1,4 @@
+org.apache.taverna.ui.menu.DefaultMenuBar
+org.apache.taverna.ui.menu.DefaultToolBar
+org.apache.taverna.ui.menu.DefaultContextualMenu
+ 

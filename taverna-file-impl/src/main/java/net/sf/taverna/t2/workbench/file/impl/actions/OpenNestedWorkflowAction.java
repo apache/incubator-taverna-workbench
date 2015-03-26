@@ -23,9 +23,9 @@ package net.sf.taverna.t2.workbench.file.impl.actions;
 import java.awt.Component;
 import java.io.File;
 
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.FileType;
-import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.FileType;
+import org.apache.taverna.workbench.file.exceptions.OpenException;
 
 import org.apache.log4j.Logger;
 

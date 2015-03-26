@@ -25,7 +25,7 @@ import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
 import static java.awt.event.KeyEvent.VK_L;
 import static java.awt.event.KeyEvent.VK_W;
 import static javax.swing.KeyStroke.getKeyStroke;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.closeAllIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.closeAllIcon;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -34,8 +34,8 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.file.FileManager;
 
 import org.apache.log4j.Logger;
 

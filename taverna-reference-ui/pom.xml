@@ -33,12 +33,17 @@
 	</description>
 
 	<dependencies>
+		<dependency>
+                    <groupId>org.apache.taverna.language</groupId>
+                    <artifactId>taverna-databundle</artifactId>
+                    <version>${taverna.language.version}</version>
+		</dependency>
                 <dependency>
                         <groupId>org.apache.taverna.language</groupId>
                         <artifactId>taverna-baclava-language</artifactId>
                         <version>${taverna.language.version}</version>
                 </dependency>
-                
+
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-report-api</artifactId>
@@ -73,11 +78,6 @@
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-run-api</artifactId>
 			<version>${taverna.engine.version}</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.apache.taverna.language</groupId>
-    		<artifactId>taverna-databundle</artifactId>
-    		<version>${taverna.language.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>

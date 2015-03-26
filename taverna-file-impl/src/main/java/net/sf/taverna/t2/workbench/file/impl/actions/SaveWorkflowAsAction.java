@@ -31,7 +31,7 @@ import static javax.swing.JOptionPane.YES_OPTION;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static javax.swing.KeyStroke.getKeyStroke;
-import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.saveAsIcon;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.saveAsIcon;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -46,12 +46,12 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.Observer;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.FileType;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
-import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
-import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.FileType;
+import org.apache.taverna.workbench.file.events.FileManagerEvent;
+import org.apache.taverna.workbench.file.events.SetCurrentDataflowEvent;
+import org.apache.taverna.workbench.file.exceptions.OverwriteException;
+import org.apache.taverna.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
 
 import org.apache.log4j.Logger;

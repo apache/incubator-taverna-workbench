@@ -3,18 +3,18 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- <bean id="ProcessorFragilityChecker" class="net.sf.taverna.t2.visit.fragility.impl.ProcessorFragilityChecker" /> -->
+	<!-- <bean id="ProcessorFragilityChecker" class="org.apache.taverna.visit.fragility.impl.ProcessorFragilityChecker" /> -->
 
-	<!-- <bean id="FragilityCheck" class="net.sf.taverna.t2.visit.fragility.impl.FragilityCheck" /> -->
+	<!-- <bean id="FragilityCheck" class="org.apache.taverna.visit.fragility.impl.FragilityCheck" /> -->
 
-	<bean id="ReportManagerImpl" class="net.sf.taverna.t2.workbench.report.impl.ReportManagerImpl">
+	<bean id="ReportManagerImpl" class="org.apache.taverna.workbench.report.impl.ReportManagerImpl">
     	<constructor-arg ref="editManager" />
     	<constructor-arg ref="fileManager" />
     	<constructor-arg ref="visitors" />
 		<constructor-arg ref="ReportManagerConfiguration"/>
 	</bean>
 
-	<bean id="ReportManagerConfiguration" class="net.sf.taverna.t2.workbench.report.config.impl.ReportManagerConfigurationImpl">
+	<bean id="ReportManagerConfiguration" class="org.apache.taverna.workbench.report.config.impl.ReportManagerConfigurationImpl">
 		<constructor-arg ref="configurationManager"/>
 	</bean>
 

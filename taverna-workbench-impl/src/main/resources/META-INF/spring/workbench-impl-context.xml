@@ -3,26 +3,26 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="UserRegistrationHook" class="net.sf.taverna.t2.workbench.ui.impl.UserRegistrationHook">
+	<bean id="UserRegistrationHook" class="org.apache.taverna.workbench.ui.impl.UserRegistrationHook">
 		<property name="applicationConfiguration" ref="applicationConfiguration"/>
 	</bean>
-	<bean id="SetConsoleLoggerStartup" class="net.sf.taverna.t2.workbench.ui.impl.SetConsoleLoggerStartup">
+	<bean id="SetConsoleLoggerStartup" class="org.apache.taverna.workbench.ui.impl.SetConsoleLoggerStartup">
 		<constructor-arg ref="workbenchConfiguration" />
 	</bean>
 
-	<bean id="StoreWindowStateOnShutdown" class="net.sf.taverna.t2.workbench.ui.impl.StoreWindowStateOnShutdown">
+	<bean id="StoreWindowStateOnShutdown" class="org.apache.taverna.workbench.ui.impl.StoreWindowStateOnShutdown">
 		<property name="workbench">
 			<ref local="Workbench"/>
 		</property>
 	</bean>
 
-	<bean id="ExitAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ExitAction">
+	<bean id="ExitAction" class="org.apache.taverna.workbench.ui.impl.menu.ExitAction">
 		<property name="workbench">
 			<ref local ="Workbench"/>
 		</property>
 	</bean>
 
-	<bean id="Workbench" class="net.sf.taverna.t2.workbench.ui.impl.WorkbenchImpl" init-method="initialize">
+	<bean id="Workbench" class="org.apache.taverna.workbench.ui.impl.WorkbenchImpl" init-method="initialize">
 		<constructor-arg ref="startupHooks"/>
 		<constructor-arg ref="shutdownHooks"/>
 		<constructor-arg ref="perspectives"/>
@@ -36,8 +36,8 @@
 		<property name="pluginManager" ref="pluginManager"/>
 	</bean>
 
-	<bean id="PerspectiveComparator" class="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI$PerspectiveComparator" />
-	<bean id="StartupComparator" class="net.sf.taverna.t2.workbench.StartupSPI$StartupComparator" />
-	<bean id="ShutdownComparator" class="net.sf.taverna.t2.workbench.ShutdownSPI$ShutdownComparator" />
+	<bean id="PerspectiveComparator" class="org.apache.taverna.workbench.ui.zaria.PerspectiveSPI$PerspectiveComparator" />
+	<bean id="StartupComparator" class="org.apache.taverna.workbench.StartupSPI$StartupComparator" />
+	<bean id="ShutdownComparator" class="org.apache.taverna.workbench.ShutdownSPI$ShutdownComparator" />
 
 </beans>

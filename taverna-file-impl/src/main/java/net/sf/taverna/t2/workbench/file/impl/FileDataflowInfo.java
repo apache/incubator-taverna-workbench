@@ -24,9 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import net.sf.taverna.t2.workbench.file.DataflowInfo;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.FileType;
+import org.apache.taverna.workbench.file.DataflowInfo;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.FileType;
 
 import org.apache.log4j.Logger;
 

@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="IterationStrategyContextualViewFactory" class="net.sf.taverna.t2.workbench.iterationstrategy.contextview.IterationStrategyContextualViewFactory">
+	<bean id="IterationStrategyContextualViewFactory" class="org.apache.taverna.workbench.iterationstrategy.contextview.IterationStrategyContextualViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 	</bean>

@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="DataflowActivityIcon" class="net.sf.taverna.t2.activities.dataflow.servicedescriptions.DataflowActivityIcon" />
+	<bean id="DataflowActivityIcon" class="org.apache.taverna.activities.dataflow.servicedescriptions.DataflowActivityIcon" />
 
-	<bean id="DataflowTemplateService" class="net.sf.taverna.t2.activities.dataflow.servicedescriptions.DataflowTemplateService" />
+	<bean id="DataflowTemplateService" class="org.apache.taverna.activities.dataflow.servicedescriptions.DataflowTemplateService" />
 
-	<bean id="ReplaceNestedWorkflowMenuAction" class="net.sf.taverna.t2.workbench.file.importworkflow.menu.ReplaceNestedWorkflowMenuAction">
+	<bean id="ReplaceNestedWorkflowMenuAction" class="org.apache.taverna.workbench.file.importworkflow.menu.ReplaceNestedWorkflowMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
@@ -17,7 +17,7 @@
 			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="AddNestedWorkflowMenuAction" class="net.sf.taverna.t2.workbench.file.importworkflow.menu.AddNestedWorkflowMenuAction">
+	<bean id="AddNestedWorkflowMenuAction" class="org.apache.taverna.workbench.file.importworkflow.menu.AddNestedWorkflowMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
@@ -25,7 +25,7 @@
 			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="ImportWorkflowMenuAction" class="net.sf.taverna.t2.workbench.file.importworkflow.menu.ImportWorkflowMenuAction">
+	<bean id="ImportWorkflowMenuAction" class="org.apache.taverna.workbench.file.importworkflow.menu.ImportWorkflowMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
@@ -33,7 +33,7 @@
 			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="MergeWorkflowMenuAction" class="net.sf.taverna.t2.workbench.file.importworkflow.menu.MergeWorkflowMenuAction">
+	<bean id="MergeWorkflowMenuAction" class="org.apache.taverna.workbench.file.importworkflow.menu.MergeWorkflowMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
@@ -41,16 +41,16 @@
 			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
-	<bean id="EditNestedDataflowMenuAction" class="net.sf.taverna.t2.activities.dataflow.menu.EditNestedDataflowMenuAction">
+	<bean id="EditNestedDataflowMenuAction" class="org.apache.taverna.activities.dataflow.menu.EditNestedDataflowMenuAction">
 			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
-	<!-- <bean id="NestedDataflowPersistenceHandler" class="net.sf.taverna.t2.activities.dataflow.filemanager.NestedDataflowPersistenceHandler">
+	<!-- <bean id="NestedDataflowPersistenceHandler" class="org.apache.taverna.activities.dataflow.filemanager.NestedDataflowPersistenceHandler">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 	</bean> -->
 
-	<bean id="DataflowActivityViewFactory" class="net.sf.taverna.t2.activities.dataflow.views.DataflowActivityViewFactory">
+	<bean id="DataflowActivityViewFactory" class="org.apache.taverna.activities.dataflow.views.DataflowActivityViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
