@@ -1,29 +1,29 @@
-net.sf.taverna.t2.workbench.views.graph.toolbar.GraphEditToolbarSection
-net.sf.taverna.t2.workbench.views.graph.toolbar.GraphDeleteToolbarSection
-net.sf.taverna.t2.workbench.views.graph.toolbar.GraphSaveToolbarSection
-net.sf.taverna.t2.workbench.views.graph.toolbar.AddWFInputToolbarAction
-net.sf.taverna.t2.workbench.views.graph.toolbar.AddWFOutputToolbarAction
-net.sf.taverna.t2.workbench.views.graph.toolbar.RenameWFInputOutputProcessorToolbarAction
-net.sf.taverna.t2.workbench.views.graph.toolbar.DeleteGraphComponentToolbarAction
-net.sf.taverna.t2.workbench.views.graph.toolbar.SaveGraphImageToolbarAction
+org.apache.taverna.workbench.views.graph.toolbar.GraphEditToolbarSection
+org.apache.taverna.workbench.views.graph.toolbar.GraphDeleteToolbarSection
+org.apache.taverna.workbench.views.graph.toolbar.GraphSaveToolbarSection
+org.apache.taverna.workbench.views.graph.toolbar.AddWFInputToolbarAction
+org.apache.taverna.workbench.views.graph.toolbar.AddWFOutputToolbarAction
+org.apache.taverna.workbench.views.graph.toolbar.RenameWFInputOutputProcessorToolbarAction
+org.apache.taverna.workbench.views.graph.toolbar.DeleteGraphComponentToolbarAction
+org.apache.taverna.workbench.views.graph.toolbar.SaveGraphImageToolbarAction
 
-net.sf.taverna.t2.workbench.views.graph.menu.DiagramMenu
-net.sf.taverna.t2.workbench.views.graph.menu.DiagramSaveMenuSection
-net.sf.taverna.t2.workbench.views.graph.menu.DiagramZoomMenuSection
+org.apache.taverna.workbench.views.graph.menu.DiagramMenu
+org.apache.taverna.workbench.views.graph.menu.DiagramSaveMenuSection
+org.apache.taverna.workbench.views.graph.menu.DiagramZoomMenuSection
 
-net.sf.taverna.t2.workbench.views.graph.menu.GraphMenuSection
-net.sf.taverna.t2.workbench.views.graph.menu.GraphCopyMenuSection
-net.sf.taverna.t2.workbench.views.graph.menu.GraphEditMenuSection
-net.sf.taverna.t2.workbench.views.graph.menu.GraphDeleteMenuSection
-net.sf.taverna.t2.workbench.views.graph.menu.GraphDetailsMenuSection
+org.apache.taverna.workbench.views.graph.menu.GraphMenuSection
+org.apache.taverna.workbench.views.graph.menu.GraphCopyMenuSection
+org.apache.taverna.workbench.views.graph.menu.GraphEditMenuSection
+org.apache.taverna.workbench.views.graph.menu.GraphDeleteMenuSection
+org.apache.taverna.workbench.views.graph.menu.GraphDetailsMenuSection
 
-net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu
+org.apache.taverna.workbench.views.graph.menu.InsertMenu
 
-net.sf.taverna.t2.workbench.views.graph.menu.AddWFInputMenuAction
-net.sf.taverna.t2.workbench.views.graph.menu.AddWFOutputMenuAction
-net.sf.taverna.t2.workbench.views.graph.menu.RenameWFInputOutputProcessorMenuAction
-net.sf.taverna.t2.workbench.views.graph.menu.DeleteGraphComponentMenuAction
-net.sf.taverna.t2.workbench.views.graph.menu.SaveGraphImageSubMenu
-net.sf.taverna.t2.workbench.views.graph.menu.ZoomInMenuAction
-net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutMenuAction
-net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramMenuAction
+org.apache.taverna.workbench.views.graph.menu.AddWFInputMenuAction
+org.apache.taverna.workbench.views.graph.menu.AddWFOutputMenuAction
+org.apache.taverna.workbench.views.graph.menu.RenameWFInputOutputProcessorMenuAction
+org.apache.taverna.workbench.views.graph.menu.DeleteGraphComponentMenuAction
+org.apache.taverna.workbench.views.graph.menu.SaveGraphImageSubMenu
+org.apache.taverna.workbench.views.graph.menu.ZoomInMenuAction
+org.apache.taverna.workbench.views.graph.menu.ZoomOutMenuAction
+org.apache.taverna.workbench.views.graph.menu.ResetDiagramMenuAction

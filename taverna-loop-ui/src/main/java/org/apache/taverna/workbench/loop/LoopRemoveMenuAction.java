@@ -33,6 +33,7 @@ import org.apache.taverna.workbench.file.FileManager;
 import org.apache.log4j.Logger;
 
 import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.workflowmodel.processor.dispatch.layers.Loop;
 
 public class LoopRemoveMenuAction extends AbstractContextualMenuAction {
 

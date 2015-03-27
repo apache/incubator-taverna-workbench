@@ -64,11 +64,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-graph-view</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-workflow-explorer</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

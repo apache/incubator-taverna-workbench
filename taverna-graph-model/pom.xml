@@ -121,11 +121,6 @@
                         <artifactId>taverna-configuration-ui-api</artifactId>
                         <version>${project.parent.version}</version>
                 </dependency>
-                <dependency>
-                        <groupId>${project.parent.groupId}</groupId>
-                        <artifactId>taverna-io</artifactId>
-                        <version>${project.parent.version}</version>
-                </dependency>
 		<dependency>
 			<groupId>org.apache.batik</groupId>
 			<artifactId>batik-osgi</artifactId>

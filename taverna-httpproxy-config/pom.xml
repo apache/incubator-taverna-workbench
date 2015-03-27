@@ -28,13 +28,14 @@
 	<name>Apache Taverna HTTP Proxy configuration</name>
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.taverna.osgi</groupId>
+			<artifactId>taverna-configuration-api</artifactId>
+			<version>${taverna.osgi.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-ui</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.taverna.osgi</groupId>
-			<artifactId>taverna-osgi-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>

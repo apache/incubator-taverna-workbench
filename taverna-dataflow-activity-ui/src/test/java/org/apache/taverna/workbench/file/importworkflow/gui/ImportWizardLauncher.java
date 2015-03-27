@@ -6,7 +6,7 @@ import javax.swing.UIManager;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.edits.impl.EditManagerImpl;
 import org.apache.taverna.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.impl.FileManagerImpl;
+import org.apache.taverna.workbench.file.impl.FileManagerImpl;
 
 
 public class ImportWizardLauncher {

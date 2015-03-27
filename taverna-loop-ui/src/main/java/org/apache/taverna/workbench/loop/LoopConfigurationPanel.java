@@ -30,9 +30,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
@@ -46,7 +44,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.activities.beanshell.views.BeanshellConfigurationPanel;
 import org.apache.taverna.workbench.helper.HelpEnabledDialog;
 import org.apache.taverna.workbench.loop.comparisons.Comparison;
 import org.apache.taverna.workbench.ui.Utils;
@@ -61,6 +58,7 @@ import org.apache.taverna.scufl2.api.core.Processor;
 import org.apache.taverna.scufl2.api.profiles.Profile;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.sf.taverna.t2.activities.beanshell.views.BeanshellConfigurationPanel;
 
 /**
  * UI for {@link LoopConfiguration}

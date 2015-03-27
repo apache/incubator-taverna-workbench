@@ -20,7 +20,7 @@
  ******************************************************************************/
 package org.apache.taverna.ui.perspectives.myexperiment;
 
-import net.sf.taverna.t2.ui.perspectives.PerspectiveRegistry;
+import org.apache.taverna.ui.perspectives.PerspectiveRegistry;
 import org.apache.taverna.ui.perspectives.myexperiment.model.MyExperimentClient;
 import org.apache.taverna.workbench.ShutdownSPI;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;

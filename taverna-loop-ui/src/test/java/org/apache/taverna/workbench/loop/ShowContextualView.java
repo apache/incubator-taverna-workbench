@@ -38,7 +38,7 @@ import org.apache.taverna.scufl2.api.core.Processor;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.edits.impl.EditManagerImpl;
 import org.apache.taverna.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.impl.FileManagerImpl;
+import org.apache.taverna.workbench.file.impl.FileManagerImpl;
 import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.workbench.selection.impl.SelectionManagerImpl;
 import org.apache.taverna.workbench.ui.views.contextualviews.impl.ContextualViewComponent;

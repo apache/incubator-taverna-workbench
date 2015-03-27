@@ -33,11 +33,13 @@ import org.apache.taverna.scufl2.api.activity.Activity;
 import org.apache.taverna.activities.disabled.views.DisabledConfigView;
 import org.apache.taverna.servicedescriptions.ServiceDescriptionRegistry;
 import org.apache.taverna.workbench.activityicons.ActivityIconManager;
+import org.apache.taverna.workbench.edits.Edit;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.report.ReportManager;
 import org.apache.taverna.workbench.ui.actions.activity.ActivityConfigurationAction;
 import org.apache.taverna.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
+import org.apache.taverna.workflowmodel.Dataflow;
 
 
 @SuppressWarnings("serial")

@@ -35,7 +35,7 @@ import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.file.importworkflow.actions.AddNestedWorkflowAction;
 import org.apache.taverna.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu;
+import org.apache.taverna.workbench.views.graph.menu.InsertMenu;
 
 /**
  * An action to add a nested workflow activity + a wrapping processor to the

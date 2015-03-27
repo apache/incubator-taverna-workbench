@@ -52,10 +52,10 @@ import org.apache.taverna.workbench.models.graph.svg.SVGGraphController;
 import org.apache.taverna.workbench.selection.DataflowSelectionModel;
 import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.workbench.ui.Updatable;
-import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;
-import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
-import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
-import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
+import org.apache.taverna.workbench.views.graph.AutoScrollInteractor;
+import org.apache.taverna.workbench.views.graph.menu.ResetDiagramAction;
+import org.apache.taverna.workbench.views.graph.menu.ZoomInAction;
+import org.apache.taverna.workbench.views.graph.menu.ZoomOutAction;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;

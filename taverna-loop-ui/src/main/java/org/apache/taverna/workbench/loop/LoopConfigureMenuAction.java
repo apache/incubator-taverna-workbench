@@ -33,6 +33,7 @@ import org.apache.taverna.scufl2.api.core.Processor;
 import org.apache.taverna.ui.menu.AbstractContextualMenuAction;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workflowmodel.processor.dispatch.DispatchLayer;
 
 public class LoopConfigureMenuAction extends AbstractContextualMenuAction {
 

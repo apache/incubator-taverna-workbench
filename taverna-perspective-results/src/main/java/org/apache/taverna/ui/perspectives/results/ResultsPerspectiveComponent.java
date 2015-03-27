@@ -50,10 +50,10 @@ import org.apache.taverna.workbench.selection.events.SelectionManagerEvent;
 import org.apache.taverna.workbench.selection.events.WorkflowRunSelectionEvent;
 import org.apache.taverna.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
-import net.sf.taverna.t2.workbench.views.monitor.progressreport.TableMonitorComponent;
-import net.sf.taverna.t2.workbench.views.results.ResultsComponent;
-import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
-import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
+import org.apache.taverna.workbench.views.monitor.progressreport.TableMonitorComponent;
+import org.apache.taverna.workbench.views.results.ResultsComponent;
+import org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsSPI;
+import org.apache.taverna.workbench.views.results.saveactions.SaveIndividualResultSPI;
 
 import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;

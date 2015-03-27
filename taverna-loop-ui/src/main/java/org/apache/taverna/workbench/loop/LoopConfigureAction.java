@@ -30,6 +30,8 @@ import org.apache.taverna.scufl2.api.profiles.Profile;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.helper.HelpEnabledDialog;
+import org.apache.taverna.workflowmodel.Edit;
+import org.apache.taverna.workflowmodel.processor.dispatch.layers.LoopConfiguration;
 
 /**
  * @author Alan R Williams

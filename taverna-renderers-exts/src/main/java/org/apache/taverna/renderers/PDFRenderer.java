@@ -21,9 +21,6 @@ package org.apache.taverna.renderers;
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 
-import org.apache.taverna.renderers.Renderer;
-import org.apache.taverna.renderers.RendererUtils;
-import org.apache.taverna.renderers.RendererException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.regex.Pattern;

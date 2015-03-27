@@ -40,7 +40,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import org.apache.taverna.lang.ui.ShadedLabel;
-import net.sf.taverna.t2.ui.perspectives.PerspectiveRegistry;
+import org.apache.taverna.ui.perspectives.PerspectiveRegistry;
 import org.apache.taverna.ui.perspectives.myexperiment.model.MyExperimentClient;
 import org.apache.taverna.ui.perspectives.myexperiment.model.Resource;
 import org.apache.taverna.ui.perspectives.myexperiment.model.Util;
@@ -54,7 +54,7 @@ import org.apache.taverna.workbench.icons.WorkbenchIcons;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
 import org.apache.taverna.workbench.ui.zaria.UIComponentSPI;
 import org.apache.taverna.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLSerializationConstants;
+import org.apache.taverna.workflowmodel.serialization.xml.impl.XMLSerializationConstants;
 
 import org.apache.log4j.Logger;
 

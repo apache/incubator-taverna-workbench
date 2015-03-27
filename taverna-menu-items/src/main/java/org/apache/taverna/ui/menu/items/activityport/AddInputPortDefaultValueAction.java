@@ -28,7 +28,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView;
+import org.apache.taverna.activities.stringconstant.views.StringConstantConfigView;
 import org.apache.taverna.workbench.design.actions.DataflowEditAction;
 import org.apache.taverna.workbench.edits.CompoundEdit;
 import org.apache.taverna.workbench.edits.Edit;

@@ -1,6 +1,6 @@
 package org.apache.taverna.ui.perspectives.myexperiment.model;
 
-import net.sf.taverna.t2.activities.dataflow.views.DataflowActivityConfigView;
+//import org.apache.taverna.activities.dataflow.views.DataflowActivityConfigView;
 
 import org.apache.log4j.Logger;
 

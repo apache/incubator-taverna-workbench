@@ -20,7 +20,6 @@
  ******************************************************************************/
 package org.apache.taverna.workbench.ui.activitypalette;
 
-import org.apache.taverna.workbench.ui.activitypalette.ActivityPaletteConfiguration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;

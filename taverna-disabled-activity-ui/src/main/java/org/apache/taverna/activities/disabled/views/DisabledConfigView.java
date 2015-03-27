@@ -40,6 +40,7 @@ import org.apache.taverna.workbench.ui.views.contextualviews.activity.ActivityCo
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityAndBeanWrapper;
 
 @SuppressWarnings("serial")
 public class DisabledConfigView extends ActivityConfigurationPanel {

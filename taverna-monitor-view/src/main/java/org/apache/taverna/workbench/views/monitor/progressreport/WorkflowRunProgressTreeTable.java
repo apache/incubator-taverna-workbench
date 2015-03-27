@@ -9,7 +9,7 @@ import javax.swing.tree.TreePath;
 
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.SwingAwareObserver;
-import net.sf.taverna.lang.ui.treetable.JTreeTable;
+import org.apache.taverna.lang.ui.treetable.JTreeTable;
 import org.apache.taverna.workbench.activityicons.ActivityIconManager;
 import org.apache.taverna.workbench.selection.DataflowSelectionModel;
 import org.apache.taverna.workbench.selection.events.DataflowSelectionMessage;

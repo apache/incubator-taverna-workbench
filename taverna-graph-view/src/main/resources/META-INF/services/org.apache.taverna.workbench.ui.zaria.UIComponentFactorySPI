@@ -1,1 +1,1 @@
-net.sf.taverna.t2.workbench.views.graph.GraphViewComponentFactory
+org.apache.taverna.workbench.views.graph.GraphViewComponentFactory

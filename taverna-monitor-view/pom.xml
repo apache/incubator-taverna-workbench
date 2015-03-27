@@ -28,6 +28,12 @@
 	<name>Apache Taverna Monitor View</name>
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-run-api</artifactId>
+			<version>${taverna.engine.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-workbench-api</artifactId>
 			<version>${project.parent.version}</version>
@@ -62,12 +68,6 @@
 			<artifactId>taverna-report-api</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>taverna-run-api</artifactId>
-			<version>${taverna.engine.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>

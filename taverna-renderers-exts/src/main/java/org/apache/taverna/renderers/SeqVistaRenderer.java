@@ -20,9 +20,6 @@
  ******************************************************************************/
 package org.apache.taverna.renderers;
 
-import org.apache.taverna.renderers.Renderer;
-import org.apache.taverna.renderers.RendererUtils;
-import org.apache.taverna.renderers.RendererException;
 import java.nio.file.Path;
 
 import javax.swing.JComponent;

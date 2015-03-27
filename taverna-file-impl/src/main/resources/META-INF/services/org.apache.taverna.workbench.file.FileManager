@@ -1,1 +1,1 @@
-net.sf.taverna.t2.workbench.file.impl.FileManagerImpl
+org.apache.taverna.workbench.file.impl.FileManagerImpl

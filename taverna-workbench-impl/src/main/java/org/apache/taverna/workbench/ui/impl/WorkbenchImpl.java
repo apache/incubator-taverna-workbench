@@ -63,18 +63,18 @@ import javax.swing.UIManager;
 
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.SwingAwareObserver;
-import net.sf.taverna.t2.ui.menu.MenuManager;
-import net.sf.taverna.t2.ui.menu.MenuManager.MenuManagerEvent;
-import net.sf.taverna.t2.ui.menu.MenuManager.UpdatedMenuManagerEvent;
+import org.apache.taverna.ui.menu.MenuManager;
+import org.apache.taverna.ui.menu.MenuManager.MenuManagerEvent;
+import org.apache.taverna.ui.menu.MenuManager.UpdatedMenuManagerEvent;
 import org.apache.taverna.workbench.ShutdownSPI;
 import org.apache.taverna.workbench.StartupSPI;
-import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.configuration.workbench.ui.T2ConfigurationFrame;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workbench.helper.Helper;
-import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration;
+import org.apache.taverna.workbench.configuration.workbench.ui.T2ConfigurationFrame;
+import org.apache.taverna.workbench.edits.EditManager;
+import org.apache.taverna.workbench.file.FileManager;
+import org.apache.taverna.workbench.file.exceptions.OpenException;
+import org.apache.taverna.workbench.helper.Helper;
+import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.workbench.ui.Workbench;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
 

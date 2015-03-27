@@ -62,7 +62,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.taverna.lang.ui.DialogTextArea;
-import org..taverna.configuration.proxy.HttpProxyConfiguration;
+import uk.org.taverna.configuration.proxy.HttpProxyConfiguration;
 
 /**
  * The HttpProxyConfigurationPanel provides the user interface to a
