@@ -23,7 +23,7 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>graph-view</artifactId>
+	<artifactId>taverna-graph-view</artifactId>
 	<packaging>bundle</packaging>
 	<name>Apache Taverna Graph View</name>
 	<dependencies>
