@@ -108,11 +108,12 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlbeans</groupId>
-			<artifactId>xmlbeans</artifactId>
-			<version>${xmlbeans.version}</version>
-		</dependency>
+    <dependency>
+      <groupId>org.apache.xmlbeans</groupId>
+      <artifactId>com.springsource.org.apache.xmlbeans</artifactId>
+      <version>${xmlbeans.version}</version>
+    </dependency>
+
 
 		<!-- FlyingSaucer XHTML Renderer -->
 		<!-- (it is critical to use version R8, not any earlier ones - e.g. R8pre2,

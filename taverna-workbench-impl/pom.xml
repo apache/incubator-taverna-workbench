@@ -25,7 +25,7 @@
 	</parent>
 	<artifactId>workbench-impl</artifactId>
 	<packaging>bundle</packaging>
-	<name>Workbench UI implementation</name>
+	<name>Apache Taverna Workbench UI implementation</name>
 	<description>The main workbench ui</description>
 	<build>
 		<plugins>
@@ -130,7 +130,7 @@
 		<dependency>
 			<groupId>org.simplericity.macify</groupId>
 			<artifactId>macify</artifactId>
-			<version>1.6</version>
+			<version>${macify.version}</version>
 		</dependency>
 
 	</dependencies>

@@ -40,7 +40,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-impl</artifactId>
+			<artifactId>taverna-workbench-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>

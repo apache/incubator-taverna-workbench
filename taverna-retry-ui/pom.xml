@@ -25,7 +25,7 @@
 	</parent>
 	<artifactId>taverna-retry-ui</artifactId>
 	<packaging>bundle</packaging>
-	<name>Retry layer contextual view</name>
+	<name>Apache Taverna Retry layer contextual view</name>
 	<dependencies>
                 <dependency>
                         <groupId>org.apache.taverna.language</groupId>

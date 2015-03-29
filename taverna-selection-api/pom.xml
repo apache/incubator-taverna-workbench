@@ -38,8 +38,7 @@
 		<dependency>
 			<groupId>org.apache.taverna.language</groupId>
 			<artifactId>taverna-scufl2-api</artifactId>
-			<version>0.15.0-incubating-SNAPSHOT</version>
-		 <type>jar</type>
+			<version>${taverna.language.version}</version>		 
 		</dependency>
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>

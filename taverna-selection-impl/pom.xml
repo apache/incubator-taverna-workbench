@@ -23,9 +23,9 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>selection-impl</artifactId>
+	<artifactId>taverna-selection-impl</artifactId>
 	<packaging>bundle</packaging>
-	<name>Selection Implementation</name>
+	<name>Apache Taverna Selection Implementation</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.osgi</groupId>
