@@ -75,16 +75,11 @@
             <artifactId>taverna-helper-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}</groupId>
-            <artifactId>selection-impl</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
+
         <!-- 
         <dependency>
             <groupId>org.apache.taverna.workbench.commonactivities</groupId>
-            <artifactId>beanshell-activity-ui</artifactId>
+            <artifactId>taverna-beanshell-activity-ui</artifactId>
             <version>${taverna.workbench.commonactivities.version}</version>
         </dependency>
          -->
