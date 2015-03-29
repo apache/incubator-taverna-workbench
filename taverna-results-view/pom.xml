@@ -25,7 +25,7 @@
 	</parent>
 	<artifactId>taverna-results-view</artifactId>
 	<packaging>bundle</packaging>
-	<name>Apache Taverna Results and outputs from a workflow run</name>
+	<name>Apache Taverna Results and outputs</name>
 	<build>
 		<plugins>
 			<plugin>

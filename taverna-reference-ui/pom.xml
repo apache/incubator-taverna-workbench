@@ -25,7 +25,7 @@
 	</parent>
 	<artifactId>taverna-reference-ui</artifactId>
 	<packaging>bundle</packaging>
-	<name>Apache Taverna reference manager user interface</name>
+	<name>Apache Taverna Reference manager UI</name>
 	<description>
 		UI Support for the T2Reference system, including support for
 		construction and registration of new entities through a UI

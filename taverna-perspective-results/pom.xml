@@ -23,9 +23,9 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>perspective-results</artifactId>
+	<artifactId>taverna-perspective-results</artifactId>
 	<packaging>bundle</packaging>
-	<name>Results Perspective</name>
+	<name>Apache Taverna Results Perspective</name>
 	<description>Results component for viewing progress of a workflow run,
 	intermediate and final results, as well as previous workflow runs.</description>
 	<dependencies>
@@ -43,17 +43,17 @@
 
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>taverna-workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>monitor-view</artifactId>
+			<artifactId>taverna-monitor-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>results-view</artifactId>
+			<artifactId>taverna-results-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
                 <dependency>
@@ -85,7 +85,7 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
-			<version>4.3.1</version>
+			<version>${osgi.compendium.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.help</groupId>

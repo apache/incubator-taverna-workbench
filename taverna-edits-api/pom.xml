@@ -27,7 +27,7 @@
     
 	<artifactId>taverna-edits-api</artifactId>
 	<packaging>bundle</packaging>
-	<name>Apache Edits API</name>
+	<name>Apache Taverna Edits API</name>
 	<description>API for doing workflow edits and undo.</description>
 	<dependencies>
 		<dependency>
