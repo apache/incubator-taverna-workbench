@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.taverna.ui.menu.AbstractContextualMenuAction;
 
-import net.sf.taverna.t2.workflowmodel.InputPort;
+import org.apache.taverna.workflowmodel.InputPort;
 
 
 /**

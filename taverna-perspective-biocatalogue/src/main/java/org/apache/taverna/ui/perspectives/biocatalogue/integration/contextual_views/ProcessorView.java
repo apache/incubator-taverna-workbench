@@ -36,7 +36,7 @@ import org.apache.taverna.ui.perspectives.biocatalogue.integration.Integration;
 import org.apache.taverna.ui.perspectives.biocatalogue.integration.health_check.ServiceHealthChecker;
 import org.apache.taverna.ui.perspectives.biocatalogue.integration.health_check.ServiceMonitoringStatusInterpreter;
 import org.apache.taverna.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.Processor;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.Service;

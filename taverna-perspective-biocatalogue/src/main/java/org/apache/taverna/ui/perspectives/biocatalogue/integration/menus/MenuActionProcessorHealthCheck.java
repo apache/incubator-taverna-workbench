@@ -10,7 +10,7 @@ import org.apache.taverna.biocatalogue.model.SoapOperationIdentity;
 import org.apache.taverna.ui.menu.AbstractContextualMenuAction;
 import org.apache.taverna.ui.perspectives.biocatalogue.integration.Integration;
 import org.apache.taverna.ui.perspectives.biocatalogue.integration.health_check.ServiceHealthChecker;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.Processor;
 
 
 public class MenuActionProcessorHealthCheck extends AbstractContextualMenuAction {

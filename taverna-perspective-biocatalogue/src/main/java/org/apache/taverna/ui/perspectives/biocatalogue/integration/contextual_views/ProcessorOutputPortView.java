@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 
 import org.apache.taverna.biocatalogue.model.BioCataloguePluginConstants;
 import org.apache.taverna.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityOutputPort;
 
 
 public class ProcessorOutputPortView extends ContextualView

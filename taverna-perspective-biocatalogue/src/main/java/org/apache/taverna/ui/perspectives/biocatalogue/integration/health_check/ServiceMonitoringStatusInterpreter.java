@@ -6,8 +6,8 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import org.apache.taverna.biocatalogue.model.ResourceManager;
-import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.visit.VisitReport.Status;
+import org.apache.taverna.visit.VisitReport;
+import org.apache.taverna.visit.VisitReport.Status;
 
 import org.biocatalogue.x2009.xml.rest.MonitoringStatus;
 import org.biocatalogue.x2009.xml.rest.MonitoringStatusLabel;
