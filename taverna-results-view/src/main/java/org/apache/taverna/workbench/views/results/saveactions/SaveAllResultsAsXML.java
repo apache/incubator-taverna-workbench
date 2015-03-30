@@ -29,7 +29,7 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.results.BaclavaDocumentPathHandler;
+import org.apache.taverna.results.BaclavaDocumentPathHandler;
 
 /**
  * Stores the entire map of result objects to disk as a single XML data
