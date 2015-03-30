@@ -26,7 +26,7 @@ import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.VK_R;
 import static javax.swing.KeyStroke.getKeyStroke;
 import static javax.swing.SwingUtilities.invokeLater;
-import static net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
+import static org.apache.taverna.reference.ui.InvalidDataflowReport;
 import static org.apache.taverna.workbench.icons.WorkbenchIcons.runIcon;
 
 import java.awt.event.ActionEvent;
@@ -39,10 +39,10 @@ import javax.swing.AbstractAction;
 
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.Observer;
-import net.sf.taverna.t2.reference.ui.CopyWorkflowInProgressDialog;
-import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
-import net.sf.taverna.t2.reference.ui.WorkflowLaunchWindow;
-import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
+import org.apache.taverna.reference.ui.CopyWorkflowInProgressDialog;
+import org.apache.taverna.reference.ui.CopyWorkflowSwingWorker;
+import org.apache.taverna.reference.ui.WorkflowLaunchWindow;
+import org.apache.taverna.reference.ui.referenceactions.ReferenceActionSPI;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.file.events.ClosedDataflowEvent;
