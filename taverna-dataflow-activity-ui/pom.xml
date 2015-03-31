@@ -106,7 +106,7 @@
 		</dependency> -->
 
                 <dependency>
-                        <groupId>org.apache.batik</groupId>
+                        <groupId>${project.parent.groupId}</groupId>
                         <artifactId>batik-osgi</artifactId>
                         <version>${batik.version}</version>
                 </dependency>

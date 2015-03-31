@@ -59,18 +59,13 @@
 		</dependency>
 		 -->
 		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-swing</artifactId>
-			<version>${batik.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.io</artifactId>
 			<version>${commons.io.version}</version>
 		</dependency>
 
                 <dependency>
-                        <groupId>org.apache.batik</groupId>
+                        <groupId>${project.parent.groupId}</groupId>
                         <artifactId>batik-osgi</artifactId>
                         <version>${batik.version}</version>
                 </dependency>		
