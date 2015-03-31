@@ -1,4 +1,4 @@
-package net.sf.taverna.t2.workbench.models.graph.dot;
+package org.apache.taverna.workbench.models.graph.dot;
 
 public class NamedNode  {
 	

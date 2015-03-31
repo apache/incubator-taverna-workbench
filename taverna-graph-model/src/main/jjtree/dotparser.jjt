@@ -15,7 +15,7 @@ options {
   Parser java class
   ===========================================================================================*/
 PARSER_BEGIN(DOTParser)
-package net.sf.taverna.t2.workbench.models.graph.dot;
+package org.apache.taverna.workbench.models.graph.dot;
 import java.io.*;
 
 class DOTParser {
