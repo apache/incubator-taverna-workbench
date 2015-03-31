@@ -147,6 +147,30 @@
 			<artifactId>gson</artifactId>
 			<version>${gson.version}</version>
 		</dependency>
+	 <dependency>
+	  <groupId>org.apache.taverna.commonactivities</groupId>
+	  <artifactId>taverna-rest-activity</artifactId>
+	  <version>2.1.0-incubating-SNAPSHOT</version>
+	  <type>jar</type>
+	 </dependency>
+	 <dependency>
+	  <groupId>org.apache.taverna.commonactivities</groupId>
+	  <artifactId>taverna-wsdl-activity</artifactId>
+	  <version>2.1.0-incubating-SNAPSHOT</version>
+	  <type>jar</type>
+	 </dependency>
+	 <dependency>
+	  <groupId>org.apache.taverna.workbench</groupId>
+	  <artifactId>taverna-activity-palette-impl</artifactId>
+	  <version>3.1.0-incubating-SNAPSHOT</version>
+	  <type>jar</type>
+	 </dependency>
+	 <dependency>
+	  <groupId>org.apache.taverna.ui-activities</groupId>
+	  <artifactId>taverna-rest-activity-ui</artifactId>
+	  <version>3.1.0-incubating-SNAPSHOT</version>
+	  <type>jar</type>
+	 </dependency>
 	</dependencies>
 
 	<build>

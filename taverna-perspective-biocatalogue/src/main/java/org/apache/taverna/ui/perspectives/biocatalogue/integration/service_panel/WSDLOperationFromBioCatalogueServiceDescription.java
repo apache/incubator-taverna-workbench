@@ -6,9 +6,9 @@ import java.util.List;
 import javax.swing.Icon;
 
 import org.apache.taverna.biocatalogue.model.SoapOperationIdentity;
-import net.sf.taverna.t2.activities.wsdl.WSDLActivity;
-import net.sf.taverna.t2.activities.wsdl.WSDLActivityConfigurationBean;
-import net.sf.taverna.t2.activities.wsdl.servicedescriptions.WSDLActivityIcon;
+import org.apache.taverna.activities.wsdl.WSDLActivity;
+import org.apache.taverna.activities.wsdl.WSDLActivityConfigurationBean;
+import org.apache.taverna.activities.wsdl.servicedescriptions.WSDLActivityIcon;
 import org.apache.taverna.lang.beans.PropertyAnnotation;
 import org.apache.taverna.servicedescriptions.ServiceDescription;
 

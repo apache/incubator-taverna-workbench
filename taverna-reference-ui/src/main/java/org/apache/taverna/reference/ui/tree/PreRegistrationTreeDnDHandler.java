@@ -24,7 +24,6 @@ import static java.awt.datatransfer.DataFlavor.javaFileListFlavor;
 import static java.awt.dnd.DnDConstants.ACTION_COPY;
 import static java.awt.dnd.DnDConstants.ACTION_MOVE;
 import static java.awt.dnd.DragSource.DefaultMoveDrop;
-import static org.apache.taverna.reference.ui.tree.PreRegistrationTreeDnDHandler.InternalNodeDragTransferable.INTERNAL_NODE_FLAVOR;
 
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -150,7 +149,7 @@ public abstract class PreRegistrationTreeDnDHandler implements
 		if (targetPath != null)
 			target = (MutableTreeNode) targetPath.getLastPathComponent();
 		Transferable tr = dtde.getTransferable();
-		if (tr.isDataFlavorSupported(INTERNAL_NODE_FLAVOR)) {
+		if (tr.isDataFlavorSupported(InternalNodeDragTransferable.INTERNAL_NODE_FLAVOR)) {
 			dtde.acceptDrop(ACTION_MOVE);
 			handleNodeMove(draggedNode, target);
 			draggedNode = null;

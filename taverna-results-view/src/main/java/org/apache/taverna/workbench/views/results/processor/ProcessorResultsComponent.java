@@ -96,8 +96,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
-import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
+import org.apache.taverna.facade.WorkflowInstanceFacade;
+import org.apache.taverna.facade.WorkflowInstanceFacade.State;
 import org.apache.taverna.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;

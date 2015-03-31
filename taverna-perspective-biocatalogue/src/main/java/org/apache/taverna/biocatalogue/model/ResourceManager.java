@@ -13,8 +13,8 @@ import java.util.HashMap;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import net.sf.taverna.t2.activities.rest.ui.servicedescription.RESTActivityIcon;
-import net.sf.taverna.t2.activities.wsdl.servicedescriptions.WSDLActivityIcon;
+import org.apache.taverna.activities.rest.ui.servicedescription.RESTActivityIcon;
+import org.apache.taverna.activities.wsdl.servicedescriptions.WSDLActivityIcon;
 import org.apache.taverna.ui.perspectives.biocatalogue.BioCataloguePerspective;
 
 /**

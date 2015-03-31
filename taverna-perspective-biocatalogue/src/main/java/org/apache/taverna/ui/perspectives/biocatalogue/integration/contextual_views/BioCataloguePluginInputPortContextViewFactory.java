@@ -9,7 +9,7 @@ import org.apache.taverna.biocatalogue.model.SoapOperationPortIdentity;
 import org.apache.taverna.ui.perspectives.biocatalogue.integration.Integration;
 import org.apache.taverna.workbench.ui.views.contextualviews.ContextualView;
 import org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityInputPort;
 
 
 public class BioCataloguePluginInputPortContextViewFactory implements

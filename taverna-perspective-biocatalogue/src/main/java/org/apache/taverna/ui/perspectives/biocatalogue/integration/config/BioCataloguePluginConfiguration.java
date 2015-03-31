@@ -6,6 +6,7 @@ import java.util.Map;
 import uk.org.taverna.configuration.AbstractConfigurable;
 
 import org.apache.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
+import uk.org.taverna.configuration.ConfigurationManager;
 
 /**
  *
@@ -17,7 +18,6 @@ public class BioCataloguePluginConfiguration extends AbstractConfigurable
   public static final String SERVICE_CATALOGUE_BASE_URL = "ServiceCatalogue_Base_URL";
   public static final String SOAP_OPERATIONS_IN_SERVICE_PANEL = "SOAP_Operations_in_Service_Panel";
   public static final String REST_METHODS_IN_SERVICE_PANEL = "REST_Methods_in_Service_Panel";
-
 
   private static class Singleton {
     private static BioCataloguePluginConfiguration instance = new BioCataloguePluginConfiguration();

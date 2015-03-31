@@ -70,7 +70,7 @@ import org.apache.taverna.ui.perspectives.myexperiment.model.ServerResponse;
 import org.apache.taverna.ui.perspectives.myexperiment.model.Util;
 import org.apache.taverna.ui.perspectives.myexperiment.model.Workflow;
 import org.apache.taverna.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.impl.actions.SaveWorkflowAsAction;
+import org.apache.taverna.workbench.file.impl.actions.SaveWorkflowAsAction;
 import org.apache.taverna.workbench.helper.HelpEnabledDialog;
 import org.apache.taverna.workbench.icons.WorkbenchIcons;
 import org.apache.taverna.workflowmodel.Dataflow;

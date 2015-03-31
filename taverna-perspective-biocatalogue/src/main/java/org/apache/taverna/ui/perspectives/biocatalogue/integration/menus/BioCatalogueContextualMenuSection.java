@@ -12,9 +12,9 @@ import org.apache.taverna.ui.menu.AbstractMenuSection;
 import org.apache.taverna.ui.menu.ContextualMenuComponent;
 import org.apache.taverna.ui.menu.ContextualSelection;
 import org.apache.taverna.ui.menu.DefaultContextualMenu;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.InputPort;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.InputPort;
+import org.apache.taverna.workflowmodel.Processor;
 
 
 public class BioCatalogueContextualMenuSection extends AbstractMenuSection implements ContextualMenuComponent

@@ -35,11 +35,11 @@ import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import org.apache.taverna.biocatalogue.model.SoapOperationIdentity;
-import net.sf.taverna.t2.activities.wsdl.WSDLActivityHealthChecker;
+import org.apache.taverna.activities.wsdl.WSDLActivityHealthChecker;
 import org.apache.taverna.servicedescriptions.AbstractConfigurableServiceProvider;
-import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
-import net.sf.taverna.wsdl.parser.UnknownOperationException;
-import net.sf.taverna.wsdl.parser.WSDLParser;
+import org.apache.taverna.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
+import org.apache.taverna.wsdl.parser.UnknownOperationException;
+import org.apache.taverna.wsdl.parser.WSDLParser;
 
 /**
  * Service provider for WSDL operations added to the Service Panel through the

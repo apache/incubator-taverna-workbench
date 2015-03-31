@@ -58,7 +58,7 @@ import org.apache.taverna.scufl2.api.core.Processor;
 import org.apache.taverna.scufl2.api.profiles.Profile;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.sf.taverna.t2.activities.beanshell.views.BeanshellConfigurationPanel;
+import org.apache.taverna.activities.beanshell.views.BeanshellConfigurationPanel;
 
 /**
  * UI for {@link LoopConfiguration}

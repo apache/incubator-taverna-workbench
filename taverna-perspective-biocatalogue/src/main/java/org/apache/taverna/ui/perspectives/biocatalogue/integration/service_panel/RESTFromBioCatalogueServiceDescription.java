@@ -8,13 +8,13 @@ import javax.swing.Icon;
 
 import org.apache.taverna.lang.beans.PropertyAnnotation;
 import org.apache.taverna.servicedescriptions.ServiceDescription;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import org.apache.taverna.workflowmodel.processor.activity.Activity;
 
-import net.sf.taverna.t2.activities.rest.RESTActivity;
-import net.sf.taverna.t2.activities.rest.RESTActivity.DATA_FORMAT;
-import net.sf.taverna.t2.activities.rest.RESTActivity.HTTP_METHOD;
-import net.sf.taverna.t2.activities.rest.RESTActivityConfigurationBean;
-import net.sf.taverna.t2.activities.rest.ui.servicedescription.RESTActivityIcon;
+import org.apache.taverna.activities.rest.RESTActivity;
+import org.apache.taverna.activities.rest.RESTActivity.DATA_FORMAT;
+import org.apache.taverna.activities.rest.RESTActivity.HTTP_METHOD;
+import org.apache.taverna.activities.rest.RESTActivityConfigurationBean;
+import org.apache.taverna.activities.rest.ui.servicedescription.RESTActivityIcon;
 
 /**
  * This class is solely intended to support import of REST services from BioCatalogue.

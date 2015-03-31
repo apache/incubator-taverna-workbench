@@ -11,9 +11,9 @@ import javax.swing.JPanel;
 
 import org.apache.taverna.biocatalogue.model.SoapOperationIdentity;
 import org.apache.taverna.lang.ui.ReadOnlyTextArea;
-import net.sf.taverna.t2.visit.VisitKind;
-import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.workbench.report.explainer.VisitExplainer;
+import org.apache.taverna.visit.VisitKind;
+import org.apache.taverna.visit.VisitReport;
+import org.apache.taverna.workbench.report.explainer.VisitExplainer;
 
 // import status constants
 import static org.apache.taverna.ui.perspectives.biocatalogue.integration.health_check.BioCatalogueWSDLActivityHealthCheck.*;

@@ -3,7 +3,7 @@ package org.apache.taverna.biocatalogue.model;
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.HttpVerb;
 
-import net.sf.taverna.t2.activities.rest.RESTActivity.HTTP_METHOD;
+import org.apache.taverna.activities.rest.RESTActivity.HTTP_METHOD;
 
 /**
  * Very simple class for translating HTTP method values returned

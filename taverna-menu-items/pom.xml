@@ -84,17 +84,15 @@
 			<artifactId>stringconstant-activity-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-	 <dependency>
-	  <groupId>org.apache.taverna.workbench</groupId>
-	  <artifactId>taverna-stringconstant-activity-ui</artifactId>
-	  <version>3.1.0-incubating-SNAPSHOT</version>
-	  <type>jar</type>
-	 </dependency>
-	 <dependency>
-	  <groupId>org.apache.taverna.workbench</groupId>
-	  <artifactId>taverna-contextual-views-impl</artifactId>
-	  <version>3.1.0-incubating-SNAPSHOT</version>
-	  <type>jar</type>
-	 </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-stringconstant-activity-ui</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-contextual-views-impl</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 	</dependencies>
 </project>

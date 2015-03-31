@@ -30,10 +30,10 @@ import org.apache.taverna.biocatalogue.model.SoapOperationIdentity;
 import org.apache.taverna.biocatalogue.model.SoapOperationPortIdentity;
 import org.apache.taverna.biocatalogue.model.SoapProcessorIdentity;
 import org.apache.taverna.biocatalogue.model.Util;
-import net.sf.taverna.t2.activities.rest.RESTActivity;
-import net.sf.taverna.t2.activities.rest.RESTActivity.HTTP_METHOD;
-import net.sf.taverna.t2.activities.wsdl.WSDLActivity;
-import net.sf.taverna.t2.activities.wsdl.servicedescriptions.WSDLServiceDescription;
+import org.apache.taverna.activities.rest.RESTActivity;
+import org.apache.taverna.activities.rest.RESTActivity.HTTP_METHOD;
+import org.apache.taverna.activities.wsdl.WSDLActivity;
+import org.apache.taverna.activities.wsdl.servicedescriptions.WSDLServiceDescription;
 import org.apache.taverna.ui.menu.ContextualSelection;
 import org.apache.taverna.ui.perspectives.biocatalogue.MainComponentFactory;
 import org.apache.taverna.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueRESTServiceProvider;
@@ -42,13 +42,13 @@ import org.apache.taverna.ui.perspectives.biocatalogue.integration.service_panel
 import org.apache.taverna.ui.perspectives.biocatalogue.integration.service_panel.WSDLOperationFromBioCatalogueServiceDescription;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Port;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.Port;
+import org.apache.taverna.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.processor.activity.Activity;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityInputPort;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityOutputPort;
+import org.apache.taverna.workflowmodel.utils.Tools;
 
 /**
  * This class contains helpers for deeper integration with Taverna UI.

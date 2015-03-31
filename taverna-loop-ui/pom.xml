@@ -103,5 +103,11 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.taverna.ui-activities</groupId>
+            <artifactId>taverna-beanshell-activity-ui</artifactId>
+            <version>3.1.0-incubating-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

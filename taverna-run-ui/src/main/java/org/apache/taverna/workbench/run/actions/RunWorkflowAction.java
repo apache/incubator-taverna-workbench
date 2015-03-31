@@ -1,23 +1,22 @@
-/*******************************************************************************
- * Copyright (C) 2007-2010 The University of Manchester
- *
- *  Modifications to the initial code base are copyright of their
- *  respective authors, or their employers as appropriate.
- *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation; either version 2.1 of
- *  the License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- ******************************************************************************/
+/*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements. See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership. The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied. See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
+
 package org.apache.taverna.workbench.run.actions;
 
 import static java.awt.Frame.ICONIFIED;
@@ -26,7 +25,7 @@ import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.VK_R;
 import static javax.swing.KeyStroke.getKeyStroke;
 import static javax.swing.SwingUtilities.invokeLater;
-import static net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
+
 import static org.apache.taverna.workbench.icons.WorkbenchIcons.runIcon;
 
 import java.awt.event.ActionEvent;
@@ -36,13 +35,13 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
-
+import org.apache.taverna.reference.ui.InvalidDataflowReport;
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.Observer;
-import net.sf.taverna.t2.reference.ui.CopyWorkflowInProgressDialog;
-import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
-import net.sf.taverna.t2.reference.ui.WorkflowLaunchWindow;
-import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
+import org.apache.taverna.reference.ui.CopyWorkflowInProgressDialog;
+import org.apache.taverna.reference.ui.CopyWorkflowSwingWorker;
+import org.apache.taverna.reference.ui.WorkflowLaunchWindow;
+import org.apache.taverna.reference.ui.referenceactions.ReferenceActionSPI;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.file.events.ClosedDataflowEvent;
@@ -127,7 +126,7 @@ public class RunWorkflowAction extends AbstractAction {
 		Set<ExecutionEnvironment> executionEnvironments = runService
 				.getExecutionEnvironments(profile);
 		if (executionEnvironments.isEmpty()) {
-			showErrorDialog(
+			InvalidDataflowReport.showErrorDialog(
 					"There are no execution environments capable of running this workflow",
 					"Can't run workflow");
 			return;
@@ -158,7 +157,7 @@ public class RunWorkflowAction extends AbstractAction {
 		} catch (Exception ex) {
 			String message = "Could not run workflow " + workflowBundle.getName();
 			logger.warn(message);
-			showErrorDialog(ex.getMessage(), message);
+			InvalidDataflowReport.showErrorDialog(ex.getMessage(), message);
 		}
 	}
 
@@ -182,7 +181,7 @@ public class RunWorkflowAction extends AbstractAction {
 				| RunStateException | InvalidExecutionIdException e) {
 			String message = "Could not run workflow " + workflowBundle.getName();
 			logger.warn(message, e);
-			showErrorDialog(e.getMessage(), message);
+			InvalidDataflowReport.showErrorDialog(e.getMessage(), message);
 		}
 	}
 
@@ -238,7 +237,7 @@ public class RunWorkflowAction extends AbstractAction {
 		}
 
 		if (workflowBundleCopy == null) {
-			showErrorDialog("Unable to make a copy of the workflow to run",
+			InvalidDataflowReport.showErrorDialog("Unable to make a copy of the workflow to run",
 					"Workflow copy failed");
 			return null;
 		}

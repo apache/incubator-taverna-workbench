@@ -52,7 +52,11 @@
 			<artifactId>taverna-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-file-impl</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-configuration-api</artifactId>
@@ -84,6 +88,7 @@
                     <artifactId>taverna-credential-manager</artifactId>
                     <version>${taverna.engine.version}</version>
                 </dependency>
+
 	</dependencies>
 	<packaging>bundle</packaging>
 </project>

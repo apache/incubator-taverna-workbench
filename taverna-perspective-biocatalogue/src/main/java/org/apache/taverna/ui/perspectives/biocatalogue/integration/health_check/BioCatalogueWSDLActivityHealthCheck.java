@@ -1,7 +1,7 @@
 package org.apache.taverna.ui.perspectives.biocatalogue.integration.health_check;
 
-import net.sf.taverna.t2.visit.VisitKind;
-import net.sf.taverna.t2.visit.Visitor;
+import org.apache.taverna.visit.VisitKind;
+import org.apache.taverna.visit.Visitor;
 
 /**
  * A {@link BioCatalogueWSDLActivityHealthCheck} is a kind of visit that determines

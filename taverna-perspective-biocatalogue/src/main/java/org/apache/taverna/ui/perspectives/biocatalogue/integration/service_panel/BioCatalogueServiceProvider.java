@@ -18,13 +18,13 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import org.apache.taverna.biocatalogue.model.SoapOperationIdentity;
 import org.apache.taverna.biocatalogue.model.Util;
-import net.sf.taverna.t2.activities.wsdl.WSDLActivityHealthChecker;
+import org.apache.taverna.activities.wsdl.WSDLActivityHealthChecker;
 import org.apache.taverna.servicedescriptions.ServiceDescription;
 import org.apache.taverna.servicedescriptions.ServiceDescriptionProvider;
 import org.apache.taverna.ui.perspectives.biocatalogue.BioCataloguePerspective;
 import org.apache.taverna.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfiguration;
-import net.sf.taverna.wsdl.parser.UnknownOperationException;
-import net.sf.taverna.wsdl.parser.WSDLParser;
+import org.apache.taverna.wsdl.parser.UnknownOperationException;
+import org.apache.taverna.wsdl.parser.WSDLParser;
 
 public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 {

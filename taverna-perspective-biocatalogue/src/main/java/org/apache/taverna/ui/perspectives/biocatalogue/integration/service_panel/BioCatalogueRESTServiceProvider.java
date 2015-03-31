@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 
 //import net.sf.taverna.t2.activities.rest.ui.servicedescription.RESTActivityIcon;
 import org.apache.taverna.servicedescriptions.AbstractConfigurableServiceProvider;
-import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
+import org.apache.taverna.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
 
 /**
  * Service provider for REST service added to the Service Panel through the

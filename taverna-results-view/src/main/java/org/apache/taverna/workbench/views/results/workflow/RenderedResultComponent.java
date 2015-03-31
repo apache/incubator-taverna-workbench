@@ -27,7 +27,7 @@ import static java.awt.event.ItemEvent.SELECTED;
 import static javax.swing.BoxLayout.LINE_AXIS;
 import static javax.swing.SwingUtilities.invokeLater;
 import static org.apache.taverna.renderers.RendererUtils.getInputStream;
-import static net.sf.taverna.t2.results.ResultsUtils;
+import static org.apache.taverna.results.ResultsUtils;
 import static org.apache.taverna.workbench.icons.WorkbenchIcons.refreshIcon;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 

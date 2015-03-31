@@ -14,12 +14,12 @@ import org.biocatalogue.x2009.xml.rest.TestScript;
 import org.apache.taverna.biocatalogue.model.SoapOperationIdentity;
 import org.apache.taverna.biocatalogue.model.Util;
 import org.apache.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
-import net.sf.taverna.t2.activities.wsdl.WSDLActivity;
-import net.sf.taverna.t2.activities.wsdl.WSDLActivityConfigurationBean;
+import org.apache.taverna.activities.wsdl.WSDLActivity;
+import org.apache.taverna.activities.wsdl.WSDLActivityConfigurationBean;
 import org.apache.taverna.ui.perspectives.biocatalogue.MainComponentFactory;
-import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.visit.VisitReport.Status;
-import net.sf.taverna.t2.workflowmodel.health.HealthChecker;
+import org.apache.taverna.visit.VisitReport;
+import org.apache.taverna.visit.VisitReport.Status;
+import org.apache.taverna.workflowmodel.health.HealthChecker;
 
 
 /**
