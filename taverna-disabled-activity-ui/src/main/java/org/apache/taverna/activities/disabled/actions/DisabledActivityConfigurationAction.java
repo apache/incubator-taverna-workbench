@@ -40,6 +40,8 @@ import org.apache.taverna.workbench.report.ReportManager;
 import org.apache.taverna.workbench.ui.actions.activity.ActivityConfigurationAction;
 import org.apache.taverna.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
 import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.utils.Tools;
 
 
 @SuppressWarnings("serial")

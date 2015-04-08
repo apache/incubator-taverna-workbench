@@ -29,10 +29,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
-import org.apache.taverna.workbench.views.results.processor.IterationTreeNode.ErrorState;
-
 import org.apache.log4j.Logger;
+import org.apache.taverna.provenance.lineageservice.utils.ProcessorEnactment;
+import org.apache.taverna.workbench.views.results.processor.IterationTreeNode.ErrorState;
 
 /**
  * Model of the tree that contains enactments of a processor. Clicking on the

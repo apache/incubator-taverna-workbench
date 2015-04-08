@@ -24,8 +24,8 @@ import static org.apache.taverna.workbench.views.results.processor.ProcessorEnac
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.taverna.provenance.lineageservice.utils.ProcessorEnactment;
 
-import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 
 /**
  * Node in a processor enactments tree. Contains a particular enactment of the

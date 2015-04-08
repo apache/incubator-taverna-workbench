@@ -52,7 +52,7 @@ import org.apache.taverna.workbench.file.importworkflow.DataflowMerger;
 import org.apache.taverna.workbench.file.importworkflow.MergeException;
 import org.apache.taverna.workbench.file.importworkflow.actions.OpenSourceWorkflowAction;
 import org.apache.taverna.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import org.apache.taverna.workbench.models.graph.svg.SVGGraphController;
 import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.workflow.edits.AddChildEdit;
 import org.apache.taverna.workflow.edits.AddProcessorEdit;
