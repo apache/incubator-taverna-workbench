@@ -51,6 +51,7 @@ import static org.apache.batik.util.SVGConstants.SVG_Y1_ATTRIBUTE;
 import static org.apache.batik.util.SVGConstants.SVG_Y2_ATTRIBUTE;
 import static org.apache.batik.util.SVGConstants.SVG_Y_ATTRIBUTE;
 
+
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -75,6 +76,7 @@ import org.apache.taverna.workbench.models.graph.GraphEdge;
 import org.apache.taverna.workbench.models.graph.GraphElement;
 import org.apache.taverna.workbench.models.graph.GraphNode;
 import org.apache.taverna.workbench.models.graph.dot.GraphLayout;
+import org.apache.taverna.workbench.models.graph.dot.ParseException;
 
 import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
@@ -224,6 +226,8 @@ public class SVGGraphController extends GraphController {
 				logger.warn("Invalid dot returned");
 			else
 				actualBounds = graphLayout.layoutGraph(this, graph, layout, bounds);
+    } catch (ParseException e) {
+      throw new RuntimeException("Can't parse dot", e);
 		} catch (IOException e) {
 			outputMessage(dotErrorMessage);
 			setDotMissing(true);
