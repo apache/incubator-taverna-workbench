@@ -3,7 +3,7 @@
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
+   <The ASF licenses this file to You under the Apache License, Version 2.0
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
@@ -42,7 +42,9 @@
         
 	<modules>
             <module>taverna-dataflow-activity-ui</module>
+            <!-- Not yet updated to scufl2 configs
             <module>taverna-disabled-activity-ui</module>
+            -->
             <module>taverna-stringconstant-activity-ui</module>
             <module>taverna-unrecognized-activity-ui</module>
             <module>taverna-activity-icons-api</module>
@@ -101,6 +103,7 @@
             <module>taverna-io</module>
             <module>taverna-ui</module>
             <module>taverna-uibuilder</module>
+            <module>batik-osgi</module>
         </modules>
   <scm>
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-taverna-workbench.git</connection>
