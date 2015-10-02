@@ -61,7 +61,7 @@ import org.apache.taverna.scufl2.api.container.WorkflowBundle;
  * @author Alan R Williams
  */
 @SuppressWarnings("serial")
-class AnnotatedContextualView extends ContextualView {
+public class AnnotatedContextualView extends ContextualView {
 	private static final int WORKFLOW_NAME_LENGTH = 20;
 	public static final String VIEW_TITLE = "Annotations";
 	private final static String MISSING_VALUE = "Type here to give details";

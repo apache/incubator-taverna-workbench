@@ -33,7 +33,7 @@ import org.apache.taverna.ui.menu.AbstractContextualMenuAction;
 import org.apache.taverna.ui.menu.items.contextualviews.ConfigureSection;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.selection.SelectionManager;
-//import net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated.AnnotatedContextualView;
+import org.apache.taverna.workbench.ui.views.contextualviews.annotated.AnnotatedContextualView;
 
 public class AnnotatedConfigureMenuAction extends AbstractContextualMenuAction {
 	private static final String ANNOTATE = "Annotate...";
