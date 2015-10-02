@@ -76,7 +76,7 @@ import org.jdom.output.XMLOutputter;
  * @author Ian Dunlop
  */
 @SuppressWarnings("serial")
-class XMLTree extends JTree {
+public class XMLTree extends JTree {
 	private class XMLNode extends DefaultMutableTreeNode {
 		public XMLNode(Content userObject) {
 			super(userObject);
