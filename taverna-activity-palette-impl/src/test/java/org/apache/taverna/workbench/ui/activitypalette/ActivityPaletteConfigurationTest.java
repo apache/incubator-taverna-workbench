@@ -28,12 +28,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.apache.taverna.configuration.app.impl.ApplicationConfigurationImpl;
+import org.apache.taverna.configuration.impl.ConfigurationManagerImpl;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
-import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
 
 public class ActivityPaletteConfigurationTest {
 

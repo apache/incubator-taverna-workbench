@@ -56,8 +56,7 @@ import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
 import org.apache.taverna.workbench.helper.NonBlockedHelpEnabledDialog;
 
 import org.apache.log4j.Logger;
-
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 
 /**
  * Dialog that warns user that they need to install unlimited cryptography

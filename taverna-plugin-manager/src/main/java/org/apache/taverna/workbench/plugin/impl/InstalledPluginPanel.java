@@ -23,9 +23,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-
-import uk.org.taverna.commons.plugin.Plugin;
-import uk.org.taverna.commons.plugin.PluginException;
+import org.apache.taverna.plugin.Plugin;
+import org.apache.taverna.plugin.PluginException;
 
 /**
  * @author David Withers

@@ -25,8 +25,8 @@ import java.io.File;
 import java.net.URI;
 
 import javax.swing.Action;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.platform.run.api.RunService;
 import org.apache.taverna.ui.menu.AbstractMenuAction;
 import org.apache.taverna.workbench.run.actions.OpenWorkflowRunAction;

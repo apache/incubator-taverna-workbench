@@ -79,15 +79,14 @@ import org.apache.taverna.workbench.ui.Workbench;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.plugin.PluginException;
+import org.apache.taverna.plugin.PluginManager;
 import org.simplericity.macify.eawt.Application;
 import org.simplericity.macify.eawt.ApplicationAdapter;
 import org.simplericity.macify.eawt.ApplicationEvent;
 import org.simplericity.macify.eawt.ApplicationListener;
 import org.simplericity.macify.eawt.DefaultApplication;
-
-import uk.org.taverna.commons.plugin.PluginException;
-import uk.org.taverna.commons.plugin.PluginManager;
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 /**
  * The main workbench frame.

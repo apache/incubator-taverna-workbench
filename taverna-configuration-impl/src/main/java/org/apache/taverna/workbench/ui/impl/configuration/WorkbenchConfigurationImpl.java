@@ -26,10 +26,9 @@ import java.util.Map;
 import org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration;
 
 import org.apache.log4j.Logger;
-
-import uk.org.taverna.configuration.AbstractConfigurable;
-import uk.org.taverna.configuration.ConfigurationManager;
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.configuration.AbstractConfigurable;
+import org.apache.taverna.configuration.ConfigurationManager;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 
 /**
  * An implementation of Configurable for general Workbench configuration

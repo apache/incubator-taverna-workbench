@@ -19,7 +19,7 @@
 
 package org.apache.taverna.workbench.configuration.workbench;
 
-import uk.org.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.Configurable;
 
 /**
  * @author David Withers

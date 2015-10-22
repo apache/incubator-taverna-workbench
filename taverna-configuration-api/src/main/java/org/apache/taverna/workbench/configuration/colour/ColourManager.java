@@ -20,8 +20,7 @@
 package org.apache.taverna.workbench.configuration.colour;
 
 import java.awt.Color;
-
-import uk.org.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.Configurable;
 
 /**
  * @author David Withers

@@ -22,11 +22,10 @@ package org.apache.taverna.workbench.plugin.impl;
 import static org.apache.taverna.workbench.MainWindow.getMainWindow;
 
 import javax.swing.JDialog;
+import org.apache.taverna.plugin.PluginManager;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
-
-import uk.org.taverna.commons.plugin.PluginManager;
 
 /**
  * @author David Withers

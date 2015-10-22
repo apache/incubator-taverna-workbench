@@ -21,10 +21,10 @@ package org.apache.taverna.workbench.ui.impl.configuration.mimetype;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.taverna.configuration.AbstractConfigurable;
+import org.apache.taverna.configuration.ConfigurationManager;
 
 import org.apache.taverna.workbench.configuration.mimetype.MimeTypeManager;
-import uk.org.taverna.configuration.AbstractConfigurable;
-import uk.org.taverna.configuration.ConfigurationManager;
 
 public class MimeTypeManagerImpl extends AbstractConfigurable implements
 		MimeTypeManager {

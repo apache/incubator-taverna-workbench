@@ -22,9 +22,8 @@ package org.apache.taverna.workbench.ui.credentialmanager.password;
 import java.awt.GraphicsEnvironment;
 
 import javax.swing.JFrame;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
-
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 import org.apache.taverna.security.credentialmanager.JavaTruststorePasswordProvider;
 import org.apache.taverna.security.credentialmanager.MasterPasswordProvider;

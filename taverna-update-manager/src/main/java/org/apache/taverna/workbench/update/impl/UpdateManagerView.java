@@ -22,8 +22,7 @@ package org.apache.taverna.workbench.update.impl;
 import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
-
-import uk.org.taverna.commons.update.UpdateManager;
+import org.apache.taverna.update.UpdateManager;
 
 /**
  * @author David Withers

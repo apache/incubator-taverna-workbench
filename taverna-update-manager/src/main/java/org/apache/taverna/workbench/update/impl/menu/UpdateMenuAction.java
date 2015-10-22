@@ -33,9 +33,8 @@ import javax.swing.Action;
 import org.apache.taverna.ui.menu.AbstractMenuAction;
 
 import org.apache.log4j.Logger;
-
-import uk.org.taverna.commons.update.UpdateException;
-import uk.org.taverna.commons.update.UpdateManager;
+import org.apache.taverna.update.UpdateException;
+import org.apache.taverna.update.UpdateManager;
 
 public class UpdateMenuAction extends AbstractMenuAction {
 	private static final Logger logger = Logger.getLogger(UpdateMenuAction.class);

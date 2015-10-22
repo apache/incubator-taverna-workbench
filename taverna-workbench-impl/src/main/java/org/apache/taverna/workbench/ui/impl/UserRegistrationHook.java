@@ -24,9 +24,9 @@ import static java.awt.GraphicsEnvironment.isHeadless;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Date;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 
 import org.apache.taverna.workbench.StartupSPI;
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 public class UserRegistrationHook implements StartupSPI {
 	/** Delay between when we ask the user about registration, in milliseconds */

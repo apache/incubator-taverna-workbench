@@ -20,8 +20,7 @@
 package org.apache.taverna.workbench.configuration.mimetype;
 
 import java.util.Map;
-
-import uk.org.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.Configurable;
 
 public interface MimeTypeManager extends Configurable {
 	@Override

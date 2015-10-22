@@ -41,11 +41,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
+import org.apache.taverna.plugin.Plugin;
+import org.apache.taverna.plugin.PluginException;
+import org.apache.taverna.plugin.PluginManager;
+import org.apache.taverna.plugin.xml.jaxb.PluginVersions;
 
-import uk.org.taverna.commons.plugin.Plugin;
-import uk.org.taverna.commons.plugin.PluginException;
-import uk.org.taverna.commons.plugin.PluginManager;
-import uk.org.taverna.commons.plugin.xml.jaxb.PluginVersions;
+//import uk.org.taverna.commons.plugin.Plugin;
+//import uk.org.taverna.commons.plugin.PluginException;
+//import uk.org.taverna.commons.plugin.PluginManager;
+//import uk.org.taverna.commons.plugin.xml.jaxb.PluginVersions;
 
 /**
  * @author David Withers

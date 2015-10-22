@@ -21,9 +21,8 @@
 package org.apache.taverna.workbench.ui.activitypalette;
 
 import javax.swing.JPanel;
-
-import uk.org.taverna.configuration.Configurable;
-import uk.org.taverna.configuration.ConfigurationUIFactory;
+import org.apache.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.ConfigurationUIFactory;
 
 public class ActivityPaletteConfigurationUIFactory implements
 		ConfigurationUIFactory {

@@ -22,9 +22,8 @@ package org.apache.taverna.workbench.ui.activitypalette;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import uk.org.taverna.configuration.AbstractConfigurable;
-import uk.org.taverna.configuration.ConfigurationManager;
+import org.apache.taverna.configuration.AbstractConfigurable;
+import org.apache.taverna.configuration.ConfigurationManager;
 
 public class ActivityPaletteConfiguration extends AbstractConfigurable {
 	private Map<String,String> defaultPropertyMap;

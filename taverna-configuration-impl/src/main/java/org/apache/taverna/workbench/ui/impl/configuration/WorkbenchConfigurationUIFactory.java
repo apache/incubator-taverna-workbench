@@ -20,9 +20,8 @@
 package org.apache.taverna.workbench.ui.impl.configuration;
 
 import javax.swing.JPanel;
-
-import uk.org.taverna.configuration.Configurable;
-import uk.org.taverna.configuration.ConfigurationUIFactory;
+import org.apache.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.ConfigurationUIFactory;
 
 import org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration;
 

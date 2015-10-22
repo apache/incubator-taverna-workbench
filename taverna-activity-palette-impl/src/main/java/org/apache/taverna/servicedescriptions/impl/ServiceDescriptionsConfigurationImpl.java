@@ -22,11 +22,10 @@ package org.apache.taverna.servicedescriptions.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.taverna.configuration.AbstractConfigurable;
+import org.apache.taverna.configuration.ConfigurationManager;
 
 import org.apache.taverna.servicedescriptions.ServiceDescriptionsConfiguration;
-
-import uk.org.taverna.configuration.AbstractConfigurable;
-import uk.org.taverna.configuration.ConfigurationManager;
 
 public class ServiceDescriptionsConfigurationImpl extends AbstractConfigurable
 		implements ServiceDescriptionsConfiguration {

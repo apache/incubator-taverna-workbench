@@ -26,15 +26,18 @@ import static org.junit.Assert.assertTrue;
 import java.awt.Color;
 import java.io.File;
 import java.util.UUID;
+import org.apache.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.app.impl.ApplicationConfigurationImpl;
+import org.apache.taverna.configuration.impl.ConfigurationManagerImpl;
 
 import org.apache.taverna.workbench.configuration.colour.ColourManager;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.org.taverna.configuration.Configurable;
-import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
-import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
+//import uk.org.taverna.configuration.Configurable;
+//import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
+//import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
 
 public class ColourManagerTest {
 

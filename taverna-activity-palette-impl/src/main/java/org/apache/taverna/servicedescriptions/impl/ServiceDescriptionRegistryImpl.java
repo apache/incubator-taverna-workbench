@@ -59,8 +59,7 @@ import org.apache.taverna.servicedescriptions.impl.ServiceDescriptionDeserialize
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
-
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 
 public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistry {
 	/**

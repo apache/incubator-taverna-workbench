@@ -44,8 +44,7 @@ import javax.swing.event.ListSelectionListener;
 import org.apache.taverna.workbench.configuration.workbench.ui.T2ConfigurationFrame;
 
 import org.apache.log4j.Logger;
-
-import uk.org.taverna.configuration.ConfigurationUIFactory;
+import org.apache.taverna.configuration.ConfigurationUIFactory;
 
 public class T2ConfigurationFrameImpl implements T2ConfigurationFrame {
 	private static Logger logger = Logger.getLogger(T2ConfigurationFrameImpl.class);

@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.util.UUID;
+import org.apache.taverna.configuration.app.impl.ApplicationConfigurationImpl;
+import org.apache.taverna.configuration.impl.ConfigurationManagerImpl;
 
 import org.apache.taverna.workbench.configuration.colour.ColourManager;
 import org.apache.taverna.workbench.ui.impl.configuration.colour.ColourManagerImpl;
@@ -32,8 +34,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
-import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
+//import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
+//import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
 
 public class ConfigurationManagerTest {
 
