@@ -23,7 +23,7 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 
 import org.apache.taverna.ui.menu.AbstractMenuAction;
 import org.apache.taverna.ui.menu.MenuManager;

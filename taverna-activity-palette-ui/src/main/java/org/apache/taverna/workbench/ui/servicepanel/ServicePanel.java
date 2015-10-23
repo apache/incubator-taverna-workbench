@@ -61,7 +61,7 @@ import org.apache.taverna.workbench.ui.zaria.UIComponentSPI;
 
 import org.apache.log4j.Logger;
 
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 
 /**
  * A panel of available services

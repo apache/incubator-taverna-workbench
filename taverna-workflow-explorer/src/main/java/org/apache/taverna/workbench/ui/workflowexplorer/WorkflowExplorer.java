@@ -79,7 +79,7 @@ import org.apache.taverna.workbench.selection.events.WorkflowBundleSelectionEven
 import org.apache.taverna.workbench.selection.events.WorkflowSelectionEvent;
 import org.apache.taverna.workbench.ui.dndhandler.ServiceTransferHandler;
 import org.apache.taverna.workbench.ui.zaria.UIComponentSPI;
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 import org.apache.taverna.scufl2.api.core.Workflow;
 

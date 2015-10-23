@@ -38,7 +38,7 @@ import org.apache.taverna.ui.menu.MenuManager;
 import org.apache.taverna.workbench.activityicons.ActivityIconManager;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.selection.SelectionManager;
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 
 /**
  * An action to add a string constant activity + a wrapping processor to the

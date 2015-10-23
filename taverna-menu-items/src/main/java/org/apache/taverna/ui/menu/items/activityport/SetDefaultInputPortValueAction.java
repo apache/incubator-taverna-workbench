@@ -37,7 +37,7 @@ import org.apache.taverna.workbench.selection.events.DataflowSelectionMessage;
 import org.apache.taverna.workbench.selection.events.PerspectiveSelectionEvent;
 import org.apache.taverna.workbench.selection.events.SelectionManagerEvent;
 import org.apache.taverna.workbench.selection.events.WorkflowBundleSelectionEvent;
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 import org.apache.taverna.scufl2.api.common.Scufl2Tools;
 import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 import org.apache.taverna.scufl2.api.port.InputProcessorPort;

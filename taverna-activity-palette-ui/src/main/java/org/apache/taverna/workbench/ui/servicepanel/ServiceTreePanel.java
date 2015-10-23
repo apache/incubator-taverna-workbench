@@ -51,7 +51,7 @@ import org.apache.taverna.workbench.ui.servicepanel.tree.TreePanel;
 
 import org.apache.log4j.Logger;
 
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 
 public class ServiceTreePanel extends TreePanel {
 	private static final long serialVersionUID = 6611462684296693909L;

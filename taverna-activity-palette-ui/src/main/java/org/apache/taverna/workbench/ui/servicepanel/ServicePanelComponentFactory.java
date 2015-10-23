@@ -21,7 +21,7 @@ package org.apache.taverna.workbench.ui.servicepanel;
 
 import javax.swing.ImageIcon;
 
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 
 import org.apache.taverna.servicedescriptions.ServiceDescriptionRegistry;
 import org.apache.taverna.ui.menu.MenuManager;

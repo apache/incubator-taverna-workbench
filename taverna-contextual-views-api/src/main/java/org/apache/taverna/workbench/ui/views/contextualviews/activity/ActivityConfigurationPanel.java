@@ -28,9 +28,9 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
-import org.apache.taverna.commons.services.ActivityTypeNotFoundException;
-import org.apache.taverna.commons.services.InvalidConfigurationException;
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ActivityTypeNotFoundException;
+import org.apache.taverna.services.InvalidConfigurationException;
+import org.apache.taverna.services.ServiceRegistry;
 import org.apache.taverna.scufl2.api.activity.Activity;
 import org.apache.taverna.scufl2.api.common.Scufl2Tools;
 import org.apache.taverna.scufl2.api.configurations.Configuration;

@@ -60,7 +60,7 @@ import org.apache.taverna.workbench.ui.views.contextualviews.activity.ActivityCo
 
 import org.apache.log4j.Logger;
 
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 import org.apache.taverna.scufl2.api.activity.Activity;
 import org.apache.taverna.scufl2.api.configurations.Configuration;
 

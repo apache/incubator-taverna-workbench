@@ -38,7 +38,7 @@ import org.apache.taverna.workbench.selection.SelectionManager;
 
 import org.apache.log4j.Logger;
 
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 
 /**
  * TransferHandler for accepting ActivityAndBeanWrapper object dropped on the

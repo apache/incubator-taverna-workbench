@@ -25,7 +25,7 @@ import javax.swing.Action;
 import org.apache.taverna.ui.menu.AbstractContextualMenuAction;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.selection.SelectionManager;
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 import org.apache.taverna.scufl2.api.core.Workflow;
 import org.apache.taverna.scufl2.api.port.InputProcessorPort;
 

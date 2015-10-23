@@ -42,7 +42,7 @@ import org.apache.taverna.workflow.edits.AddProcessorEdit;
 
 import org.apache.log4j.Logger;
 
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 import org.apache.taverna.scufl2.api.activity.Activity;
 import org.apache.taverna.scufl2.api.configurations.Configuration;
 import org.apache.taverna.scufl2.api.core.DataLink;

@@ -20,9 +20,8 @@
 package org.apache.taverna.workbench.ui.servicepanel.config;
 
 import javax.swing.JPanel;
-
-import uk.org.taverna.configuration.Configurable;
-import uk.org.taverna.configuration.ConfigurationUIFactory;
+import org.apache.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.ConfigurationUIFactory;
 
 import org.apache.taverna.servicedescriptions.ServiceDescriptionRegistry;
 import org.apache.taverna.servicedescriptions.ServiceDescriptionsConfiguration;

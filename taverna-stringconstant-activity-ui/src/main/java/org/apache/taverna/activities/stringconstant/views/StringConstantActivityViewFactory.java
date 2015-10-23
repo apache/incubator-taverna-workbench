@@ -31,7 +31,7 @@ import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.ui.views.contextualviews.ContextualView;
 import org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 import org.apache.taverna.scufl2.api.activity.Activity;
 
 public class StringConstantActivityViewFactory implements

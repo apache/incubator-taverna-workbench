@@ -21,7 +21,7 @@ package org.apache.taverna.workbench.ui.workflowexplorer;
 
 import javax.swing.ImageIcon;
 
-import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.services.ServiceRegistry;
 
 import org.apache.taverna.ui.menu.MenuManager;
 import org.apache.taverna.workbench.activityicons.ActivityIconManager;
