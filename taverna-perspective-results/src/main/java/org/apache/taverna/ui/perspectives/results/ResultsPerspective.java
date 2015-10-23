@@ -39,7 +39,7 @@ import org.apache.taverna.workbench.views.results.saveactions.SaveIndividualResu
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.platform.run.api.RunService;
 
 /**

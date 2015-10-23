@@ -29,20 +29,20 @@ import static javax.swing.JOptionPane.showMessageDialog;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 import static org.apache.taverna.workbench.helper.Helper.showHelp;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.PROXY_USE_OPTION;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_NON_PROXY_HOSTS;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_HOST;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_PASSWORD;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_PORT;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_USER;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_NON_PROXY_HOSTS;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_HOST;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_PASSWORD;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_PORT;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_USER;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.USE_NO_PROXY_OPTION;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.USE_SPECIFIED_VALUES_OPTION;
-import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.USE_SYSTEM_PROPERTIES_OPTION;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.PROXY_USE_OPTION;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_NON_PROXY_HOSTS;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_HOST;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_PASSWORD;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_PORT;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_USER;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_NON_PROXY_HOSTS;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_HOST;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_PASSWORD;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_PORT;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_USER;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.USE_NO_PROXY_OPTION;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.USE_SPECIFIED_VALUES_OPTION;
+import static org.apache.taverna.configuration.proxy.HttpProxyConfiguration.USE_SYSTEM_PROPERTIES_OPTION;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -62,7 +62,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.taverna.lang.ui.DialogTextArea;
-import uk.org.taverna.configuration.proxy.HttpProxyConfiguration;
+import org.apache.taverna.configuration.proxy.HttpProxyConfiguration;
 
 /**
  * The HttpProxyConfigurationPanel provides the user interface to a

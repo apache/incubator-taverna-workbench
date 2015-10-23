@@ -65,7 +65,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public class FileOpenRecentMenuAction extends AbstractMenuCustom implements

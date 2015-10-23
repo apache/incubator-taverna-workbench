@@ -6,8 +6,8 @@ package org.apache.taverna.workbench.report.config.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.org.taverna.configuration.AbstractConfigurable;
-import uk.org.taverna.configuration.ConfigurationManager;
+import org.apache.taverna.configuration.AbstractConfigurable;
+import org.apache.taverna.configuration.ConfigurationManager;
 
 import org.apache.taverna.workbench.report.config.ReportManagerConfiguration;
 import org.apache.taverna.workflowmodel.health.RemoteHealthChecker;

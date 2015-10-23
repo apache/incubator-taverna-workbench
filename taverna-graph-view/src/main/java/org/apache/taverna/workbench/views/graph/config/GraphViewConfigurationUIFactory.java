@@ -21,8 +21,8 @@ package org.apache.taverna.workbench.views.graph.config;
 
 import javax.swing.JPanel;
 
-import uk.org.taverna.configuration.Configurable;
-import uk.org.taverna.configuration.ConfigurationUIFactory;
+import org.apache.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.ConfigurationUIFactory;
 
 /**
  * ConfigurationFactory for the GraphViewConfiguration.

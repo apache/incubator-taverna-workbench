@@ -22,9 +22,9 @@ package org.apache.taverna.workbench.httpproxy.config;
 
 import javax.swing.JPanel;
 
-import uk.org.taverna.configuration.Configurable;
-import uk.org.taverna.configuration.ConfigurationUIFactory;
-import uk.org.taverna.configuration.proxy.HttpProxyConfiguration;
+import org.apache.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.ConfigurationUIFactory;
+import org.apache.taverna.configuration.proxy.HttpProxyConfiguration;
 
 /**
  * A Factory to create a HttpProxyConfiguration
