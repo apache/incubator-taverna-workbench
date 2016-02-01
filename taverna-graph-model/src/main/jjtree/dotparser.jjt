@@ -1,7 +1,7 @@
 /**
  * JavaCC grammar for parsing Graphviz DOT files.
  * Written by Lynn Monson at lm@lmonson.com
- * Modified by David Withers
+ * Modified by David Withers, University of Manchester
  */
 options {
   STATIC = false;

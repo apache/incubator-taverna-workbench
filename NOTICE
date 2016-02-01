@@ -7,3 +7,9 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ---------------------------------------------------------
 
+TODO: check license for
+src/main/jjtree/dotparser.jjt
+
+  JavaCC grammar for parsing Graphviz DOT files.
+  Written by Lynn Monson at lm@lmonson.com
+
