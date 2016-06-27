@@ -197,7 +197,7 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 			ApplicationConfiguration applicationConfiguration,
 			DistinguishedNameParser dnParser) {
 		return new File(
-				dnParser.getCredentialManagerDefaultDirectory(applicationConfiguration),
+				dnParser.getCredentialManagerDefaultDirectory(applicationConfiguration).toFile(),
 				DO_NOT_WARN_ABOUT_JCE_POLICY);
 	}
 

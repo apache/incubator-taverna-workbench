@@ -78,15 +78,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 
+import org.apache.log4j.Logger;
 import org.apache.taverna.security.credentialmanager.CMException;
 import org.apache.taverna.security.credentialmanager.CredentialManager;
 import org.apache.taverna.security.credentialmanager.CredentialManager.KeystoreType;
 import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
 import org.apache.taverna.security.credentialmanager.UsernamePassword;
-
-import org.apache.log4j.Logger;
-import org.bouncycastle.openssl.PEMReader;
-import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
 /**
  * Provides a UI for the Credential Manager for users to manage their
@@ -1139,7 +1138,7 @@ public class CredentialManagerUI extends JFrame {
 		try {
 			// Load the PKCS #12 keystore from the file
 			// (this is using the BouncyCastle provider !!!)
-			KeyStore pkcs12Keystore = credManager.loadPKCS12Keystore(importFile,
+			KeyStore pkcs12Keystore = credManager.loadPKCS12Keystore(importFile.toPath(),
 					pkcs12Password);
 
 			/*
@@ -1239,7 +1238,7 @@ public class CredentialManagerUI extends JFrame {
 
 		// Export the key pair
 		try {
-			credManager.exportKeyPair(alias, exportFile, pkcs12Password);
+			credManager.exportKeyPair(alias, exportFile.toPath(), pkcs12Password);
 			showMessageDialog(this, "Key pair export successful", ALERT_TITLE,
 					INFORMATION_MESSAGE);
 		} catch (CMException cme) {
@@ -1316,10 +1315,9 @@ public class CredentialManagerUI extends JFrame {
 
 			if (trustCertsList.size() == 0) {
 				// Could not load certificates as any of the above types
-				try (FileInputStream fis = new FileInputStream(certFile);
-						PEMReader pr = new PEMReader(
-								new InputStreamReader(fis), null, cf
-										.getProvider().getName())) {
+				
+				try (PEMParser pr = new PEMParser(
+								new InputStreamReader(new FileInputStream(certFile)))) {
 					/*
 					 * Try as openssl PEM format - which sligtly differs from
 					 * the one supported by JCE
@@ -1407,7 +1405,8 @@ public class CredentialManagerUI extends JFrame {
 			return false;
 
 		// Export the trusted certificate
-		try (PEMWriter pw = new PEMWriter(new FileWriter(exportFile))) {
+		try (JcaPEMWriter pw = new JcaPEMWriter(new FileWriter(exportFile))) {
+		//try (PEMWriter pw = new PEMWriter(new FileWriter(exportFile))) {			
 			// Get the trusted certificate
 			pw.writeObject(credManager.getCertificate(TRUSTSTORE, alias));
 		} catch (Exception ex) {
