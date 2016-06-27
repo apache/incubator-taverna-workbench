@@ -50,12 +50,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-import net.sf.taverna.raven.appconfig.ApplicationRuntime;
+import org.apache.log4j.Logger;
 import org.apache.taverna.ui.perspectives.myexperiment.JClickableLabel;
 import org.apache.taverna.ui.perspectives.myexperiment.MyExperimentPerspective;
 import org.apache.taverna.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
-
-import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -607,18 +605,4 @@ public class Util {
 	return (strResult);
   }
 
-  /**
-   * Determines whether the plugin is running as a standalone JFrame or inside
-   * Taverna Workbench.
-   */
-  public static boolean isRunningInTaverna() {
-	try {
-	  // ApplicationRuntime class is defined within Taverna API. If this is available,
-	  // it should mean that the plugin runs within Taverna.
-	  ApplicationRuntime.getInstance();
-	  return true;
-	} catch (NoClassDefFoundError e) {
-	  return false;
-	}
-  }
 }

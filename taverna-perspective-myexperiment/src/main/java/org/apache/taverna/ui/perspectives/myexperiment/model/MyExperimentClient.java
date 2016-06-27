@@ -44,24 +44,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.raven.appconfig.ApplicationRuntime;
+import org.apache.log4j.Logger;
 import org.apache.taverna.security.credentialmanager.CMException;
 import org.apache.taverna.security.credentialmanager.CredentialManager;
 import org.apache.taverna.security.credentialmanager.UsernamePassword;
 import org.apache.taverna.ui.perspectives.myexperiment.MainComponent;
 import org.apache.taverna.ui.perspectives.myexperiment.MyExperimentPerspective;
 import org.apache.taverna.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
-
-import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.xml.sax.InputSource;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 
 /**
  * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
@@ -115,35 +113,24 @@ public class MyExperimentClient {
   // file
 
   // the logger
-  private Logger logger;
+  private Logger logger = Logger.getLogger(MyExperimentClient.class);
 
   // authentication settings (and the current user)
   private boolean LOGGED_IN = false;
   private String AUTH_STRING = "";
   private User current_user = null;
+private CredentialManager credentialManager;
 
   // default constructor
-  public MyExperimentClient() {
-  }
+  public MyExperimentClient(CredentialManager credentialManager, ApplicationConfiguration applicationConfig) {
+	  
 
-  public MyExperimentClient(Logger logger) {
-    this();
-
-    this.logger = logger;
-
-    // === Load INI settings ===
+    this.credentialManager = credentialManager;
+	// === Load INI settings ===
     // but loading settings from INI file, determine what folder is to be used
     // for INI file
-    if (Util.isRunningInTaverna()) {
-      // running inside Taverna - use its folder to place the config file
-      this.fIniFileDir = new java.io.File(ApplicationRuntime.getInstance()
-          .getApplicationHomeDir(), "conf");
-    } else {
-      // running outside Taverna, place config file into the user's home
-      // directory
-      this.fIniFileDir = new java.io.File(System.getProperty("user.home"),
-          ".Taverna2-myExperiment Plugin");
-    }
+	this.fIniFileDir = new java.io.File(applicationConfig
+	     .getApplicationHomeDir().toFile(), "conf");
 
     // load preferences if the INI file exists
     this.iniSettings = new Properties();
@@ -255,7 +242,7 @@ public class MyExperimentClient {
 	private UsernamePassword getUserPass(String urlString) {
 		try {
 			URI userpassUrl = URI.create(urlString);
-			final UsernamePassword userAndPass = CredentialManager.getInstance().getUsernameAndPasswordForService(userpassUrl, true, null);
+			final UsernamePassword userAndPass = credentialManager.getUsernameAndPasswordForService(userpassUrl, true, null);
 			return userAndPass;
 		} catch (CMException e) {
 			throw new RuntimeException("Error in Taverna Credential Manager", e);
@@ -268,7 +255,7 @@ public class MyExperimentClient {
 	  ServerResponse response = null;
     Document doc = null;
     try {
-//    	CredentialManager.getInstance().getUsernameAndPasswordForService(new URI(this.BASE_URL), true, null);
+//    	credentialManager.getUsernameAndPasswordForService(new URI(this.BASE_URL), true, null);
     	response = this.doMyExperimentGET(this.BASE_URL + "/whoami.xml");
     } catch (Exception e) {
       this.logger
@@ -279,13 +266,13 @@ public class MyExperimentClient {
 	
 	if (response.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
 		try {
-			List<String> toDelete = CredentialManager.getInstance().getServiceURLsforAllUsernameAndPasswordPairs();
-			for (String uri : toDelete) {
-				if (uri.startsWith(BASE_URL)) {
-					CredentialManager.getInstance().deleteUsernameAndPasswordForService(uri);
+			List<URI> toDelete = credentialManager.getServiceURIsForAllUsernameAndPasswordPairs();
+			for (URI uri : toDelete) {
+				if (uri.toASCIIString().startsWith(BASE_URL)) {
+					credentialManager.deleteUsernameAndPasswordForService(uri);
 				}
 			}
-//			CredentialManager.getInstance().resetAuthCache();
+//			credentialManager.resetAuthCache();
 			doc = null;
 		} catch (Exception e) {
 			logger.error(e);

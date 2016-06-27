@@ -40,21 +40,25 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import org.apache.taverna.lang.ui.ShadedLabel;
-import org.apache.taverna.ui.perspectives.PerspectiveRegistry;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.ui.menu.MenuManager;
 import org.apache.taverna.ui.perspectives.myexperiment.model.MyExperimentClient;
 import org.apache.taverna.ui.perspectives.myexperiment.model.Resource;
 import org.apache.taverna.ui.perspectives.myexperiment.model.Util;
 import org.apache.taverna.ui.perspectives.myexperiment.model.Workflow;
+import org.apache.taverna.workbench.configuration.colour.ColourManager;
+import org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.file.FileType;
 import org.apache.taverna.workbench.file.exceptions.OpenException;
 import org.apache.taverna.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import org.apache.taverna.workbench.icons.WorkbenchIcons;
+import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
 import org.apache.taverna.workbench.ui.zaria.UIComponentSPI;
-import org.apache.taverna.workflowmodel.Dataflow;
-import org.apache.taverna.workflowmodel.serialization.xml.impl.XMLSerializationConstants;
+import org.apache.taverna.workbench.ui.Workbench;
+
 
 import org.apache.log4j.Logger;
 
@@ -64,7 +68,8 @@ import org.apache.log4j.Logger;
 public final class MainComponent extends JPanel implements UIComponentSPI, ChangeListener {
 	// myExperiment client, logger and the stylesheet will be made available
 	// throughout the whole perspective
-	private MyExperimentClient myExperimentClient;
+
+	
 	private final Logger logger = Logger.getLogger(MainComponent.class);
 	private final StyleSheet css;
 	private final ResourcePreviewFactory previewFactory;
@@ -85,23 +90,26 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	public static Logger LOGGER;
 	private final EditManager editManager;
 	private final FileManager fileManager;
+	private final MyExperimentClient myExperimentClient;
+	private final MenuManager menuManager;
+	private final ColourManager colourManager;
+	private final WorkbenchConfiguration workbenchConfiguration;
+	private final SelectionManager selectionManager;
 
-	public MainComponent(EditManager editManager, FileManager fileManager) {
-		super();
+	public MainComponent(EditManager editManager, FileManager fileManager, MyExperimentClient myExperimentClient, 
+			MenuManager menuManager, ColourManager colourManager,
+			WorkbenchConfiguration workbenchConfiguration, SelectionManager selectionManager) {
 		this.editManager = editManager;
 		this.fileManager = fileManager;
-
-		// create and initialise myExperiment client
-		try {
-			this.myExperimentClient = new MyExperimentClient(logger);
-		} catch (Exception e) {
-			this.logger.error("Couldn't initialise myExperiment client");
-		}
+		this.myExperimentClient = myExperimentClient;
+		this.menuManager = menuManager;
+		this.colourManager = colourManager;
+		this.workbenchConfiguration = workbenchConfiguration;
+		this.selectionManager = selectionManager;
 
 		// x, y, z ARE NOT USED ANYWHERE ELSE
 		// HACK TO BE ABLE TO GET THE REFS FROM TAVERNA'S PREFERENCE PANEL
-		// TODO: refactor code for all the other classes to utilise the class
-		// vars
+		// FIXME: Avoid all these global class variables!
 		MainComponent x = this;
 		MAIN_COMPONENT = x;
 
@@ -135,22 +143,6 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 		// NB! This has to be located after all ShadedLabels were initialized to
 		// prevent bad layout in them
 		HTMLEditorKit kit = new StyledHTMLEditorKit(this.css);
-
-		// determine which shutdown operations to use
-		if (Util.isRunningInTaverna()) {
-			// register the current instance of main component with the
-			// myExperiment
-			// perspective; this will be used later on when shutdown operation
-			// needs
-			// to be performed - e.g. this aids ShutdownSPI to find the running
-			// instance of the plugin
-			for (PerspectiveSPI perspective : PerspectiveRegistry.getInstance().getPerspectives()) {
-				if (perspective.getText().equals(MyExperimentPerspective.PERSPECTIVE_NAME)) {
-					((MyExperimentPerspective) perspective).setMainComponent(this);
-					break;
-				}
-			}
-		}
 
 		// Do the rest in a separate thread to avoid hanging the GUI.
 		// Remember to use SwingUtilities.invokeLater to update the GUI
@@ -291,7 +283,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 		if (oAutoLogin != null && oAutoLogin.equals("true")) {
 			this.getStatusBar().setStatus(this.getMyStuffTab().getClass().getName(),
 					"Performing autologin");
-			this.myExperimentClient.doLoginFromStoredCredentials();
+			this.myExperimentClient.doLogin();
 			this.getStatusBar().setStatus(this.getMyStuffTab().getClass().getName(),
 					"Autologin finished. Fetching user data");
 		}
@@ -475,7 +467,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 
 						FileType fileTypeType = (w.isTaverna1Workflow() ? new ScuflFileType()
 								: new T2FlowFileType());
-						Dataflow openDataflow = fileManager.openDataflow(fileTypeType,
+						WorkflowBundle openDataflow = fileManager.openDataflow(fileTypeType,
 								workflowDataInputStream);
 					} catch (Exception e) {
 						javax.swing.JOptionPane.showMessageDialog(null,
@@ -553,7 +545,10 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 				getPreviewBrowser().toBack();
 
 			ImportWorkflowWizard importWorkflowDialog = new ImportWorkflowWizard(
-					getPreviewBrowser(), editManager, fileManager);
+					getPreviewBrowser(), editManager, fileManager, 
+					menuManager, colourManager,
+					workbenchConfiguration, selectionManager
+					);
 
 			Workflow w;
 			try {
@@ -569,7 +564,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
 			FileType fileTypeType = (w.isTaverna1Workflow() ? new MainComponent.ScuflFileType()
 					: new MainComponent.T2FlowFileType());
-			Dataflow toBeImported;
+			WorkflowBundle toBeImported;
 			try {
 				toBeImported = fileManager.openDataflowSilently(fileTypeType,
 						workflowDataInputStream).getDataflow();
@@ -638,8 +633,25 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 
 		@Override
 		public String getMimeType() {
-			// "application/vnd.taverna.t2flow+xml";
-			return XMLSerializationConstants.WORKFLOW_DOCUMENT_MIMETYPE;
+			return "application/vnd.taverna.t2flow+xml";
 		}
 	}
+
+	public static class WorkflowBundleFileType extends FileType {
+		@Override
+		public String getDescription() {
+			return "Taverna 3 workflow bundle";
+		}
+
+		@Override
+		public String getExtension() {
+			return "wfbundle";
+		}
+
+		@Override
+		public String getMimeType() {
+			return "application/vnd.taverna.scufl2.workflow-bundle";
+		}
+	}
+	
 }

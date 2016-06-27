@@ -28,11 +28,23 @@
 
 	<service ref="MainComponentFactory" interface="org.apache.taverna.workbench.ui.zaria.UIComponentFactorySPI" />
 
+	<service ref="MyExperimentConfiguration" interface="org.apache.taverna.configuration.Configurable" />
+
 	<service ref="MyExperimentPerspective" interface="org.apache.taverna.workbench.ui.zaria.PerspectiveSPI" />
 
-	<service ref="MainComponentShutdownHook" interface="org.apache.taverna.workbench.ShutdownSPI" />
+	<service ref="MyExperimentClientShutdownHook" interface="org.apache.taverna.workbench.ShutdownSPI" />
 
 	<reference id="editManager" interface="org.apache.taverna.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="org.apache.taverna.workbench.file.FileManager" />
+	<reference id="credentialManager" interface="org.apache.taverna.security.credentialmanager.CredentialManager" />
+	<reference id="appConfig" interface="org.apache.taverna.configuration.app.ApplicationConfiguration" />
+	<reference id="menuManager" interface="org.apache.taverna.ui.menu.MenuManager" />
+	<reference id="edits" interface="org.apache.taverna.workflowmodel.Edits" />
+	<reference id="activityIconManager" interface="org.apache.taverna.workbench.activityicons.ActivityIconManager" />
+	<reference id="colourManager" interface="org.apache.taverna.workbench.configuration.colour.ColourManager" />
+	<reference id="serviceDescriptionRegistry" interface="org.apache.taverna.servicedescriptions.ServiceDescriptionRegistry" />
+	<reference id="workbenchConfiguration" interface="org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<reference id="selectionManager" interface="org.apache.taverna.workbench.selection.SelectionManager" />
+	<reference id="configurationManager" interface="org.apache.taverna.configuration.ConfigurationManager" /> 
 
 </beans:beans>

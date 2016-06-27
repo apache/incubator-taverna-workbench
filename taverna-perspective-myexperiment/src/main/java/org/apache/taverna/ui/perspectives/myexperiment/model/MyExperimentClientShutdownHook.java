@@ -18,23 +18,21 @@
  * along with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package org.apache.taverna.ui.perspectives.myexperiment;
-
-import org.apache.taverna.ui.perspectives.PerspectiveRegistry;
-import org.apache.taverna.ui.perspectives.myexperiment.model.MyExperimentClient;
-import org.apache.taverna.workbench.ShutdownSPI;
-import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
+package org.apache.taverna.ui.perspectives.myexperiment.model;
 
 import org.apache.log4j.Logger;
+import org.apache.taverna.ui.perspectives.myexperiment.model.MyExperimentClient;
+import org.apache.taverna.workbench.ShutdownSPI;
 
 /**
  * @author Sergejs Aleksejevs, Jiten Bhagat
  */
 
-public class MainComponentShutdownHook implements ShutdownSPI {
-  private MainComponent pluginMainComponent;
+public class MyExperimentClientShutdownHook implements ShutdownSPI {
+
+  
   private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private Logger logger = Logger.getLogger(MyExperimentClientShutdownHook.class);
 
   public int positionHint() {
 	// all custom plugins are suggested to return a value of > 100;
@@ -44,41 +42,34 @@ public class MainComponentShutdownHook implements ShutdownSPI {
   }
 
   public boolean shutdown() {
-	// find instance of main component of the running myExperiment perspective
-	MainComponent mainComponent = null;
-	for (PerspectiveSPI perspective : PerspectiveRegistry.getInstance().getPerspectives()) {
-	  if (perspective instanceof MyExperimentPerspective) {		  
-		mainComponent = ((MyExperimentPerspective) perspective).getMainComponent();
-		break;
+	  if (myExperimentClient == null) {
+		  // no myExperimentClient yet, all done
+		  return true;
 	  }
-	}
-
-	// if myExperiment perspective wasn't initialised, no shutdown operations are required / possible
-	if (mainComponent != null) {
-	  this.setLinks(mainComponent, mainComponent.getMyExperimentClient(), mainComponent.getLogger());
+	// find instance of main component of the running myExperiment perspective
 	  logger.debug("Starting shutdown operations for myExperiment plugin");
 
 	  try {
-		myExperimentClient.storeHistoryAndSettings();
+		  myExperimentClient.storeHistoryAndSettings();
 	  } catch (Exception e) {
 		logger.error("Failed while serializing myExperiment plugin settings:\n"
 			+ e);
 	  }
 
 	  logger.debug("myExperiment plugin shutdown is completed; terminated...");
-	}
 
 	// "true" means that shutdown operations are complete and Taverna can terminate
 	return true;
   }
 
-  /**
-   * Sets up links of this class with the rest of the plugin.
-   */
-  public void setLinks(MainComponent component, MyExperimentClient client, Logger logger) {
-	this.pluginMainComponent = component;
-	this.myExperimentClient = client;
-	this.logger = logger;
-  }
+
+	public void setMyExperimentClient(MyExperimentClient myExperimentClient) {
+		this.myExperimentClient = myExperimentClient;
+	}
+
+	public MyExperimentClient getMyExperimentClient() {
+		return myExperimentClient;
+	}
+
 
 }

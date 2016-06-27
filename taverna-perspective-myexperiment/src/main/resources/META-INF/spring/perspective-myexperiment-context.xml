@@ -22,17 +22,29 @@
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="MyExperimentConfigurationUIFactory" class="org.apache.taverna.workbench.myexperiment.config.MyExperimentConfigurationUIFactory">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
+			<property name="configurationManager" ref="configurationManager" />
+	</bean>
+	
+	<bean id="MyExperimentClient" class="org.apache.taverna.ui.perspectives.myexperiment.model.MyExperimentClient">
+		<constructor-arg ref="credentialManager" />
+		<constructor-arg ref="appConfig" />
 	</bean>
 
 	<bean id="MainComponentFactory" class="org.apache.taverna.ui.perspectives.myexperiment.MainComponentFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
+			<property name="myExperimentClient" ref="MyExperimentClient" />
+			<property name="menuManager" ref="menuManager" />
+			<property name="colourManager" ref="colourManager" />
+			<property name="workbenchConfiguration" ref="workbenchConfiguration" />			
+			<property name="selectionManager" ref="selectionManager" />			
 	</bean>
 
 	<bean id="MyExperimentPerspective" class="org.apache.taverna.ui.perspectives.myexperiment.MyExperimentPerspective" />
 
-	<bean id="MainComponentShutdownHook" class="org.apache.taverna.ui.perspectives.myexperiment.MainComponentShutdownHook" />
+	<bean id="MyExperimentClientShutdownHook" class="org.apache.taverna.ui.perspectives.myexperiment.model.MyExperimentClientShutdownHook">
+		<property name="myexperimentClient" ref="MyExperimentClient" /> 	
+	</bean>
+
 
 </beans>

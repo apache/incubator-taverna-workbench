@@ -21,15 +21,13 @@
 
 package org.apache.taverna.ui.perspectives.myexperiment;
 
-import java.io.InputStream;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 
 import org.apache.taverna.ui.perspectives.myexperiment.model.Resource;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
-
-import org.jdom.Element;
 
 /**
  * @author Sergejs Aleksejevs, Jiten Bhagat
@@ -54,10 +52,6 @@ public class MyExperimentPerspective implements PerspectiveSPI {
 		}
 	}
 
-	public InputStream getLayoutInputStream() {
-		return getClass().getResourceAsStream("myexperiment-perspective.xml");
-	}
-
 	public String getText() {
 		return PERSPECTIVE_NAME;
 	}
@@ -76,10 +70,6 @@ public class MyExperimentPerspective implements PerspectiveSPI {
 	public void setVisible(boolean visible) {
 		this.visible = visible;
 
-	}
-
-	public void update(Element layoutElement) {
-		// Not sure what to do here
 	}
 
 	public void setMainComponent(MainComponent component) {
@@ -185,6 +175,16 @@ public class MyExperimentPerspective implements PerspectiveSPI {
 		// recognised;
 		// return the local URL of that resource
 		return (MyExperimentPerspective.class.getResource(strResourcePath));
+	}
+
+	@Override
+	public String getID() {
+		return "myExperiment";
+	}
+
+	@Override
+	public JComponent getPanel() {
+		return getMainComponent();
 	}
 
 }

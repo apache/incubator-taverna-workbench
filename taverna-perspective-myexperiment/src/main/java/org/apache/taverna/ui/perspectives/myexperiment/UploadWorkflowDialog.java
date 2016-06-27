@@ -63,6 +63,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 import org.apache.taverna.ui.perspectives.myexperiment.model.License;
 import org.apache.taverna.ui.perspectives.myexperiment.model.MyExperimentClient;
 import org.apache.taverna.ui.perspectives.myexperiment.model.Resource;
@@ -201,25 +202,25 @@ public class UploadWorkflowDialog extends HelpEnabledDialog implements ActionLis
 	}
 
 	private void createDropdown() {
-		List<DataflowSelection> openDataflows = new ArrayList<DataflowSelection>();
+		List<WorkflowBundleSelection> openDataflows = new ArrayList<WorkflowBundleSelection>();
 
 		int currentlyOpenedIndex = 0;
 		boolean foundIndex = false;
 
-		for (Dataflow df : fileManager.getOpenDataflows()) {
+		for (WorkflowBundle df : fileManager.getOpenDataflows()) {
 			Object source = fileManager.getDataflowSource(df);
 
 			String name = "";
 			boolean getLocalName = source instanceof InputStream;
 			if (source != null)
-				name = (getLocalName ? df.getLocalName() : source.toString());
+				name = (getLocalName ? df.getName() : source.toString());
 
 			if (df.equals(fileManager.getCurrentDataflow())) {
 				name = "<html><body>" + name + " - " + " <i>(current)</i></body></html>";
 				foundIndex = true;
 			}
 
-			openDataflows.add(new DataflowSelection(df, name));
+			openDataflows.add(new WorkflowBundleSelection(df, name));
 			if (!foundIndex)
 				currentlyOpenedIndex++;
 		}
@@ -424,8 +425,8 @@ public class UploadWorkflowDialog extends HelpEnabledDialog implements ActionLis
 
 		if (rbSelectOpenWorkflow.isSelected()) { // user requested to use a flow
 			// currently open in t2
-			Dataflow dataflowToUpload = ((DataflowSelection) jcbOpenWorkflows.getSelectedItem())
-					.getDataflow();
+			WorkflowBundle dataflowToUpload = ((WorkflowBundleSelection) jcbOpenWorkflows.getSelectedItem())
+					.getWorkflowBundle();
 			SaveWorkflowAsAction saveAction = new SaveWorkflowAsAction(fileManager);
 
 			boolean skipPrompt = false;
@@ -823,17 +824,17 @@ public class UploadWorkflowDialog extends HelpEnabledDialog implements ActionLis
 		// not in use
 	}
 
-	private class DataflowSelection {
-		private final Dataflow dataflow;
+	private class WorkflowBundleSelection {
+		private final WorkflowBundle workflowBundle;
 		private final String name;
 
-		public DataflowSelection(Dataflow dataflow, String name) {
-			this.dataflow = dataflow;
+		public WorkflowBundleSelection(WorkflowBundle df, String name) {
+			this.workflowBundle = df;
 			this.name = name;
 		}
 
-		public Dataflow getDataflow() {
-			return dataflow;
+		public WorkflowBundle getWorkflowBundle() {
+			return workflowBundle;
 		}
 
 		public String getName() {
