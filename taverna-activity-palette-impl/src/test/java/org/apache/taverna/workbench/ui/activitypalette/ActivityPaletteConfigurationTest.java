@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -47,8 +46,8 @@ public class ActivityPaletteConfigurationTest {
 		d.mkdir();
 		manager = new ConfigurationManagerImpl(new ApplicationConfigurationImpl() {
 			@Override
-			public Path getApplicationHomeDir() {
-				return d.toPath();
+			public File getApplicationHomeDir() {
+				return d;
 			}
 		});
 		conf=new ActivityPaletteConfiguration(manager);
