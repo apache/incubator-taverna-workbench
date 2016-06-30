@@ -168,7 +168,7 @@ public class WorkbenchConfigurationImpl extends AbstractConfigurable implements
 	private String getDefaultDotLocation() {
 		if (applicationConfiguration == null)
 			return null;
-		File startupDir = applicationConfiguration.getStartupDir();
+		File startupDir = applicationConfiguration.getStartupDir().toFile();
 		if (startupDir == null)
 			return DOT_FALLBACK;
 
