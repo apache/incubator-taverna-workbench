@@ -129,7 +129,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	private File getTavernaStartupConfigurationDirectory() {
 		File distroHome = null;
 		File configDirectory = null;
-		distroHome = applicationConfiguration.getStartupDir();
+		distroHome = applicationConfiguration.getStartupDir().toFile();
 		configDirectory = new File(distroHome, "conf");
 		if (!configDirectory.exists())
 			configDirectory.mkdir();
@@ -185,7 +185,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 
 	private File findServiceDescriptionsFile() {
 		File confDir = new File(
-				applicationConfiguration.getApplicationHomeDir(), CONF_DIR);
+				applicationConfiguration.getApplicationHomeDir().toFile() , CONF_DIR);
 		confDir.mkdirs();
 		if (!confDir.isDirectory())
 			throw new RuntimeException("Invalid directory: " + confDir);
