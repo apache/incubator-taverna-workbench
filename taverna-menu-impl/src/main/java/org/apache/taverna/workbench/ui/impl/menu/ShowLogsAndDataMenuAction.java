@@ -60,7 +60,7 @@ public class ShowLogsAndDataMenuAction extends AbstractMenuAction {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File logsAndDataDir = applicationConfiguration.getApplicationHomeDir();
+				File logsAndDataDir = applicationConfiguration.getApplicationHomeDir().toFile();
 				showDirectory(logsAndDataDir, "Taverna logs and data folder");
 			}
 		};
