@@ -47,7 +47,7 @@ public class ActivityPaletteConfigurationTest {
 		d.mkdir();
 		manager = new ConfigurationManagerImpl(new ApplicationConfigurationImpl() {
 			@Override
-			public Path getApplicationHomeDir() {
+			public Path  getApplicationHomeDir() {
 				return d.toPath();
 			}
 		});
