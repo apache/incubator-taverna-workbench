@@ -185,7 +185,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 
 	private File findServiceDescriptionsFile() {
 		File confDir = new File(
-				applicationConfiguration.getApplicationHomeDir().toFile(), CONF_DIR);
+				applicationConfiguration.getApplicationHomeDir().toFile() , CONF_DIR);
 		confDir.mkdirs();
 		if (!confDir.isDirectory())
 			throw new RuntimeException("Invalid directory: " + confDir);
