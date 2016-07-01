@@ -37,7 +37,7 @@ public class RunIterationStrategyEditor {
 		InputProcessorPort fish = new InputProcessorPort(p, "fish");
 		fish.setDepth(2);
 		InputProcessorPort other = new InputProcessorPort(p, "other");
-		other.setDepth(0)
+		other.setDepth(0);
 		InputProcessorPort soup = new InputProcessorPort(p, "soup");
 		soup.setDepth(1);
 		

@@ -45,8 +45,10 @@ import org.apache.taverna.scufl2.api.core.Processor;
 import org.apache.taverna.scufl2.api.iterationstrategy.CrossProduct;
 import org.apache.taverna.scufl2.api.iterationstrategy.DotProduct;
 import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyNode;
+import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
 import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
 import org.apache.taverna.scufl2.api.iterationstrategy.PortNode;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
 import org.apache.taverna.workbench.icons.WorkbenchIcons;
 import org.apache.taverna.workbench.iterationstrategy.IterationStrategyIcons;
 
@@ -117,13 +119,28 @@ public class IterationStrategyEditorControl extends JPanel {
 
 	private Processor processor;
 
+	public void createDefaultIterationStrategyStack(Processor p) {
+		p.setIterationStrategyStack(new IterationStrategyStack());
+		CrossProduct crossProduct = new CrossProduct();
+		for (InputProcessorPort in : p.getInputPorts()) {
+			// As this is a NamedSet the above will always be in 
+			// the same alphabetical order
+			// FIXME: What about different Locales?
+			crossProduct.add(new PortNode(crossProduct, in));
+		}
+		p.getIterationStrategyStack().add(crossProduct);
+	}
+
+	
 	/**
 	 * Create a new panel from the supplied iteration strategy
 	 */
 	public IterationStrategyEditorControl(Processor p) {
 		this.processor = p;
 		if (p.getIterationStrategyStack() == null || p.getIterationStrategyStack().isEmpty()) {
-			new Scufl2Tools().createDefaultIterationStrategyStack(p);
+			// FIXME: Use Scufl2Tools for taverna-language 0.15.2 or newer
+			//	new Scufl2Tools().createDefaultIterationStrategyStack(p);
+			createDefaultIterationStrategyStack(p);
 		}
 		
 		if (p.getIterationStrategyStack().size() > 1) {
