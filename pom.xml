@@ -68,7 +68,7 @@
             <module>taverna-graph-view</module>
             <module>taverna-helper-api</module>
             <module>taverna-httpproxy-config</module>
-            <module>taverna-iteration-strategy-ui</module>
+	    <!--            <module>taverna-iteration-strategy-ui</module>-->
             <module>taverna-loop-ui</module>
             <module>taverna-menu-api</module>
             <module>taverna-menu-impl</module>
