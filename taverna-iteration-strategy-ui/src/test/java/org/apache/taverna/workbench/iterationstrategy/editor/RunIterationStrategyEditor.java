@@ -1,30 +1,30 @@
-/*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  * 
- *  Modifications to the initial code base are copyright of their
- *  respective authors, or their employers as appropriate.
+ *   http://www.apache.org/licenses/LICENSE-2.0
  * 
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation; either version 2.1 of
- *  the License, or (at your option) any later version.
- *    
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
- *    
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- ******************************************************************************/
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.taverna.workbench.iterationstrategy.editor;
 
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.iterationstrategy.CrossProduct;
+import org.apache.taverna.scufl2.api.iterationstrategy.PortNode;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
 import org.apache.taverna.workbench.iterationstrategy.editor.IterationStrategyEditorControl;
 import javax.swing.JFrame;
 
-import org.apache.taverna.workflowmodel.processor.iteration.NamedInputPortNode;
-import org.apache.taverna.workflowmodel.processor.iteration.impl.IterationStrategyImpl;
 
 public class RunIterationStrategyEditor {
 
@@ -32,19 +32,23 @@ public class RunIterationStrategyEditor {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		IterationStrategyImpl iterationStrategyImpl = new IterationStrategyImpl();
-		NamedInputPortNode fishPort = new NamedInputPortNode("fish", 2);
-		NamedInputPortNode otherPort = new NamedInputPortNode("other", 0);
-		NamedInputPortNode soupPort = new NamedInputPortNode("soup", 1);
-		iterationStrategyImpl.addInput(fishPort);
-		iterationStrategyImpl.addInput(soupPort);
-		iterationStrategyImpl.addInput(otherPort);
-
-		iterationStrategyImpl.connectDefault(otherPort);
-		iterationStrategyImpl.connectDefault(fishPort);
-		iterationStrategyImpl.connectDefault(soupPort);
 		
-		IterationStrategyEditorControl editorControl = new IterationStrategyEditorControl(iterationStrategyImpl);
+		Processor p = new Processor();
+		InputProcessorPort fish = new InputProcessorPort(p, "fish");
+		fish.setDepth(2);
+		InputProcessorPort other = new InputProcessorPort(p, "other");
+		other.setDepth(0)
+		InputProcessorPort soup = new InputProcessorPort(p, "soup");
+		soup.setDepth(1);
+		
+		CrossProduct iterationStrategy = new CrossProduct();
+		iterationStrategy.add(new PortNode(iterationStrategy, fish));
+		iterationStrategy.add(new PortNode(iterationStrategy, other));
+		iterationStrategy.add(new PortNode(iterationStrategy, soup));
+		p.getIterationStrategyStack().add(iterationStrategy);
+		
+		
+		IterationStrategyEditorControl editorControl = new IterationStrategyEditorControl(p);
 		
 		JFrame frame = new JFrame("List handling editor");
 		frame.add(editorControl);

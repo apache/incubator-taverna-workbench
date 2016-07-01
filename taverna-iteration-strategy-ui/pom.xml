@@ -28,6 +28,11 @@
 	<name>Apache Taverna Iteration Strategy UI</name>
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.taverna.language</groupId>
+			<artifactId>taverna-scufl2-api</artifactId>
+			<version>0.15.2-incubating-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-workflowmodel-api</artifactId>
 			<version>${taverna.engine.version}</version>

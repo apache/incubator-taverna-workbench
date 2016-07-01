@@ -1,27 +1,20 @@
-/*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  * 
- *  Modifications to the initial code base are copyright of their
- *  respective authors, or their employers as appropriate.
+ *   http://www.apache.org/licenses/LICENSE-2.0
  * 
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation; either version 2.1 of
- *  the License, or (at your option) any later version.
- *    
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
- *    
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- ******************************************************************************/
-/**
- * This file is a component of the Taverna project,
- * and is licensed under the GNU LGPL.
- * Copyright Tom Oinn, EMBL-EBI
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.taverna.workbench.iterationstrategy.editor;
 
@@ -46,15 +39,16 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.log4j.Logger;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.iterationstrategy.CrossProduct;
+import org.apache.taverna.scufl2.api.iterationstrategy.DotProduct;
+import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyNode;
+import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
+import org.apache.taverna.scufl2.api.iterationstrategy.PortNode;
 import org.apache.taverna.workbench.icons.WorkbenchIcons;
 import org.apache.taverna.workbench.iterationstrategy.IterationStrategyIcons;
-import org.apache.taverna.workflowmodel.processor.iteration.CrossProduct;
-import org.apache.taverna.workflowmodel.processor.iteration.DotProduct;
-import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategy;
-import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategyNode;
-import org.apache.taverna.workflowmodel.processor.iteration.TerminalNode;
-
-import org.apache.log4j.Logger;
 
 /**
  * A control panel for the iteration tree editor allowing the user to manipulate
@@ -81,12 +75,16 @@ public class IterationStrategyEditorControl extends JPanel {
 			visitedNodes.add(visiting);
 			nodesToVisit.remove(visiting);
 
+			if (! (visiting instanceof IterationStrategyTopNode))  {
+				// It's a PortNode with no more children - we were already 
+				// added in the level above 
+				continue;
+			}
+			// List is superclass of IterationStrategyTopNode
+			List<IterationStrategyNode> children = (IterationStrategyTopNode)visiting;			
+			Set<IterationStrategyNode> newNodes = new HashSet<IterationStrategyNode>(children);
 			// Find new and interesting children
-			List<IterationStrategyNode> children = visiting.getChildren();
-			Set<IterationStrategyNode> newNodes = new HashSet<IterationStrategyNode>(
-					children);
-			newNodes.removeAll(visitedNodes);
-
+			newNodes.removeAll(visitedNodes);				
 			descendants.addAll(newNodes);
 			nodesToVisit.addAll(newNodes);
 		}
@@ -115,14 +113,28 @@ public class IterationStrategyEditorControl extends JPanel {
 	//protected ImageIcon arrowRight = WorkbenchIcons.rightArrowIcon;
 	protected ImageIcon normalizeIcon = WorkbenchIcons.normalizeIcon;
 
-	private final IterationStrategy strategy;
+	private final IterationStrategyTopNode strategy;
+
+	private Processor processor;
 
 	/**
 	 * Create a new panel from the supplied iteration strategy
 	 */
-	public IterationStrategyEditorControl(IterationStrategy strategy) {
+	public IterationStrategyEditorControl(Processor p) {
+		this.processor = p;
+		if (p.getIterationStrategyStack() == null || p.getIterationStrategyStack().isEmpty()) {
+			new Scufl2Tools().createDefaultIterationStrategyStack(p);
+		}
+		
+		if (p.getIterationStrategyStack().size() > 1) {
+			// TODO: Edit more than 1 layer
+			logger.warn("More than 1 layer in iteration strategy stack: " + p.getIterationStrategyStack().size());
+			throw new IllegalStateException("Can't edit iteration strategy with more than 1 layer");
+		}
+		
+		this.strategy = p.getIterationStrategyStack().get(0);
 
-		this.strategy = strategy;
+		
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
 		// Create the components
@@ -174,7 +186,7 @@ public class IterationStrategyEditorControl extends JPanel {
 		add(treePane);
 	}
 
-	public void setIterationStrategy(IterationStrategy iterationStrategy) {
+	public void setIterationStrategy(IterationStrategyTopNode iterationStrategy) {
 		tree.setIterationStrategy(iterationStrategy);
 		disableButtons();
 		selectNode(null);
@@ -188,7 +200,9 @@ public class IterationStrategyEditorControl extends JPanel {
 	}
 
 	private IterationStrategyNode findRoot() {
-		IterationStrategyNode root = (IterationStrategyNode) tree.getModel()
+		IterationStrategyNode root = tree.getModel(); 
+				
+				(IterationStrategyNode) tree.getModel()
 				.getRoot();
 		if (root.getChildCount() > 0) {
 			return root.getChildAt(0);
@@ -248,7 +262,7 @@ public class IterationStrategyEditorControl extends JPanel {
 			selectedNode = selectedObject;
 			if (selectedObject instanceof CrossProduct
 					|| selectedObject instanceof DotProduct) {
-				if ((selectedObject.getParent() == null) || (selectedObject.getParent() instanceof TerminalNode)) {
+				if ((selectedObject.getParent() == null) || (selectedObject.getParent() instanceof PortNode)) {
 					remove.setEnabled(false);
 				} else {
 					remove.setEnabled(true);
