@@ -25,9 +25,15 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import org.apache.taverna.configuration.AbstractConfigurable;
+import org.apache.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.ConfigurationManager;
 import org.apache.taverna.configuration.app.impl.ApplicationConfigurationImpl;
 import org.apache.taverna.configuration.impl.ConfigurationManagerImpl;
 
@@ -46,8 +52,8 @@ public class ActivityPaletteConfigurationTest {
 		d.mkdir();
 		manager = new ConfigurationManagerImpl(new ApplicationConfigurationImpl() {
 			@Override
-			public File getApplicationHomeDir() {
-				return d;
+			public Path  getApplicationHomeDir() {
+				return d.toPath();
 			}
 		});
 		conf=new ActivityPaletteConfiguration(manager);
@@ -93,4 +99,5 @@ public class ActivityPaletteConfigurationTest {
 	public void testNull() throws Exception {
 		assertNull("Should return null",conf.getProperty("blah blah blah"));
 	}
+
 }
