@@ -23,7 +23,7 @@
 		<artifactId>apache-taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>workbench-impl</artifactId>
+	<artifactId>taverna-workbench-impl</artifactId>
 	<packaging>bundle</packaging>
 	<name>Apache Taverna Workbench UI implementation</name>
 	<description>The main workbench ui</description>
