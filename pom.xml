@@ -42,8 +42,10 @@
         
 	<modules>
             <module>taverna-dataflow-activity-ui</module>
-            <!-- Not yet updated to scufl2 configs
+            <!-- Not yet updated to scufl2 configs:
             <module>taverna-disabled-activity-ui</module>
+	    <module>taverna-iteration-strategy-ui</module>
+            <module>taverna-loop-ui</module>
             -->
             <module>taverna-stringconstant-activity-ui</module>
             <module>taverna-unrecognized-activity-ui</module>
@@ -68,8 +70,6 @@
             <module>taverna-graph-view</module>
             <module>taverna-helper-api</module>
             <module>taverna-httpproxy-config</module>
-	    <!--            <module>taverna-iteration-strategy-ui</module>-->
-            <module>taverna-loop-ui</module>
             <module>taverna-menu-api</module>
             <module>taverna-menu-impl</module>
             <module>taverna-menu-items</module>
