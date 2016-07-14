@@ -22,6 +22,8 @@ package org.apache.taverna.ui.perspectives.results;
 import static org.apache.taverna.workbench.icons.WorkbenchIcons.resultsPerspectiveIcon;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -69,10 +71,7 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 	@Override
 	public JComponent getPanel() {
 		if (resultsPerspectiveComponent == null) {
-			File runStore = new File(
-					applicationConfiguration.getApplicationHomeDir(),
-					RUN_STORE_DIRECTORY);
-			runStore.mkdirs();
+			Path runStore = applicationConfiguration.getApplicationHomeDir().resolve(RUN_STORE_DIRECTORY);			
 			resultsPerspectiveComponent = new ResultsPerspectiveComponent(
 					runService, selectionManager, colourManager,
 					activityIconManager, workbenchConfiguration,

@@ -20,6 +20,7 @@
 package org.apache.taverna.ui.perspectives.results;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.SwingAwareObserver;
@@ -40,10 +41,10 @@ public class RunSelectorComponent extends TabSelectorComponent<String> {
 
 	private final RunService runService;
 	private final SelectionManager selectionManager;
-	private final File runStore;
+	private final Path runStore;
 
 	public RunSelectorComponent(RunService runSevice,
-			SelectionManager selectionManager, File runStore) {
+			SelectionManager selectionManager, Path runStore) {
 		this.runService = runSevice;
 		this.selectionManager = selectionManager;
 		this.runStore = runStore;

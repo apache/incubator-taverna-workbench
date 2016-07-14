@@ -29,6 +29,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Font;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +92,7 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 			ColourManager colourManager, ActivityIconManager activityIconManager,
 			WorkbenchConfiguration workbenchConfiguration, RendererRegistry rendererRegistry,
 			List<SaveAllResultsSPI> saveAllResultsSPIs,
-			List<SaveIndividualResultSPI> saveIndividualResultSPIs, File runStore) {
+			List<SaveIndividualResultSPI> saveIndividualResultSPIs, Path runStore) {
 		this.runService = runService;
 		this.selectionManager = selectionManager;
 		this.colourManager = colourManager;

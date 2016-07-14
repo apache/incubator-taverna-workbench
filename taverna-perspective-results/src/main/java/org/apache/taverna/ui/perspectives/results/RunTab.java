@@ -27,6 +27,8 @@ import static org.apache.taverna.workbench.icons.WorkbenchIcons.workingIcon;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.swing.JOptionPane;
 
@@ -52,10 +54,10 @@ public class RunTab extends Tab<String> {
 
 	private final SelectionManager selectionManager;
 	private final RunService runService;
-	private final File runStore;
+	private final Path runStore;
 
 	public RunTab(final String runID, final SelectionManager selectionManager,
-			final RunService runService, File runStore) {
+			final RunService runService, Path runStore) {
 		super(getRunName(runService, runID), runID);
 		this.selectionManager = selectionManager;
 		this.runService = runService;
@@ -93,10 +95,12 @@ public class RunTab extends Tab<String> {
 					// workflow may have finished by now
 				}
 			}
-			File file = new File(runStore, getName() + ".wfRun");
+			Path file = runStore.resolve(getName() + ".wfRun");			
 			try {
-				if (!file.exists())
+				if (! Files.exists(file)) {
+					Files.createDirectories(file.getParent());
 					runService.save(selection, file);
+				}
 			} catch (IOException e) {
 				logger.warn("Failed to save workflow run to " + file, e);
 			}
