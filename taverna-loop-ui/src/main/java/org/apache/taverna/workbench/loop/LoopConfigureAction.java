@@ -20,18 +20,22 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
 import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.port.InputPort;
+import org.apache.taverna.scufl2.api.port.OutputPort;
 import org.apache.taverna.scufl2.api.profiles.Profile;
-
+import org.apache.taverna.workbench.edits.CompoundEdit;
+import org.apache.taverna.workbench.edits.Edit;
+import org.apache.taverna.workbench.edits.EditException;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.helper.HelpEnabledDialog;
-import org.apache.taverna.workflowmodel.Edit;
 import org.apache.taverna.workflowmodel.processor.dispatch.layers.LoopConfiguration;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * @author Alan R Williams
@@ -153,6 +157,7 @@ public class LoopConfigureAction extends AbstractAction {
 		protected List<Edit<?>> checkPortMappings(Activity<?> conditionActivity) {
 
 			List<Edit<?>> compoundEdit = new ArrayList<Edit<?>>();
+			Activity x = new Scufl2Tools().processorBindingForProcessor(processor, profile).getBoundActivity();
 			if (processor.getActivityList().isEmpty()) {
 				return compoundEdit;
 			}

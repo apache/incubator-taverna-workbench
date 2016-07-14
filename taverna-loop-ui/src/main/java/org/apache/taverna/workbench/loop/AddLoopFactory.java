@@ -27,18 +27,16 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import org.apache.log4j.Logger;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.core.Processor;
 import org.apache.taverna.workbench.MainWindow;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.workbench.ui.views.contextualviews.AddLayerFactorySPI;
-
-import org.apache.log4j.Logger;
-
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
-import org.apache.taverna.scufl2.api.common.Scufl2Tools;
-import org.apache.taverna.scufl2.api.configurations.Configuration;
-import org.apache.taverna.scufl2.api.core.Processor;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
