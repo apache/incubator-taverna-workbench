@@ -30,17 +30,15 @@ import static org.apache.taverna.workbench.file.impl.menu.FileOpenMenuSection.FI
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +46,11 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import org.apache.log4j.Logger;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 import org.apache.taverna.ui.menu.AbstractMenuCustom;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.file.FileType;
@@ -59,14 +60,9 @@ import org.apache.taverna.workbench.file.events.FileManagerEvent;
 import org.apache.taverna.workbench.file.events.OpenedDataflowEvent;
 import org.apache.taverna.workbench.file.events.SavedDataflowEvent;
 import org.apache.taverna.workbench.file.exceptions.OpenException;
-
-import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
-import org.apache.taverna.configuration.app.ApplicationConfiguration;
-import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		Observer<FileManagerEvent> {
@@ -154,11 +150,10 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 	}
 
 	protected synchronized void loadRecent() {
-		File confDir = new File(applicationConfiguration.getApplicationHomeDir(), CONF);
-		confDir.mkdir();
-		File recentFile = new File(confDir, RECENT_WORKFLOWS_XML);
-		if (!recentFile.isFile())
+		Path recentFile = recentFilePath();
+		if (! Files.exists(recentFile)) { 
 			return;
+		}
 		try {
 			loadRecent(recentFile);
 		} catch (JDOMException|IOException e) {
@@ -167,17 +162,21 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		}
 	}
 
-	private void loadRecent(File recentFile) throws FileNotFoundException,
+	private Path recentFilePath() {
+		return applicationConfiguration.getApplicationHomeDir().resolve(CONF).resolve(RECENT_WORKFLOWS_XML);
+	}
+
+	private void loadRecent(Path recentFile) throws FileNotFoundException,
 			IOException, JDOMException {
 		SAXBuilder builder = new SAXBuilder();
 		@SuppressWarnings("unused")
 		Document document;
-		try (InputStream fileInputStream = new BufferedInputStream(
-				new FileInputStream(recentFile))) {
+		try (InputStream fileInputStream = Files.newInputStream(recentFile)) {
 			document = builder.build(fileInputStream);
 		}
 		synchronized (recents) {
 			recents.clear();
+			// TAVERNA-65 - temporarily disabled
 			//RecentDeserializer deserialiser = new RecentDeserializer();
 			try {
 				// recents.addAll(deserialiser.deserializeRecent(document
@@ -190,11 +189,9 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 	}
 
 	protected synchronized void saveRecent() {
-		File confDir = new File(applicationConfiguration.getApplicationHomeDir(), CONF);
-		confDir.mkdir();
-		File recentFile = new File(confDir, RECENT_WORKFLOWS_XML);
-
+		Path recentFile = recentFilePath();		
 		try {
+			Files.createDirectories(recentFile.getParent());
 			saveRecent(recentFile);
 //		} catch (JDOMException e) {
 //			logger.warn("Could not generate XML for recent workflows to file "
@@ -205,7 +202,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		}
 	}
 
-	private void saveRecent(File recentFile) throws FileNotFoundException,
+	private void saveRecent(Path recentFile) throws FileNotFoundException,
 			IOException {
 		// RecentSerializer serializer = new RecentSerializer();
 		// XMLOutputter outputter = new XMLOutputter();
@@ -217,8 +214,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 				recents.subList(MAX_ITEMS, recents.size()).clear();
 			// serializedRecent = serializer.serializeRecent(recents);
 		}
-		try (OutputStream outputStream = new BufferedOutputStream(
-				new FileOutputStream(recentFile))) {
+		try (OutputStream outputStream = Files.newOutputStream(recentFile)) {
 			// outputter.output(serializedRecent, outputStream);
 		}
 	}
