@@ -25,10 +25,9 @@ import static java.awt.BorderLayout.NORTH;
 import static java.awt.event.ItemEvent.SELECTED;
 import static javax.swing.BoxLayout.LINE_AXIS;
 import static javax.swing.SwingUtilities.invokeLater;
-import static org.apache.taverna.results.ResultsUtils;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import static org.apache.taverna.workbench.icons.WorkbenchIcons.refreshIcon;
 import static org.apache.taverna.workbench.views.results.processor.ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_REFERENCE;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -66,18 +65,21 @@ import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import org.apache.log4j.Logger;
+import org.apache.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.ErrorDocument;
 import org.apache.taverna.lang.ui.DialogTextArea;
 import org.apache.taverna.renderers.Renderer;
 import org.apache.taverna.renderers.RendererException;
 import org.apache.taverna.renderers.RendererRegistry;
 import org.apache.taverna.renderers.RendererUtils;
-import org.apache.taverna.workbench.views.results.saveactions.SaveIndividualResultSPI;
-
-import org.apache.log4j.Logger;
-
-import org.apache.taverna.databundle.DataBundles;
-import org.apache.taverna.databundle.ErrorDocument;
 import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.workbench.views.results.saveactions.SaveIndividualResultSPI;
+import org.apache.tika.detect.DefaultDetector;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
+
 import eu.medsea.mimeutil.MimeType;
 
 /**
@@ -459,6 +461,14 @@ public class RenderedProcessorResultComponent extends JPanel {
 			renderedResultPanel.add(errorTree, CENTER);
 			repaint();
 		}
+	}
+
+	private MediaType getMimeTypes(InputStream inputstream) throws IOException {
+		Detector detector = new DefaultDetector(DefaultDetector.class.getClassLoader());
+		Metadata metadata = new Metadata();
+		// TODO: propagate relevant metadata
+		MediaType x = detector.detect(inputstream, metadata);
+		return x;
 	}
 
 	/**
