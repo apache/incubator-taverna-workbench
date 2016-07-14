@@ -41,6 +41,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -54,22 +55,15 @@
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											javacc-maven-plugin
-										</artifactId>
-										<versionRange>
-											[2.6,)
-										</versionRange>
-										<goals>
-											<goal>jjtree-javacc</goal>
-										</goals>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>javacc-maven-plugin</artifactId>
+										<versionRange>[2.6,)</versionRange>
+										<goals><goal>jjtree-javacc</goal></goals>
 									</pluginExecutionFilter>
 									<action>
 										<execute>
-											<runOnIncremental>false</runOnIncremental>																				
+											<runOnConfiguration>true</runOnConfiguration>
+											<runOnIncremental>true</runOnIncremental>																				
 										</execute>
 									</action>
 								</pluginExecution>
