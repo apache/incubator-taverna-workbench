@@ -21,9 +21,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="UserRegistrationHook" class="org.apache.taverna.workbench.ui.impl.UserRegistrationHook">
-		<property name="applicationConfiguration" ref="applicationConfiguration"/>
-	</bean>
 	<bean id="SetConsoleLoggerStartup" class="org.apache.taverna.workbench.ui.impl.SetConsoleLoggerStartup">
 		<constructor-arg ref="workbenchConfiguration" />
 	</bean>

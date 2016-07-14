@@ -24,8 +24,7 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="UserRegistrationHook" interface="org.apache.taverna.workbench.StartupSPI" />
-	<!-- <service ref="SetConsoleLoggerStartup" interface="org.apache.taverna.workbench.StartupSPI" /> -->
+		<!-- <service ref="SetConsoleLoggerStartup" interface="org.apache.taverna.workbench.StartupSPI" /> -->
 
 	<service ref="StoreWindowStateOnShutdown" interface="org.apache.taverna.workbench.ShutdownSPI" />
 
