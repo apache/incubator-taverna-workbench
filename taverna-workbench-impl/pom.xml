@@ -211,6 +211,24 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-services-impl</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-contextual-views-impl</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-activity-palette-impl</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>test</scope>
+		</dependency>						
+		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.2</version>

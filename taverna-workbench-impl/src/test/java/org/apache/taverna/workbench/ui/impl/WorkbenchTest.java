@@ -1,5 +1,6 @@
 package org.apache.taverna.workbench.ui.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -7,8 +8,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.configuration.app.impl.ApplicationConfigurationImpl;
 import org.apache.taverna.plugin.Plugin;
@@ -18,6 +21,13 @@ import org.apache.taverna.plugin.xml.jaxb.PluginVersions;
 import org.apache.taverna.security.credentialmanager.CMException;
 import org.apache.taverna.security.credentialmanager.CredentialManager;
 import org.apache.taverna.security.credentialmanager.impl.CredentialManagerImpl;
+import org.apache.taverna.servicedescriptions.ServiceDescriptionProvider;
+import org.apache.taverna.servicedescriptions.ServiceDescriptionRegistry;
+import org.apache.taverna.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
+import org.apache.taverna.services.ServiceRegistry;
+import org.apache.taverna.services.impl.ServiceRegistryImpl;
+import org.apache.taverna.ui.menu.DefaultMenuBar;
+import org.apache.taverna.ui.menu.DefaultToolBar;
 import org.apache.taverna.ui.menu.MenuComponent;
 import org.apache.taverna.ui.menu.MenuManager;
 import org.apache.taverna.ui.menu.impl.MenuManagerImpl;
@@ -34,7 +44,13 @@ import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.workbench.selection.impl.SelectionManagerImpl;
 import org.apache.taverna.workbench.ui.credentialmanager.startup.InitialiseSSLStartupHook;
 import org.apache.taverna.workbench.ui.credentialmanager.startup.SetCredManAuthenticatorStartupHook;
+import org.apache.taverna.workbench.ui.servicepanel.ServicePanelComponentFactory;
+import org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
+import org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
+import org.apache.taverna.workbench.ui.views.contextualviews.activity.impl.ContextualViewFactoryRegistryImpl;
+import org.apache.taverna.workbench.ui.views.contextualviews.impl.ContextualViewComponentFactory;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
+import org.apache.taverna.workbench.ui.zaria.UIComponentFactorySPI;
 
 public class WorkbenchTest {
 
@@ -57,6 +73,8 @@ public class WorkbenchTest {
 	private SelectionManagerImpl selectionManager;
 	private List<MenuComponent> menuComponents;
 	private CredentialManagerImpl credentialManager;
+	private ContextualViewFactoryRegistryImpl registry;
+	private ServicePanelComponentFactory servicePanelFactory;
 
 	public FileManager getFileManager() {
 		if (fileManager == null) {
@@ -86,6 +104,9 @@ public class WorkbenchTest {
 	public List<MenuComponent> getMenuComponents() {
 		if (menuComponents == null) {
 			menuComponents = new ArrayList<>();
+			menuComponents.add(new DefaultMenuBar());
+			menuComponents.add(new DefaultToolBar());
+			
 //			for (MenuComponent mc : ServiceLoader.load(MenuComponent.class)) {
 //				try {
 //					BeanUtils.copyProperties(this, mc);
@@ -122,8 +143,69 @@ public class WorkbenchTest {
 		p.setEditManager(getEditManager());
 		p.setFileManager(getFileManager());
 		p.setMenuManager(getMenuManager());
+		p.setContextualViewComponentFactory(getContextualViewComponentFactory());
+		p.setServicePanelComponentFactory(getServicePanelComponentFactory());
+		
 		// TODO: More setters
 		return p;
+	}
+
+	private UIComponentFactorySPI getServicePanelComponentFactory() {
+		if (servicePanelFactory == null) {
+			servicePanelFactory = new ServicePanelComponentFactory();		
+			servicePanelFactory.setEditManager(getEditManager());
+			servicePanelFactory.setMenuManager(getMenuManager());
+			servicePanelFactory.setSelectionManager(getSelectionManager());
+			servicePanelFactory.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
+			servicePanelFactory.setServiceRegistry(getServiceRegistry());
+		}
+		
+		return servicePanelFactory;
+	}
+
+	public ServiceRegistry getServiceRegistry() {
+		return new ServiceRegistryImpl();
+	}
+
+	public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
+		ServiceDescriptionRegistryImpl serviceDescriptionRegistryImpl = new ServiceDescriptionRegistryImpl(getApplicationConfiguration());		
+		List<ServiceDescriptionProvider> serviceProviders = new ArrayList<>();
+		for (ServiceDescriptionProvider sdp : ServiceLoader.load(ServiceDescriptionProvider.class)) {
+			try {
+				BeanUtils.copyProperties(this, sdp);
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				e.printStackTrace();
+			}
+			serviceProviders.add(sdp);
+		}
+		
+		serviceDescriptionRegistryImpl.setServiceDescriptionProvidersList(serviceProviders);
+		return serviceDescriptionRegistryImpl;
+	}
+
+	public UIComponentFactorySPI getContextualViewComponentFactory() {
+		ContextualViewComponentFactory contextualViewComponentFactory = new ContextualViewComponentFactory();
+		contextualViewComponentFactory.setEditManager(getEditManager());
+		contextualViewComponentFactory.setSelectionManager(getSelectionManager());
+		contextualViewComponentFactory.setContextualViewFactoryRegistry(getContextualViewFactoryRegistry());
+		return contextualViewComponentFactory;
+	}
+
+	public ContextualViewFactoryRegistry getContextualViewFactoryRegistry() {
+		if (registry == null) { 
+			registry = new ContextualViewFactoryRegistryImpl();
+			List<ContextualViewFactory<?>> views = new ArrayList<>();
+			for (ContextualViewFactory view : ServiceLoader.load(ContextualViewFactory.class)) {
+				try {
+					BeanUtils.copyProperties(this, view);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				views.add(view);
+			}			
+			registry.setContextualViewFactories(views);
+		}
+		return registry;
 	}
 
 	public List<PerspectiveSPI> getPerspectives() {
