@@ -14,16 +14,47 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.taverna.configuration.Configurable;
 import org.apache.taverna.configuration.ConfigurationManager;
 import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.configuration.app.impl.ApplicationConfigurationImpl;
 import org.apache.taverna.configuration.impl.ConfigurationManagerImpl;
 import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.platform.capability.activity.impl.ActivityServiceImpl;
+import org.apache.taverna.platform.capability.api.ActivityService;
+import org.apache.taverna.platform.capability.api.DispatchLayerService;
+import org.apache.taverna.platform.capability.dispatch.impl.DispatchLayerServiceImpl;
+import org.apache.taverna.platform.execution.api.ExecutionEnvironmentService;
+import org.apache.taverna.platform.execution.api.ExecutionService;
+import org.apache.taverna.platform.execution.impl.ExecutionEnvironmentServiceImpl;
+import org.apache.taverna.platform.execution.impl.local.LocalExecutionService;
+import org.apache.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.impl.RunServiceImpl;
 import org.apache.taverna.plugin.Plugin;
 import org.apache.taverna.plugin.PluginException;
 import org.apache.taverna.plugin.PluginManager;
 import org.apache.taverna.plugin.xml.jaxb.PluginVersions;
+import org.apache.taverna.reference.ExternalReferenceBuilderSPI;
+import org.apache.taverna.reference.ExternalReferenceTranslatorSPI;
+import org.apache.taverna.reference.ListService;
+import org.apache.taverna.reference.ReferenceService;
+import org.apache.taverna.reference.StreamToValueConverterSPI;
+import org.apache.taverna.reference.ValueToReferenceConverterSPI;
+import org.apache.taverna.reference.impl.ErrorDocumentServiceImpl;
+import org.apache.taverna.reference.impl.InMemoryErrorDocumentDao;
+import org.apache.taverna.reference.impl.InMemoryListDao;
+import org.apache.taverna.reference.impl.InMemoryReferenceSetDao;
+import org.apache.taverna.reference.impl.ListServiceImpl;
+import org.apache.taverna.reference.impl.ReferenceServiceImpl;
+import org.apache.taverna.reference.impl.ReferenceSetAugmentorImpl;
+import org.apache.taverna.reference.impl.ReferenceSetServiceImpl;
+import org.apache.taverna.reference.impl.SimpleT2ReferenceGenerator;
+import org.apache.taverna.reference.impl.external.object.InlineByteArrayReferenceBuilder;
+import org.apache.taverna.reference.impl.external.object.InlineByteToInlineStringTranslator;
+import org.apache.taverna.reference.impl.external.object.InlineStringReferenceBuilder;
+import org.apache.taverna.reference.impl.external.object.InlineStringToInlineByteTranslator;
+import org.apache.taverna.renderers.Renderer;
+import org.apache.taverna.renderers.RendererRegistry;
+import org.apache.taverna.renderers.impl.RendererRegistryImpl;
 import org.apache.taverna.scufl2.api.common.WorkflowBean;
 import org.apache.taverna.scufl2.api.profiles.Profile;
 import org.apache.taverna.scufl2.validation.Status;
@@ -70,9 +101,16 @@ import org.apache.taverna.workbench.ui.workflowexplorer.WorkflowExplorerFactory;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
 import org.apache.taverna.workbench.ui.zaria.UIComponentFactorySPI;
 import org.apache.taverna.workbench.ui.zaria.UIComponentSPI;
-import org.apache.taverna.workbench.views.graph.GraphViewComponent;
 import org.apache.taverna.workbench.views.graph.GraphViewComponentFactory;
 import org.apache.taverna.workbench.views.graph.config.GraphViewConfiguration;
+import org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsSPI;
+import org.apache.taverna.workbench.views.results.saveactions.SaveIndividualResultSPI;
+import org.apache.taverna.workflowmodel.Edits;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityFactory;
+import org.apache.taverna.workflowmodel.processor.dispatch.DispatchLayerFactory;
+import org.apache.taverna.workflowmodel.processor.dispatch.layers.CoreDispatchLayerFactory;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 public class WorkbenchTest {
 
@@ -152,8 +190,126 @@ public class WorkbenchTest {
 
 	public ResultsPerspective getResultsPerspective() {
 		ResultsPerspective perspective = new ResultsPerspective();
-		// TODO: Various setters
+		perspective.setActivityIconManager(getActivityIconManager());
+		perspective.setApplicationConfiguration(getApplicationConfiguration());
+		perspective.setColourManager(getColourManager());
+		perspective.setRendererRegistry(getRendererRegistry());
+		perspective.setRunService(getRunService());
+		perspective.setSaveAllResultsSPIs(serviceLoader(SaveAllResultsSPI.class));
+		perspective.setSaveIndividualResultSPIs(serviceLoader(SaveIndividualResultSPI.class));
+		perspective.setSelectionManager(getSelectionManager());
+		perspective.setWorkbenchConfiguration(getWorkbenchConfiguration());
 		return perspective;
+	}
+
+
+	public RunService getRunService() {
+		RunServiceImpl runServiceImpl = new RunServiceImpl();
+		runServiceImpl.setEventAdmin(getEventAdmin());
+		runServiceImpl.setExecutionEnvironmentService(getExecutionEnvironmentService());
+		return runServiceImpl;
+	}
+
+	private ExecutionEnvironmentService getExecutionEnvironmentService() {
+		ExecutionEnvironmentServiceImpl serviceImpl = new ExecutionEnvironmentServiceImpl();
+		Set<ExecutionService> executionServices = Collections.singleton(getLocalExecutionService());
+		serviceImpl.setExecutionServices(executionServices);
+		return serviceImpl;
+	}
+
+	private ExecutionService getLocalExecutionService() {
+		LocalExecutionService localExecutionService = new LocalExecutionService();
+		localExecutionService.setActivityService(getActivityService());
+		localExecutionService.setDispatchLayerService(getDispatchLayerService());
+		localExecutionService.setEdits(getEdits());
+		localExecutionService.setReferenceService(getReferenceService());
+		return localExecutionService;
+	}
+
+	private Edits getEdits() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private ReferenceService getReferenceService() {
+		// Adapted from org.apache.taverna.activities.testutils.ActivityInvoker
+		
+		ReferenceServiceImpl referenceServiceImpl = new ReferenceServiceImpl();		
+		ReferenceSetServiceImpl referenceSetService = new ReferenceSetServiceImpl();
+		ReferenceServiceImpl referenceService = new ReferenceServiceImpl();
+		
+		SimpleT2ReferenceGenerator referenceGenerator = new SimpleT2ReferenceGenerator();
+		ReferenceSetAugmentorImpl referenceSetAugmentor = new ReferenceSetAugmentorImpl();
+		referenceSetAugmentor.setBuilders(getBuilders());
+		referenceSetAugmentor.setTranslators(getTranslators());
+		referenceSetService.setReferenceSetAugmentor(referenceSetAugmentor);
+		
+		referenceSetService.setT2ReferenceGenerator(referenceGenerator);
+		referenceSetService.setReferenceSetDao(new InMemoryReferenceSetDao());
+		referenceService.setReferenceSetService(referenceSetService);
+		
+		ListServiceImpl listService = new ListServiceImpl();
+		listService.setT2ReferenceGenerator(referenceGenerator);		
+		listService.setListDao(new InMemoryListDao());
+		referenceService.setListService(listService);
+		
+		ErrorDocumentServiceImpl errorDocumentService = new ErrorDocumentServiceImpl();
+		errorDocumentService.setT2ReferenceGenerator(referenceGenerator);
+		errorDocumentService.setErrorDao(new InMemoryErrorDocumentDao());
+		
+		referenceService.setErrorDocumentService(errorDocumentService);
+		referenceService.setConverters(serviceLoader(ValueToReferenceConverterSPI.class));
+		referenceService.setValueBuilders(serviceLoader(StreamToValueConverterSPI.class));		
+		return referenceService;		
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<ExternalReferenceBuilderSPI<?>> getBuilders() {		
+		List<ExternalReferenceBuilderSPI<?>> builders = new ArrayList<>();
+		builders.add(new InlineByteArrayReferenceBuilder());
+		builders.add(new InlineStringReferenceBuilder());
+		return builders;
+	}
+
+	private List<ExternalReferenceTranslatorSPI<?, ?>> getTranslators() {
+		List<ExternalReferenceTranslatorSPI<?, ?>> translators = new ArrayList<>();
+		translators.add(new InlineByteToInlineStringTranslator());
+		translators.add(new InlineStringToInlineByteTranslator());
+		return translators;
+	}
+
+	private DispatchLayerService getDispatchLayerService() {
+		DispatchLayerServiceImpl dispatchLayerServiceImpl = new DispatchLayerServiceImpl();		
+		List<DispatchLayerFactory> list = new ArrayList<>();
+		list.add(new CoreDispatchLayerFactory());
+		dispatchLayerServiceImpl.setDispatchLayerFactories(list);
+		return dispatchLayerServiceImpl;
+	}
+
+	private ActivityService getActivityService() {
+		ActivityServiceImpl serviceImpl = new ActivityServiceImpl();		
+		serviceImpl.setActivityFactories(serviceLoader(ActivityFactory.class));
+		return serviceImpl;
+	}
+
+	private EventAdmin getEventAdmin() {
+		// We're outside osgi, so we'll have to make a fake one
+		return new EventAdmin() {
+			@Override
+			public void postEvent(Event event) {
+				System.out.println("Posted event: "  + event.getTopic());
+			}
+			@Override
+			public void sendEvent(Event event) {
+				System.out.println("Sent event: "  + event.getTopic());
+			}};
+	}
+
+	public RendererRegistry getRendererRegistry() {
+		RendererRegistryImpl rendererRegistryImpl = new RendererRegistryImpl();
+		rendererRegistryImpl.setRenderers(serviceLoader(Renderer.class));
+		return rendererRegistryImpl;
 	}
 
 	public DesignPerspective getDesignPerspective() {
@@ -168,8 +324,6 @@ public class WorkbenchTest {
 		p.setReportViewComponentFactory(getReportViewComponentFactory());
 		p.setContextualViewComponentFactory(getContextualViewComponentFactory());
 		p.setGraphViewComponentFactory(getGraphViewComponentFactory());
-		
-		// TODO: More setters
 		return p;
 	}
 
@@ -186,11 +340,11 @@ public class WorkbenchTest {
 		return f;
 	}
 
-	private GraphViewConfiguration getGraphViewConfiguration() {
+	public GraphViewConfiguration getGraphViewConfiguration() {
 		return new GraphViewConfiguration(getConfigurationManager());
 	}
 
-	private ColourManager getColourManager() {
+	public ColourManager getColourManager() {
 		return new ColourManagerImpl(getConfigurationManager());
 	}
 
@@ -201,7 +355,7 @@ public class WorkbenchTest {
 		return configurationManager;
 	}
 
-	private UIComponentFactorySPI getReportViewComponentFactory() {
+	public UIComponentFactorySPI getReportViewComponentFactory() {
 		// The report view is broken, so we'll return a dummy instead.
 		return dummyUiComponentFactory("Report view not implemented");
 	}
@@ -313,7 +467,7 @@ public class WorkbenchTest {
 		};
 	}
 
-	private ActivityIconManager getActivityIconManager() {
+	public ActivityIconManager getActivityIconManager() {
 		ActivityIconManagerImpl activityIconManagerImpl = new ActivityIconManagerImpl();
 		activityIconManagerImpl.setActivityIcons(serviceLoader(ActivityIconSPI.class));
 		return activityIconManagerImpl;
@@ -328,7 +482,7 @@ public class WorkbenchTest {
 				BeanUtils.copyProperties(this, impl);
 			} catch (IllegalAccessException | InvocationTargetException e) {
 				e.printStackTrace();
-				// continue;
+				// continue ?
 			}
 		}
 		return spis;

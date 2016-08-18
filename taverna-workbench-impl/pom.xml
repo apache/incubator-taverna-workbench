@@ -219,10 +219,54 @@
 
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-capability-impl</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-workflowmodel-extensions</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-dataflow-activity</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>				
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-stringconstant-activity</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>				
+		<dependency>
+			<groupId>org.apache.taverna.commonactivities</groupId>
+			<artifactId>taverna-beanshell-activity</artifactId>
+			<version>${taverna.commonactivities.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-services-impl</artifactId>
 			<version>${taverna.engine.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-run-impl</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-execution-impl</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>				
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-contextual-views-impl</artifactId>
@@ -241,6 +285,20 @@
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-renderers-impl</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Not really needed for testing, disabled to avoid classpath issues		
+		<dependency>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-renderers-exts</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>test</scope>
+		</dependency>
+ 		-->
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
