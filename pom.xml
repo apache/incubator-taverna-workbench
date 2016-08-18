@@ -35,9 +35,7 @@
             <taverna.osgi.version>0.2.1-incubating</taverna.osgi.version>
             <taverna.engine.version>3.1.0-incubating</taverna.engine.version>
             <taverna.commonactivities.version>2.1.0-incubating</taverna.commonactivities.version>
-            <org.icepdf.version>4.2.0</org.icepdf.version>
             <batik.version>1.7.0-SNAPSHOT</batik.version>
-            <org.fife.ui.hexeditor.version>1.1-SNAPSHOT</org.fife.ui.hexeditor.version>
         </properties>
         
 	<modules>
@@ -73,12 +71,10 @@
             <module>taverna-menu-api</module>
             <module>taverna-menu-impl</module>
             <module>taverna-menu-items</module>
-            <module>taverna-monitor-view</module>
             <module>taverna-parallelize-ui</module>
             <module>taverna-perspective-biocatalogue</module>
             <module>taverna-perspective-design</module>
             <module>taverna-perspective-myexperiment</module>
-            <module>taverna-perspective-results</module>
             <module>taverna-plugin-manager</module>
             <module>taverna-plugins-gui</module>
             <module>taverna-reference-ui</module>
@@ -89,7 +85,6 @@
             <module>taverna-report-explainer</module>
             <module>taverna-report-impl</module>
             <module>taverna-report-view</module>
-            <module>taverna-results-view</module>
             <module>taverna-retry-ui</module>
             <module>taverna-run-ui</module>
             <module>taverna-selection-api</module>
@@ -104,6 +99,14 @@
             <module>taverna-ui</module>
             <module>taverna-uibuilder</module>
             <module>batik-osgi</module>
+
+	    <!-- TAVERNA-992 depend on updates to results perspective 
+
+            <module>taverna-results-view</module>
+            <module>taverna-perspective-results</module>
+            <module>taverna-monitor-view</module>
+	    -->
+
         </modules>
   <scm>
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-taverna-workbench.git</connection>
@@ -132,11 +135,6 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
-        </repository>
-        <repository>
-            <id>ice-maven-release</id>
-            <name>Ice Maven Release Repository</name>
-            <url>http://anonsvn.icesoft.org/repo/maven2/releases/</url>
         </repository>
     </repositories>
 
