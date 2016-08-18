@@ -21,8 +21,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="JMolRenderer" class="org.apache.taverna.renderers.JMolRenderer" />
-	<bean id="SeqVistaRenderer" class="org.apache.taverna.renderers.SeqVistaRenderer" />
 	<bean id="SVGRenderer" class="org.apache.taverna.renderers.SVGRenderer" />
 	<bean id="PDFRenderer" class="org.apache.taverna.renderers.PDFRenderer" />
 	<bean id="HTMLBrowserRenderer" class="org.apache.taverna.renderers.HTMLBrowserRenderer" />
