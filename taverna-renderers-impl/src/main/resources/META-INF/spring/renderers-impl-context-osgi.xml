@@ -25,7 +25,9 @@
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
 	<service ref="AdvancedImageRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	<!-- 	
 	<service ref="HexBinaryRenderer" interface="org.apache.taverna.renderers.Renderer" />
+	 -->
 	<service ref="TextRenderer" interface="org.apache.taverna.renderers.Renderer" />
 	<service ref="TextRtfRenderer" interface="org.apache.taverna.renderers.Renderer" />
 	<service ref="TextXMLRenderer" interface="org.apache.taverna.renderers.Renderer" />

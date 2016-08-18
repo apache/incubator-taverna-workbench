@@ -26,11 +26,12 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.apache.taverna.renderers.RendererException;
 
-import org.fife.ui.hex.swing.HexEditor;
+//import org.fife.ui.hex.swing.HexEditor;
 
 /**
  * Renderer for binary data. Uses HexEditor from
@@ -60,9 +61,13 @@ public class HexBinaryRenderer extends AbstractRenderer {
 	@Override
 	public JComponent getRendererComponent(Path path) throws RendererException {
 		try (InputStream inputStream = getInputStream(path)) {
-			HexEditor editor = new HexEditor();
-			editor.open(inputStream);
-			return editor;
+//			HexEditor editor = new HexEditor();
+//			editor.open(inputStream);
+//			return editor;
+			// TODO: Include org.fife.HexEditor from 
+			// https://github.com/taverna/taverna-svn/tree/master/taverna/utils/org.fife.ui.hexeditor
+			
+			return new JPanel();
 		} catch (Exception e) {
 			logger.error("unrenderable: failed to create binhex renderer", e);
 			return new JTextArea(RENDER_FAILED_MSG + e.getMessage());

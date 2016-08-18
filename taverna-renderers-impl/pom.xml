@@ -72,13 +72,6 @@
 			<artifactId>com.springsource.org.jdom</artifactId>
 			<version>${jdom.version}</version>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.fife.ui.hex</groupId>
-			<artifactId>hexeditor</artifactId>
-			<version>${org.fife.ui.hexeditor.version}</version>
-		</dependency>
--->
 
 	</dependencies>
 </project>
