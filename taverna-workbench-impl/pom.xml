@@ -211,6 +211,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.taverna.osgi</groupId>
+			<artifactId>taverna-configuration-impl</artifactId>
+			<version>${taverna.osgi.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-services-impl</artifactId>
 			<version>${taverna.engine.version}</version>
@@ -227,7 +234,13 @@
 			<artifactId>taverna-activity-palette-impl</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
-		</dependency>						
+		</dependency>
+		<dependency>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-configuration-ui-impl</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>

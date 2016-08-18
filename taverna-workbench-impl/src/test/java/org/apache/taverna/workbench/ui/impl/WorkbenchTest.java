@@ -11,13 +11,23 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
+
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.ConfigurationManager;
 import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.configuration.app.impl.ApplicationConfigurationImpl;
+import org.apache.taverna.configuration.impl.ConfigurationManagerImpl;
+import org.apache.taverna.lang.observer.Observer;
 import org.apache.taverna.plugin.Plugin;
 import org.apache.taverna.plugin.PluginException;
 import org.apache.taverna.plugin.PluginManager;
 import org.apache.taverna.plugin.xml.jaxb.PluginVersions;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.validation.Status;
+import org.apache.taverna.scufl2.validation.WorkflowBeanReport;
 import org.apache.taverna.security.credentialmanager.CMException;
 import org.apache.taverna.security.credentialmanager.CredentialManager;
 import org.apache.taverna.security.credentialmanager.impl.CredentialManagerImpl;
@@ -35,22 +45,34 @@ import org.apache.taverna.ui.perspectives.design.DesignPerspective;
 import org.apache.taverna.ui.perspectives.results.ResultsPerspective;
 import org.apache.taverna.workbench.ShutdownSPI;
 import org.apache.taverna.workbench.StartupSPI;
+import org.apache.taverna.workbench.activityicons.ActivityIconManager;
+import org.apache.taverna.workbench.activityicons.ActivityIconSPI;
+import org.apache.taverna.workbench.activityicons.impl.ActivityIconManagerImpl;
+import org.apache.taverna.workbench.configuration.colour.ColourManager;
 import org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.edits.impl.EditManagerImpl;
 import org.apache.taverna.workbench.file.FileManager;
 import org.apache.taverna.workbench.file.impl.FileManagerImpl;
+import org.apache.taverna.workbench.report.ReportManager;
+import org.apache.taverna.workbench.report.ReportManagerEvent;
 import org.apache.taverna.workbench.selection.SelectionManager;
 import org.apache.taverna.workbench.selection.impl.SelectionManagerImpl;
 import org.apache.taverna.workbench.ui.credentialmanager.startup.InitialiseSSLStartupHook;
 import org.apache.taverna.workbench.ui.credentialmanager.startup.SetCredManAuthenticatorStartupHook;
+import org.apache.taverna.workbench.ui.impl.configuration.colour.ColourManagerImpl;
 import org.apache.taverna.workbench.ui.servicepanel.ServicePanelComponentFactory;
 import org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import org.apache.taverna.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
 import org.apache.taverna.workbench.ui.views.contextualviews.activity.impl.ContextualViewFactoryRegistryImpl;
 import org.apache.taverna.workbench.ui.views.contextualviews.impl.ContextualViewComponentFactory;
+import org.apache.taverna.workbench.ui.workflowexplorer.WorkflowExplorerFactory;
 import org.apache.taverna.workbench.ui.zaria.PerspectiveSPI;
 import org.apache.taverna.workbench.ui.zaria.UIComponentFactorySPI;
+import org.apache.taverna.workbench.ui.zaria.UIComponentSPI;
+import org.apache.taverna.workbench.views.graph.GraphViewComponent;
+import org.apache.taverna.workbench.views.graph.GraphViewComponentFactory;
+import org.apache.taverna.workbench.views.graph.config.GraphViewConfiguration;
 
 public class WorkbenchTest {
 
@@ -75,6 +97,9 @@ public class WorkbenchTest {
 	private CredentialManagerImpl credentialManager;
 	private ContextualViewFactoryRegistryImpl registry;
 	private ServicePanelComponentFactory servicePanelFactory;
+	private WorkflowExplorerFactory workflowExplorerFactory;
+	private ServiceDescriptionRegistryImpl serviceDescriptionRegistry;
+	private ConfigurationManagerImpl configurationManager;
 
 	public FileManager getFileManager() {
 		if (fileManager == null) {
@@ -103,22 +128,15 @@ public class WorkbenchTest {
 
 	public List<MenuComponent> getMenuComponents() {
 		if (menuComponents == null) {
+			// This does not work as many of the actions are set in  constructor
+			// rather than with setters
+//			menuComponents = serviceLoader(MenuComponent.class);
+			
+			// Instead, we'll make an empty menu
 			menuComponents = new ArrayList<>();
 			menuComponents.add(new DefaultMenuBar());
-			menuComponents.add(new DefaultToolBar());
-			
-//			for (MenuComponent mc : ServiceLoader.load(MenuComponent.class)) {
-//				try {
-//					BeanUtils.copyProperties(this, mc);
-//					// This does not work as many of the actions are set in  constructor
-					// rather than with setters
-//				} catch (IllegalAccessException | InvocationTargetException e) {
-//					e.printStackTrace();
-//				}
-//				menuComponents.add(mc);
-//			}
+			menuComponents.add(new DefaultToolBar());			
 		}
-		// FIXME: Should not be an empty list
 		return menuComponents;
 	}
 
@@ -143,14 +161,180 @@ public class WorkbenchTest {
 		p.setEditManager(getEditManager());
 		p.setFileManager(getFileManager());
 		p.setMenuManager(getMenuManager());
-		p.setContextualViewComponentFactory(getContextualViewComponentFactory());
+		p.setSelectionManager(getSelectionManager());
+
 		p.setServicePanelComponentFactory(getServicePanelComponentFactory());
+		p.setWorkflowExplorerFactory(getWorkflowExplorerFactory());
+		p.setReportViewComponentFactory(getReportViewComponentFactory());
+		p.setContextualViewComponentFactory(getContextualViewComponentFactory());
+		p.setGraphViewComponentFactory(getGraphViewComponentFactory());
 		
 		// TODO: More setters
 		return p;
 	}
 
-	private UIComponentFactorySPI getServicePanelComponentFactory() {
+	private UIComponentFactorySPI getGraphViewComponentFactory() {
+		GraphViewComponentFactory f = new GraphViewComponentFactory();
+		f.setColourManager(getColourManager());
+		f.setEditManager(getEditManager());
+		f.setFileManager(getFileManager());
+		f.setGraphViewConfiguration(getGraphViewConfiguration());
+		f.setMenuManager(getMenuManager());
+		f.setSelectionManager(getSelectionManager());
+		f.setServiceRegistry(getServiceRegistry());
+		f.setWorkbenchConfiguration(getWorkbenchConfiguration());
+		return f;
+	}
+
+	private GraphViewConfiguration getGraphViewConfiguration() {
+		return new GraphViewConfiguration(getConfigurationManager());
+	}
+
+	private ColourManager getColourManager() {
+		return new ColourManagerImpl(getConfigurationManager());
+	}
+
+	public ConfigurationManager getConfigurationManager() {
+		if (configurationManager == null) {
+			configurationManager = new ConfigurationManagerImpl(getApplicationConfiguration());			
+		}
+		return configurationManager;
+	}
+
+	private UIComponentFactorySPI getReportViewComponentFactory() {
+		// The report view is broken, so we'll return a dummy instead.
+		return dummyUiComponentFactory("Report view not implemented");
+	}
+
+	private UIComponentFactorySPI dummyUiComponentFactory(final String message) {
+		return new UIComponentFactorySPI() {			
+			@Override
+			public String getName() {
+				return message;
+			}
+			
+			@Override
+			public ImageIcon getIcon() {
+				return null;
+			}			
+			@Override
+			public UIComponentSPI getComponent() {
+				return new UIComponentSPI() {					
+					@Override
+					public void onDispose() {
+					}
+					
+					@Override
+					public void onDisplay() {
+					}
+					
+					@Override
+					public String getName() {
+						return message;
+					}
+					
+					@Override
+					public ImageIcon getIcon() {
+						return null;
+					}
+				};
+			}
+		};
+	}
+
+	public UIComponentFactorySPI getWorkflowExplorerFactory() {
+		if (workflowExplorerFactory == null) {
+			workflowExplorerFactory = new WorkflowExplorerFactory();
+			workflowExplorerFactory.setFileManager(getFileManager());
+			workflowExplorerFactory.setEditManager(getEditManager());
+			workflowExplorerFactory.setActivityIconManager(getActivityIconManager());
+			workflowExplorerFactory.setMenuManager(getMenuManager());
+			workflowExplorerFactory.setReportManager(getReportManager());
+			workflowExplorerFactory.setSelectionManager(getSelectionManager());
+			workflowExplorerFactory.setServiceRegistry(getServiceRegistry());			
+		}
+		return workflowExplorerFactory;
+	}
+
+	private ReportManager getReportManager() {
+		// FIXME: ReportManagerImpl does not currently compile.. so we'll give a dummy instead
+		return new ReportManager() {
+			@Override
+			public void updateReport(Profile p, boolean includeTimeConsuming, boolean remember) {
+			}
+			@Override
+			public void updateObjectSetReport(Profile p, Set<WorkflowBean> objects) {
+			}
+			@Override
+			public void updateObjectReport(Profile p, WorkflowBean o) {
+			}
+			@Override
+			public void removeObserver(Observer<ReportManagerEvent> observer) {
+			}
+			@Override
+			public boolean isStructurallySound(Profile p) {
+				return true;
+			}
+			@Override
+			public String getSummaryMessage(Profile p, WorkflowBean object) {
+				return "Dummy report";
+			}
+			@Override
+			public Status getStatus(Profile p, WorkflowBean object) {
+				return Status.OK;
+			}
+			@Override
+			public Status getStatus(Profile p) {
+				return Status.OK;
+			}
+			@Override
+			public Set<WorkflowBeanReport> getReports(Profile p, WorkflowBean object) {
+				return Collections.emptySet();
+			}
+			@Override
+			public Map<WorkflowBean, Set<WorkflowBeanReport>> getReports(Profile p) {
+				return Collections.emptyMap();
+			}
+			@Override
+			public List<Observer<ReportManagerEvent>> getObservers() {
+				return Collections.emptyList();
+			}
+			@Override
+			public long getLastFullCheckedTime(Profile p) {
+				return 0;
+			}
+			@Override
+			public long getLastCheckedTime(Profile p) {
+				return 0;
+			}			
+			@Override
+			public void addObserver(Observer<ReportManagerEvent> observer) {
+			}
+		};
+	}
+
+	private ActivityIconManager getActivityIconManager() {
+		ActivityIconManagerImpl activityIconManagerImpl = new ActivityIconManagerImpl();
+		activityIconManagerImpl.setActivityIcons(serviceLoader(ActivityIconSPI.class));
+		return activityIconManagerImpl;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> List<T> serviceLoader(Class<T> klass) {
+		List<T> spis = new ArrayList<>();
+		for (T impl : ServiceLoader.load(klass)) { 
+			spis.add(impl);
+			try {
+				BeanUtils.copyProperties(this, impl);
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				e.printStackTrace();
+				// continue;
+			}
+		}
+		return spis;
+	}
+
+	public UIComponentFactorySPI getServicePanelComponentFactory() {
 		if (servicePanelFactory == null) {
 			servicePanelFactory = new ServicePanelComponentFactory();		
 			servicePanelFactory.setEditManager(getEditManager());
@@ -168,19 +352,11 @@ public class WorkbenchTest {
 	}
 
 	public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
-		ServiceDescriptionRegistryImpl serviceDescriptionRegistryImpl = new ServiceDescriptionRegistryImpl(getApplicationConfiguration());		
-		List<ServiceDescriptionProvider> serviceProviders = new ArrayList<>();
-		for (ServiceDescriptionProvider sdp : ServiceLoader.load(ServiceDescriptionProvider.class)) {
-			try {
-				BeanUtils.copyProperties(this, sdp);
-			} catch (IllegalAccessException | InvocationTargetException e) {
-				e.printStackTrace();
-			}
-			serviceProviders.add(sdp);
+		if (serviceDescriptionRegistry == null) {
+			serviceDescriptionRegistry = new ServiceDescriptionRegistryImpl(getApplicationConfiguration());
+			serviceDescriptionRegistry.setServiceDescriptionProvidersList(serviceLoader(ServiceDescriptionProvider.class));
 		}
-		
-		serviceDescriptionRegistryImpl.setServiceDescriptionProvidersList(serviceProviders);
-		return serviceDescriptionRegistryImpl;
+		return serviceDescriptionRegistry;
 	}
 
 	public UIComponentFactorySPI getContextualViewComponentFactory() {
@@ -191,19 +367,12 @@ public class WorkbenchTest {
 		return contextualViewComponentFactory;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ContextualViewFactoryRegistry getContextualViewFactoryRegistry() {
 		if (registry == null) { 
-			registry = new ContextualViewFactoryRegistryImpl();
-			List<ContextualViewFactory<?>> views = new ArrayList<>();
-			for (ContextualViewFactory view : ServiceLoader.load(ContextualViewFactory.class)) {
-				try {
-					BeanUtils.copyProperties(this, view);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				views.add(view);
-			}			
-			registry.setContextualViewFactories(views);
+			registry = new ContextualViewFactoryRegistryImpl();			
+			List serviceLoader = serviceLoader(ContextualViewFactory.class);
+			registry.setContextualViewFactories(serviceLoader);
 		}
 		return registry;
 	}
@@ -226,7 +395,7 @@ public class WorkbenchTest {
 		return workbench;
 	}
 
-	private WorkbenchConfiguration getWorkbenchConfiguration() {
+	public WorkbenchConfiguration getWorkbenchConfiguration() {
 		return new WorkbenchConfiguration() {
 			@Override
 			public Map<String, String> getDefaultPropertyMap() {
