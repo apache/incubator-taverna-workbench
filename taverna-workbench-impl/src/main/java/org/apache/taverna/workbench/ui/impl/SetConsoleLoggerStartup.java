@@ -23,11 +23,10 @@ import static org.apache.log4j.Level.WARN;
 
 import java.io.PrintStream;
 
-import org.apache.taverna.workbench.StartupSPI;
-import org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration;
-
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
+import org.apache.taverna.workbench.StartupSPI;
+import org.apache.taverna.workbench.configuration.workbench.WorkbenchConfiguration;
 
 public class SetConsoleLoggerStartup implements StartupSPI {
 	private static final PrintStream originalErr = System.err;
@@ -35,6 +34,10 @@ public class SetConsoleLoggerStartup implements StartupSPI {
 
 	private final WorkbenchConfiguration workbenchConfiguration;
 
+	public SetConsoleLoggerStartup() {
+		this.workbenchConfiguration = null;
+	}
+	
 	public SetConsoleLoggerStartup(WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
 	}
@@ -55,7 +58,7 @@ public class SetConsoleLoggerStartup implements StartupSPI {
 	}
 
 	public void setSystemOutCapture() {
-		if (!workbenchConfiguration.getCaptureConsole()) {
+		if (workbenchConfiguration == null || !workbenchConfiguration.getCaptureConsole()) {
 			System.setOut(originalOut);
 			System.setErr(originalErr);
 			return;

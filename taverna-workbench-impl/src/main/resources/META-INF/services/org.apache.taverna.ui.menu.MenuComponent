@@ -4,8 +4,7 @@ org.apache.taverna.workbench.ui.impl.menu.ExitAction
 org.apache.taverna.workbench.ui.impl.menu.EditMenu
 
 org.apache.taverna.workbench.ui.impl.menu.AdvancedMenu
-org.apache.taverna.workbench.ui.impl.menu.DisplayPerspectivesMenu
-org.apache.taverna.workbench.ui.impl.menu.EditPerspectivesMenu
+#org.apache.taverna.workbench.ui.impl.menu.EditPerspectivesMenu
 
 org.apache.taverna.workbench.ui.impl.menu.HelpMenu
 org.apache.taverna.workbench.ui.impl.menu.OnlineHelpMenuAction

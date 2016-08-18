@@ -501,7 +501,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		}
 	}
 
-	private class OSXAppListener extends ApplicationAdapter {
+	public class OSXAppListener extends ApplicationAdapter {
 		@Override
 		public void handleAbout(ApplicationEvent e) {
 			showAboutDialog();
