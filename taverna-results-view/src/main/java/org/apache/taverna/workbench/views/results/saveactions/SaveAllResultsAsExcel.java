@@ -17,21 +17,21 @@ package org.apache.taverna.workbench.views.results.saveactions;
  */
 
 import static java.lang.Math.max;
-import static java.util.Arrays.asList;
-import static org.apache.taverna.workbench.icons.WorkbenchIcons.saveIcon;
 import static org.apache.poi.ss.usermodel.CellStyle.BORDER_NONE;
 import static org.apache.poi.ss.usermodel.CellStyle.BORDER_THIN;
 import static org.apache.poi.ss.usermodel.CellStyle.SOLID_FOREGROUND;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.saveIcon;
 
 import java.beans.IntrospectionException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.swing.AbstractAction;
-
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -91,51 +91,52 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 
 		for (String portName : chosenReferences.keySet()) {
 			logger.debug("Output for : " + portName);
-			DataThing resultValue = bake(getObjectForName(portName));
-			// Check whether there's a textual type
-			Boolean textualType = isTextual(resultValue.getDataObject());
-			if (textualType == null || !textualType)
+			Object v = getObjectForName(portName);			
+			if (! isTextual(v).orElse(false)) {
+				logger.debug("Ignoring non-textual port " + portName);
 				continue;
-			logger.debug("Output is textual");
+			}
 			getCell(currentCol, 0).setCellValue(portName);
 			getCell(currentCol, 0).setCellStyle(headingStyle);
 			int numCols = 1;
 			int numRows = 1;
 			int currentRow = 0;
-			BaclavaIterator rows;
-			try {
-				rows = resultValue.iterator("l('')");
-			} catch (IntrospectionException ex) {
-				// Not a list, single value. We'll fake the iterator
-				DataThing fakeValues = new DataThing(
-						asList(resultValue.getDataObject()));
-				rows = fakeValues.iterator("l('')");
+			
+			Collection rows; 
+			if (v instanceof Collection) { 
+				rows = (Collection) v;
+			} else {
+				// Not a list, single value. Wrap it!
+				rows = Arrays.asList(v);
 			}
 			/*
 			 * If we only have one row, we'll show each value on a new row
 			 * instead
 			 */
 			boolean isFlat = rows.size() == 1;
-			while (rows.hasNext()) {
-				DataThing row = (DataThing) rows.next();
+			for (Object row : rows) {
 				/*
 				 * Even increase first time, as we don't want to overwrite our
 				 * header
 				 */
 				currentRow++;
-				BaclavaIterator bi = row.iterator("''");
-				while (bi.hasNext()) {
-					DataThing containedThing = (DataThing) bi.next();
-					String containedValue = (String) containedThing.getDataObject();
-					int columnOffset = 0;
-					int[] location = bi.getCurrentLocation();
-					if (!isFlat && location.length > 0) {
-						columnOffset = location[location.length - 1];
+				if (! (row instanceof Collection)) {
+					// Wrap it for the iterator
+					row = Arrays.asList(row);
+				}
+				
+				int columnOffset = -1;
+				for (Object containedValue : (Collection)row) {
+					if (!isFlat) {
+						columnOffset++;
 						numCols = Math.max(numCols, columnOffset + 1);
 					}
 					logger.debug("Storing in cell " + (currentCol + columnOffset) + " "
 							+ currentRow + ": " + containedValue);
-					getCell(currentCol + columnOffset, currentRow).setCellValue(containedValue);
+					HSSFCell cell = getCell(currentCol + columnOffset, currentRow);
+					if (containedValue instanceof String) {
+						cell.setCellValue(containedValue.toString());						
+					}
 					if (isFlat)
 						currentRow++;
 				}
@@ -207,31 +208,30 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 	 *
 	 * @param o
 	 *            Object to check
-	 * @return true if o is a String or is a Collection that contains a string at the deepest level.
+	 * @return 	true if o is a String or is a Collection that contains a string at the deepest level.
 	 *         false if o is not a String or Collection, or if it is a collection that contains
 	 *         non-strings.
-	 *         null if o is a Collection, but it is empty or contains nothing but Collections.
+	 *         Optional.empty() if o is a Collection, but it is empty or contains nothing but Collections.
 	 */
-	Boolean isTextual(Object o) {
+	Optional<Boolean> isTextual(Object o) {
 		if (o instanceof String)
 			// We dug down and found a string. Hurray!
-			return true;
+			return Optional.of(true);
 		if (o instanceof Collection) {
 			for (Object child : (Collection<?>) o) {
-				Boolean isTxt = isTextual(child);
-				if (isTxt == null)
-					// Unknown, try next one
-					continue;
-				return isTxt;
+				Optional<Boolean> isTxt = isTextual(child);
+				if (isTxt.isPresent()) { 
+					return isTxt;
+				}
 			}
 			/*
 			 * We looped through and found just empty collections (or we are an
 			 * empty collection), we don't know.
 			 */
-			return null;
+			return Optional.empty();
 		}
 		// No, sorry mate.. o was neither a String or Collection
-		return false;
+		return Optional.of(false);
 	}
 
 	/**
