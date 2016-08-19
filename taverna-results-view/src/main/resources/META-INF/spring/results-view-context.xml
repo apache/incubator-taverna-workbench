@@ -22,7 +22,6 @@
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="SaveIndividualResult" class="org.apache.taverna.workbench.views.results.saveactions.SaveIndividualResult" />
-	<bean id="SaveAllResultsAsXML" class="org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsAsXML" />
 	<bean id="SaveAllResultsAsExcel" class="org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsAsExcel" />
 	<bean id="SaveAllResultsToFileSystem" class="org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsToFileSystem" />
 
