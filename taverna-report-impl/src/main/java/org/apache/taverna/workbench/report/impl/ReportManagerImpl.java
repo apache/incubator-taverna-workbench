@@ -87,7 +87,7 @@ public class ReportManagerImpl implements Observable<ReportManagerEvent>, Report
 
 	// private Set<Visitor<?>> visitors;
 
-	protected ReportManagerImpl(EditManager editManager, FileManager fileManager,
+	public ReportManagerImpl(EditManager editManager, FileManager fileManager,
 			Set<Visitor<?>> visitors, ReportManagerConfiguration reportManagerConfiguration)
 			throws IllegalStateException {
 		this.editManager = editManager;
