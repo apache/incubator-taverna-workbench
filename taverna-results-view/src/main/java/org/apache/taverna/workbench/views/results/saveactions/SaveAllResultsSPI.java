@@ -24,7 +24,6 @@ import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
-import static net.sf.taverna.t2.results.ResultsUtils.convertPathToObject;
 import static org.apache.log4j.Logger.getLogger;
 
 import java.awt.event.ActionEvent;
@@ -39,7 +38,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 
 import org.apache.taverna.lang.ui.ExtensionFileFilter;
-
+import org.apache.taverna.platform.execution.impl.local.T2ReferenceConverter;
 import org.apache.log4j.Logger;
 
 /**
@@ -170,7 +169,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		Object result = null;
 		try {
 			if (chosenReferences.containsKey(name))
-				result = convertPathToObject(chosenReferences.get(name));
+				result = T2ReferenceConverter.convertPathToObject(chosenReferences.get(name));
 		} catch (IOException e) {
 			logger.warn("Error getting value for " + name, e);
 		}
