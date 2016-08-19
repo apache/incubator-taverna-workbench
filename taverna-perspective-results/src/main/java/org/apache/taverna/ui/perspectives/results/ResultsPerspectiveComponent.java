@@ -27,7 +27,6 @@ import static javax.swing.JSplitPane.VERTICAL_SPLIT;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Font;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +36,12 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+import org.apache.log4j.Logger;
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.SwingAwareObserver;
 import org.apache.taverna.lang.ui.tabselector.Tab;
+import org.apache.taverna.platform.run.api.InvalidRunIdException;
+import org.apache.taverna.platform.run.api.RunService;
 import org.apache.taverna.renderers.RendererRegistry;
 import org.apache.taverna.workbench.activityicons.ActivityIconManager;
 import org.apache.taverna.workbench.configuration.colour.ColourManager;
@@ -53,12 +55,7 @@ import org.apache.taverna.workbench.views.monitor.progressreport.TableMonitorCom
 import org.apache.taverna.workbench.views.results.ResultsComponent;
 import org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsSPI;
 import org.apache.taverna.workbench.views.results.saveactions.SaveIndividualResultSPI;
-
-import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
-
-import org.apache.taverna.platform.run.api.InvalidRunIdException;
-import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * @author David Withers
