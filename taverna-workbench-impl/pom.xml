@@ -216,13 +216,27 @@
 			<version>${taverna.osgi.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-capability-impl</artifactId>
 			<version>${taverna.engine.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-execution-local</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-reference-impl</artifactId>
+			<version>${taverna.engine.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-workflowmodel-extensions</artifactId>
