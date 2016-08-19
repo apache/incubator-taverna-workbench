@@ -43,4 +43,16 @@ public interface RendererRegistry {
 	 * @return all the renderers
 	 */
 	List<Renderer> getRenderers();
+	
+	/**
+	 * Return a mime type detector.
+	 * <p>
+	 * The detector can help guess the mime type of a given binary or String.
+	 * <p>
+	 * Note that the detector might also detect media types that do not have
+	 * a corresponding renderer in {@link #getRenderersForMimeType(String)}.
+	 * 
+	 * @return A mime type detector
+	 */
+	MediaTypeDetector getMimeTypeDetector();
 }

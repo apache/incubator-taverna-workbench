@@ -21,6 +21,7 @@ package org.apache.taverna.renderers.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.taverna.renderers.MediaTypeDetector;
 import org.apache.taverna.renderers.Renderer;
 import org.apache.taverna.renderers.RendererRegistry;
 
@@ -48,5 +49,11 @@ public class RendererRegistryImpl implements RendererRegistry {
 
 	public void setRenderers(List<Renderer> renderers) {
 		this.renderers = renderers;
+	}
+
+	@Override
+	public MediaTypeDetector getMimeTypeDetector() {
+		// TODO: Should the below have any configuration loaded?
+		return new MediaTypeDetectorImpl();
 	}
 }
