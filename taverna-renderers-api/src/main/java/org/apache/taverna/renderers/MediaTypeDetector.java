@@ -21,6 +21,7 @@ package org.apache.taverna.renderers;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 public interface MediaTypeDetector {
@@ -44,7 +45,7 @@ public interface MediaTypeDetector {
 	public List<String> guessMediaTypes(Path path) throws IOException ;
 
 	/**
-	 * Guess the media types of a given {@link String}.
+	 * Guess the media types of a given {@link String} value.
 	 * <p>
 	 * The media types in the list are ordered by decreasing likelihood, e.g.
 	 * the first item in the list is the most likely (in many cases most
@@ -53,15 +54,15 @@ public interface MediaTypeDetector {
 	 * The returned list will never be empty, as it will always contain either
 	 * <code>text/plain</code>.
 	 * 
-	 * @param path
-	 *            A {@link Path} to be guessed. The file extension of the path
-	 *            MAY be taken into consideration.
+	 * @param String
+	 *            A string to check, e.g. an XML document. Note that only the first
+	 *            few lines of the string to test is required.
 	 * @return A list of guessed media types
 	 */	
 	public List<String> guessMediaTypes(String string);
 
 	/**
-	 * Guess the media types of a given {@link Path}.
+	 * Guess the media types of a given byte array.
 	 * <p>
 	 * The media types in the list are ordered by decreasing likelihood, e.g.
 	 * the first item in the list is the most likely (in many cases most
@@ -70,9 +71,9 @@ public interface MediaTypeDetector {
 	 * The returned list will never be empty, as it will always contain
 	 * <code>application/octet-stream</code>
 	 * 
-	 * @param path
-	 *            A {@link Path} to be guessed. The file extension of the path
-	 *            MAY be taken into consideration.
+	 * @param bytes
+	 *            Bytes to check. Note that only the "first bits" of the
+	 *            resource is required, e.g. the initial 8192 bytes.
 	 * @return A list of guessed media types
 	 */	
 	public List<String> guessMediaTypes(byte[] bytes);
@@ -90,13 +91,42 @@ public interface MediaTypeDetector {
 	 * The returned list will never be empty, as it will always contain either
 	 * <code>text/plain</code> or <code>application/octet-stream</code>
 	 * 
-	 * @param path
-	 *            A {@link Path} to be guessed. Any file extension of the URL
+	 * @param uri
+	 *            A {@link URI} to be guessed. Any file extension of the URL
 	 *            MAY be taken into consideration.
 	 * @return A list of guessed media types
 	 * @throws IOException If the URL can't be accessed (e.g. a network issue)
 	 */	
 	public List<String> guessMediaTypes(URI uri) throws IOException;
 
+	
+	/**
+	 * Dummy MediaTypeDetector implementation
+	 * <p>
+	 * This can be used for test purposes which don't want to use
+	 * MediaTypeDetectorImpl.
+	 * <p>
+	 * This class always return "application/octet-stream" as the media type.
+	 *
+	 */
+	public static class Dummy implements MediaTypeDetector {
+		private static List<String> BINARY = Collections.singletonList("application/octet-stream"); 
+		@Override
+		public List<String> guessMediaTypes(Path path) throws IOException {
+			return BINARY;
+		}
+		@Override
+		public List<String> guessMediaTypes(String string) {
+			return BINARY;
+		}
+		@Override
+		public List<String> guessMediaTypes(byte[] bytes) {
+			return BINARY;
+		}
+		@Override
+		public List<String> guessMediaTypes(URI uri) throws IOException {
+			return BINARY;
+		}		
+	}
 	
 }

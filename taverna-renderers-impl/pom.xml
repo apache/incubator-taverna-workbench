@@ -72,6 +72,12 @@
 			<artifactId>com.springsource.org.jdom</artifactId>
 			<version>${jdom.version}</version>
 		</dependency>
+        <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>1.13</version>
+        </dependency>
+
 
 	</dependencies>
 </project>
