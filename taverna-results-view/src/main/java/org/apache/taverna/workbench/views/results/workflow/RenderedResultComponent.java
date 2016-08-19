@@ -23,7 +23,6 @@ import static java.awt.event.ItemEvent.SELECTED;
 import static javax.swing.BoxLayout.LINE_AXIS;
 import static javax.swing.SwingUtilities.invokeLater;
 import static org.apache.taverna.renderers.RendererUtils.getInputStream;
-import static org.apache.taverna.results.ResultsUtils;
 import static org.apache.taverna.workbench.icons.WorkbenchIcons.refreshIcon;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
@@ -38,6 +37,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.apache.taverna.lang.ui.DialogTextArea;
+import org.apache.taverna.renderers.MediaTypeDetector;
 import org.apache.taverna.renderers.Renderer;
 import org.apache.taverna.renderers.RendererException;
 import org.apache.taverna.renderers.RendererRegistry;
@@ -71,7 +73,6 @@ import org.apache.log4j.Logger;
 import org.apache.taverna.databundle.DataBundles;
 import org.apache.taverna.databundle.ErrorDocument;
 import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
-import eu.medsea.mimeutil.MimeType;
 
 /**
  * Creates a component that renders an individual result from an output port.
@@ -294,36 +295,22 @@ public class RenderedResultComponent extends JPanel {
 		if (DataBundles.isValue(path) || DataBundles.isReference(path)) {
 			// Enable refresh button
 			refreshButton.setEnabled(true);
-
-			List<MimeType> mimeTypes = new ArrayList<>();
-			try (InputStream inputstream = getInputStream(path)) {
-				mimeTypes.addAll(getMimeTypes(inputstream));
+			
+			List<String> mediaTypes;
+			MediaTypeDetector detector = rendererRegistry.getMimeTypeDetector();
+			try {
+				if (DataBundles.isReference(path)) {
+					mediaTypes = detector.guessMediaTypes(DataBundles.getReference(path));
+				} else {
+					mediaTypes = detector.guessMediaTypes(path);
+				}
 			} catch (IOException e) {
-				logger.warn("Error getting mimetype", e);
+				logger.warn("Can't detect media type of " + path, e);
+				mediaTypes = Collections.emptyList();
 			}
-
-			if (mimeTypes.isEmpty())
-				// If MIME types is empty - add "plain/text" MIME type
-				mimeTypes.add(new MimeType("text/plain"));
-			else if (mimeTypes.size() == 1
-					&& mimeTypes.get(0).toString().equals("chemical/x-fasta")) {
-				/*
-				 * If MIME type is recognised as "chemical/x-fasta" only then
-				 * this might be an error from MIME magic (i.e., sometimes it
-				 * recognises stuff that is not "chemical/x-fasta" as
-				 * "chemical/x-fasta" and then Seq Vista renderer is used that
-				 * causes errors) - make sure we also add the renderers for
-				 * "text/plain" and "text/xml" as it is most probably just
-				 * normal xml text and push the "chemical/x-fasta" to the bottom
-				 * of the list.
-				 */
-				mimeTypes.add(0, new MimeType("text/plain"));
-				mimeTypes.add(1, new MimeType("text/xml"));
-			}
-
-			for (MimeType mimeType : mimeTypes) {
-				List<Renderer> renderersList = rendererRegistry.getRenderersForMimeType(mimeType
-						.toString());
+			
+			for (String mediaType : mediaTypes) {
+				List<Renderer> renderersList = rendererRegistry.getRenderersForMimeType(mediaType);
 				for (Renderer renderer : renderersList)
 					if (!recognisedRenderersForMimeType.contains(renderer))
 						recognisedRenderersForMimeType.add(renderer);
