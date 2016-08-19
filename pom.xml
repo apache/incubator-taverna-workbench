@@ -82,7 +82,6 @@
             <module>taverna-renderers-impl</module>
             <module>taverna-report-api</module>
             <module>taverna-report-explainer</module>
-            <module>taverna-report-impl</module>
             <module>taverna-report-view</module>
             <module>taverna-retry-ui</module>
             <module>taverna-run-ui</module>
@@ -99,11 +98,15 @@
             <module>taverna-uibuilder</module>
             <module>batik-osgi</module>
 
-	    <!-- TAVERNA-992 depend on updates to results perspective 
+	    <!-- TAVERNA-992 The below needs updating to Taverna 3 workbench
+
+	    e.g. using SCUFL2 Workflow instead of Dataflow, or using the
+            taverna-engine Report instead of WorkflowInstanceFacade
 
             <module>taverna-results-view</module>
             <module>taverna-perspective-results</module>
             <module>taverna-monitor-view</module>
+            <module>taverna-report-impl</module>
 	    -->
 
         </modules>
