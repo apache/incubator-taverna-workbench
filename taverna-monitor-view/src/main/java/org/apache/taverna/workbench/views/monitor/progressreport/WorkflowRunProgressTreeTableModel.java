@@ -18,8 +18,8 @@ package org.apache.taverna.workbench.views.monitor.progressreport;
 
 import static java.util.Collections.nCopies;
 import static org.apache.taverna.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTableModel.Column.values;
-import static org.apache.taverna.workbench.views.results.processor.ProcessorResultsComponent.formatMilliseconds;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,7 +57,29 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 	public static final String ITERATIONS = "Queued iterations";
 	public static final String ITERATIONS_DONE = "Completed iterations";
 	public static final String ITERATIONS_FAILED = "Iterations with errors";
+	private static final String HOURS = "h";
+	private static final String MINUTES = "m";
+	private static final String SECONDS = "s";
+	private static final String MILLISECONDS = "ms";
+	
+	public static String formatMilliseconds(long timeInMiliseconds) {
+		double timeInSeconds;
+		if (timeInMiliseconds < 1000)
+			return timeInMiliseconds + " " + MILLISECONDS;
+		NumberFormat numberFormat = NumberFormat.getNumberInstance();
+		numberFormat.setMaximumFractionDigits(1);
+		numberFormat.setMinimumFractionDigits(1);
+		timeInSeconds = timeInMiliseconds / 1000.0;
+		if (timeInSeconds < 60)
+			return numberFormat.format(timeInSeconds) + " " + SECONDS;
+		double timeInMinutes = timeInSeconds / 60.0;
+		if (timeInMinutes < 60)
+			return numberFormat.format(timeInMinutes) + " " + MINUTES;
+		double timeInHours = timeInMinutes / 60.0;
+		return numberFormat.format(timeInHours) + " " + HOURS;
+	}
 
+	
 	public enum Column {
 		NAME("Name", TreeTableModel.class), STATUS("Status"), ITERATIONS_QUEUED(
 				"Queued iterations"), ITERATIONS_DONE("Iterations done"), ITERATIONS_FAILED(
@@ -140,6 +162,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 		return nodeForObject.get(workflowObject);
 	}
 
+	
 	public void setColumnValues(StatusReport<?, ?> report, List<Object> columns) {
 		if (report instanceof WorkflowReport) {
 			WorkflowReport workflowReport = (WorkflowReport) report;
