@@ -37,8 +37,10 @@ import javax.swing.AbstractAction;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 
+import org.apache.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles.ResolveOptions;
 import org.apache.taverna.lang.ui.ExtensionFileFilter;
-import org.apache.taverna.platform.execution.impl.local.T2ReferenceConverter;
+//import org.apache.taverna.platform.execution.impl.local.T2ReferenceConverter;
 import org.apache.log4j.Logger;
 
 /**
@@ -169,12 +171,15 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		Object result = null;
 		try {
 			if (chosenReferences.containsKey(name))
-				result = T2ReferenceConverter.convertPathToObject(chosenReferences.get(name));
+				result = DataBundles.resolve(chosenReferences.get(name), 
+						ResolveOptions.STRING, 
+						ResolveOptions.REPLACE_ERRORS, 
+						ResolveOptions.REPLACE_NULL);
 		} catch (IOException e) {
 			logger.warn("Error getting value for " + name, e);
 		}
 		if (result == null)
-			result = "null";
+			result = "(null)";
 		return result;
 	}
 
