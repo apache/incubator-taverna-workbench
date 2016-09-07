@@ -17,6 +17,19 @@ TODO:
 This is not open source - this file must be removed
 
 ---------------------------------------------------------
+taverna-workbench-impl/src/main/java/org/apache/taverna/workbench/ui/impl/LoggerStream.java
+
+ *  JBoss: The OpenSource J2EE WebOS   *
+ *                                     *
+ *  Distributable under LGPL license.  *
+ *  See terms of license at gnu.org.   *
+ *                                     *
+ *  Modified by Stian Soiland-Reyes    *
+
+
+TODO: This file is not Apache License compatible and must be removed
+---------------------------------------------------------
+
 
 TODO: check license for
 src/main/jjtree/dotparser.jjt
