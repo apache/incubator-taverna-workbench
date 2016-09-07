@@ -38,6 +38,17 @@ src/main/jjtree/dotparser.jjt
   Written by Lynn Monson at lm@lmonson.com
 
 ---------------------------------------------------------
+./taverna-perspective-myexperiment/src/main/java/org/apache/taverna/ui/perspectives/myexperiment/model/Base64.java
+
+TODO: File claims to be public domain?
+
+http://iharder.sourceforge.net/current/java/base64/
+
+This is a Public Domain Java class providing very fast Base64 encoding and decoding in the form of convenience methods and input/output streams.
+
+Also is this file really needed as Commons Codec can do Base64?
+---------------------------------------------------------
+
 
 taverna-ui/src/main/java/org/apache/taverna/lang/ui/treetable/
 
