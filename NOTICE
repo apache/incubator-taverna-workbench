@@ -29,6 +29,18 @@ taverna-workbench-impl/src/main/java/org/apache/taverna/workbench/ui/impl/Logger
 
 TODO: This file is not Apache License compatible and must be removed
 ---------------------------------------------------------
+taverna-workbench-api/src/main/resources/org/apache/taverna/workbench/icons/
+
+
+TODO: Some of these icons are from the 
+icon sets Crystal and Crystal Clear by Everaldo Coelho, 
+licensed under the LGPL license.
+See https://commons.wikimedia.org/wiki/Crystal_Clear
+and https://commons.wikimedia.org/wiki/Category:Crystal_icons
+
+FIXME: Remove incompatible icons (but keep those we made ourselves)
+
+---------------------------------------------------------
 
 
 TODO: check license for
