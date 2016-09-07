@@ -35,7 +35,6 @@ import org.apache.taverna.plugin.PluginManager;
 import org.apache.taverna.plugin.xml.jaxb.PluginVersions;
 import org.apache.taverna.reference.ExternalReferenceBuilderSPI;
 import org.apache.taverna.reference.ExternalReferenceTranslatorSPI;
-import org.apache.taverna.reference.ListService;
 import org.apache.taverna.reference.ReferenceService;
 import org.apache.taverna.reference.StreamToValueConverterSPI;
 import org.apache.taverna.reference.ValueToReferenceConverterSPI;
@@ -106,6 +105,7 @@ import org.apache.taverna.workbench.views.graph.config.GraphViewConfiguration;
 import org.apache.taverna.workbench.views.results.saveactions.SaveAllResultsSPI;
 import org.apache.taverna.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import org.apache.taverna.workflowmodel.Edits;
+import org.apache.taverna.workflowmodel.impl.EditsImpl;
 import org.apache.taverna.workflowmodel.processor.activity.ActivityFactory;
 import org.apache.taverna.workflowmodel.processor.dispatch.DispatchLayerFactory;
 import org.apache.taverna.workflowmodel.processor.dispatch.layers.CoreDispatchLayerFactory;
@@ -119,10 +119,15 @@ public class WorkbenchTest {
 		
 		WorkbenchImpl w = new WorkbenchTest().getWorkbench();
 		w.initialize();
+		// NOTE: The above will do w.setVisible(true);
+		// which blocks until the workbench window is closed.
+		System.out.println("Closing..");
+		
+		
 		synchronized(w) {
 			// It won't actually get interrupted, but it means we persist 
-			// as long as w rather than exiting
-			w.wait();
+			// as long as w, rather than exiting right away
+		//	w.wait();
 		}
 	}
 
@@ -138,6 +143,21 @@ public class WorkbenchTest {
 	private WorkflowExplorerFactory workflowExplorerFactory;
 	private ServiceDescriptionRegistryImpl serviceDescriptionRegistry;
 	private ConfigurationManagerImpl configurationManager;
+	private DesignPerspective designPerspective;
+	private ResultsPerspective resultsPerspective;
+	private ContextualViewComponentFactory contextualViewComponentFactory;
+	private ApplicationConfiguration appConfig;
+	private List<StartupSPI> startupHooks;
+	private ServiceRegistryImpl serviceRegistry;
+	private ActivityServiceImpl activityService;
+	private DispatchLayerServiceImpl dispatchLayerService;
+	private RendererRegistryImpl rendererRegistry;
+	private ReferenceServiceImpl referenceService;
+	private LocalExecutionService localExecutionService;
+	private ExecutionEnvironmentServiceImpl executionEnvironmentService;
+	private RunServiceImpl runService;
+	private ActivityIconManagerImpl activityIconManager;
+	private GraphViewComponentFactory graphViewComponentFactory;
 
 	public FileManager getFileManager() {
 		if (fileManager == null) {
@@ -189,82 +209,88 @@ public class WorkbenchTest {
 	}
 
 	public ResultsPerspective getResultsPerspective() {
-		ResultsPerspective perspective = new ResultsPerspective();
-		perspective.setActivityIconManager(getActivityIconManager());
-		perspective.setApplicationConfiguration(getApplicationConfiguration());
-		perspective.setColourManager(getColourManager());
-		perspective.setRendererRegistry(getRendererRegistry());
-		perspective.setRunService(getRunService());
-		perspective.setSaveAllResultsSPIs(serviceLoader(SaveAllResultsSPI.class));
-		perspective.setSaveIndividualResultSPIs(serviceLoader(SaveIndividualResultSPI.class));
-		perspective.setSelectionManager(getSelectionManager());
-		perspective.setWorkbenchConfiguration(getWorkbenchConfiguration());
-		return perspective;
+		if (resultsPerspective == null) {
+			resultsPerspective = new ResultsPerspective();
+			resultsPerspective.setActivityIconManager(getActivityIconManager());
+			resultsPerspective.setApplicationConfiguration(getApplicationConfiguration());
+			resultsPerspective.setColourManager(getColourManager());
+			resultsPerspective.setRendererRegistry(getRendererRegistry());
+			resultsPerspective.setRunService(getRunService());
+			resultsPerspective.setSaveAllResultsSPIs(serviceLoader(SaveAllResultsSPI.class));
+			resultsPerspective.setSaveIndividualResultSPIs(serviceLoader(SaveIndividualResultSPI.class));
+			resultsPerspective.setSelectionManager(getSelectionManager());
+			resultsPerspective.setWorkbenchConfiguration(getWorkbenchConfiguration());
+		}
+		return resultsPerspective;
 	}
 
 
 	public RunService getRunService() {
-		RunServiceImpl runServiceImpl = new RunServiceImpl();
-		runServiceImpl.setEventAdmin(getEventAdmin());
-		runServiceImpl.setExecutionEnvironmentService(getExecutionEnvironmentService());
-		return runServiceImpl;
+		if (runService == null) {
+			runService = new RunServiceImpl();
+			runService.setEventAdmin(getEventAdmin());
+			runService.setExecutionEnvironmentService(getExecutionEnvironmentService());
+		}
+		return runService;
 	}
 
 	private ExecutionEnvironmentService getExecutionEnvironmentService() {
-		ExecutionEnvironmentServiceImpl serviceImpl = new ExecutionEnvironmentServiceImpl();
-		Set<ExecutionService> executionServices = Collections.singleton(getLocalExecutionService());
-		serviceImpl.setExecutionServices(executionServices);
-		return serviceImpl;
+		if (executionEnvironmentService == null) {
+			executionEnvironmentService = new ExecutionEnvironmentServiceImpl();
+			Set<ExecutionService> executionServices = Collections.singleton(getLocalExecutionService());
+			executionEnvironmentService.setExecutionServices(executionServices);
+		}
+		return executionEnvironmentService;
 	}
 
 	private ExecutionService getLocalExecutionService() {
-		LocalExecutionService localExecutionService = new LocalExecutionService();
-		localExecutionService.setActivityService(getActivityService());
-		localExecutionService.setDispatchLayerService(getDispatchLayerService());
-		localExecutionService.setEdits(getEdits());
-		localExecutionService.setReferenceService(getReferenceService());
+		if (localExecutionService == null) {
+			localExecutionService = new LocalExecutionService();
+			localExecutionService.setActivityService(getActivityService());
+			localExecutionService.setDispatchLayerService(getDispatchLayerService());
+			localExecutionService.setEdits(getEdits());
+			localExecutionService.setReferenceService(getReferenceService());
+		}
 		return localExecutionService;
 	}
 
 	private Edits getEdits() {
-		// TODO Auto-generated method stub
-		return null;
+		return new EditsImpl();
 	}
 
 	private ReferenceService getReferenceService() {
-		// Adapted from org.apache.taverna.activities.testutils.ActivityInvoker
-		
-		ReferenceServiceImpl referenceServiceImpl = new ReferenceServiceImpl();		
-		ReferenceSetServiceImpl referenceSetService = new ReferenceSetServiceImpl();
-		ReferenceServiceImpl referenceService = new ReferenceServiceImpl();
-		
-		SimpleT2ReferenceGenerator referenceGenerator = new SimpleT2ReferenceGenerator();
-		ReferenceSetAugmentorImpl referenceSetAugmentor = new ReferenceSetAugmentorImpl();
-		referenceSetAugmentor.setBuilders(getBuilders());
-		referenceSetAugmentor.setTranslators(getTranslators());
-		referenceSetService.setReferenceSetAugmentor(referenceSetAugmentor);
-		
-		referenceSetService.setT2ReferenceGenerator(referenceGenerator);
-		referenceSetService.setReferenceSetDao(new InMemoryReferenceSetDao());
-		referenceService.setReferenceSetService(referenceSetService);
-		
-		ListServiceImpl listService = new ListServiceImpl();
-		listService.setT2ReferenceGenerator(referenceGenerator);		
-		listService.setListDao(new InMemoryListDao());
-		referenceService.setListService(listService);
-		
-		ErrorDocumentServiceImpl errorDocumentService = new ErrorDocumentServiceImpl();
-		errorDocumentService.setT2ReferenceGenerator(referenceGenerator);
-		errorDocumentService.setErrorDao(new InMemoryErrorDocumentDao());
-		
-		referenceService.setErrorDocumentService(errorDocumentService);
-		referenceService.setConverters(serviceLoader(ValueToReferenceConverterSPI.class));
-		referenceService.setValueBuilders(serviceLoader(StreamToValueConverterSPI.class));		
+		if (referenceService == null) {
+			// Adapted from org.apache.taverna.activities.testutils.ActivityInvoker		
+			ReferenceSetServiceImpl referenceSetService = new ReferenceSetServiceImpl();
+			referenceService = new ReferenceServiceImpl();
+			
+			SimpleT2ReferenceGenerator referenceGenerator = new SimpleT2ReferenceGenerator();
+			ReferenceSetAugmentorImpl referenceSetAugmentor = new ReferenceSetAugmentorImpl();
+			referenceSetAugmentor.setBuilders(getBuilders());
+			referenceSetAugmentor.setTranslators(getTranslators());
+			referenceSetService.setReferenceSetAugmentor(referenceSetAugmentor);
+			
+			referenceSetService.setT2ReferenceGenerator(referenceGenerator);
+			referenceSetService.setReferenceSetDao(new InMemoryReferenceSetDao());
+			referenceService.setReferenceSetService(referenceSetService);
+			
+			ListServiceImpl listService = new ListServiceImpl();
+			listService.setT2ReferenceGenerator(referenceGenerator);		
+			listService.setListDao(new InMemoryListDao());
+			referenceService.setListService(listService);
+			
+			ErrorDocumentServiceImpl errorDocumentService = new ErrorDocumentServiceImpl();
+			errorDocumentService.setT2ReferenceGenerator(referenceGenerator);
+			errorDocumentService.setErrorDao(new InMemoryErrorDocumentDao());
+			
+			referenceService.setErrorDocumentService(errorDocumentService);
+			referenceService.setConverters(serviceLoader(ValueToReferenceConverterSPI.class));
+			referenceService.setValueBuilders(serviceLoader(StreamToValueConverterSPI.class));		
+		}
 		return referenceService;		
 		
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<ExternalReferenceBuilderSPI<?>> getBuilders() {		
 		List<ExternalReferenceBuilderSPI<?>> builders = new ArrayList<>();
 		builders.add(new InlineByteArrayReferenceBuilder());
@@ -279,18 +305,22 @@ public class WorkbenchTest {
 		return translators;
 	}
 
-	private DispatchLayerService getDispatchLayerService() {
-		DispatchLayerServiceImpl dispatchLayerServiceImpl = new DispatchLayerServiceImpl();		
-		List<DispatchLayerFactory> list = new ArrayList<>();
-		list.add(new CoreDispatchLayerFactory());
-		dispatchLayerServiceImpl.setDispatchLayerFactories(list);
-		return dispatchLayerServiceImpl;
+	public DispatchLayerService getDispatchLayerService() {
+		if (dispatchLayerService == null) {
+			dispatchLayerService = new DispatchLayerServiceImpl();		
+			List<DispatchLayerFactory> list = new ArrayList<>();
+			list.add(new CoreDispatchLayerFactory());
+			dispatchLayerService.setDispatchLayerFactories(list);
+		}
+		return dispatchLayerService;
 	}
 
-	private ActivityService getActivityService() {
-		ActivityServiceImpl serviceImpl = new ActivityServiceImpl();		
-		serviceImpl.setActivityFactories(serviceLoader(ActivityFactory.class));
-		return serviceImpl;
+	public ActivityService getActivityService() {
+		if (activityService == null) {
+			activityService = new ActivityServiceImpl();		
+			activityService.setActivityFactories(serviceLoader(ActivityFactory.class));
+		}	
+		return activityService;
 	}
 
 	private EventAdmin getEventAdmin() {
@@ -307,37 +337,43 @@ public class WorkbenchTest {
 	}
 
 	public RendererRegistry getRendererRegistry() {
-		RendererRegistryImpl rendererRegistryImpl = new RendererRegistryImpl();
-		rendererRegistryImpl.setRenderers(serviceLoader(Renderer.class));
-		return rendererRegistryImpl;
+		if (rendererRegistry == null) {
+			rendererRegistry = new RendererRegistryImpl();
+			rendererRegistry.setRenderers(serviceLoader(Renderer.class));
+		}
+		return rendererRegistry;
 	}
 
 	public DesignPerspective getDesignPerspective() {
-		DesignPerspective p = new DesignPerspective();
-		p.setEditManager(getEditManager());
-		p.setFileManager(getFileManager());
-		p.setMenuManager(getMenuManager());
-		p.setSelectionManager(getSelectionManager());
-
-		p.setServicePanelComponentFactory(getServicePanelComponentFactory());
-		p.setWorkflowExplorerFactory(getWorkflowExplorerFactory());
-		p.setReportViewComponentFactory(getReportViewComponentFactory());
-		p.setContextualViewComponentFactory(getContextualViewComponentFactory());
-		p.setGraphViewComponentFactory(getGraphViewComponentFactory());
-		return p;
+		if (designPerspective == null) {
+			designPerspective = new DesignPerspective();
+			designPerspective.setEditManager(getEditManager());
+			designPerspective.setFileManager(getFileManager());
+			designPerspective.setMenuManager(getMenuManager());
+			designPerspective.setSelectionManager(getSelectionManager());
+	
+			designPerspective.setServicePanelComponentFactory(getServicePanelComponentFactory());
+			designPerspective.setWorkflowExplorerFactory(getWorkflowExplorerFactory());
+			designPerspective.setReportViewComponentFactory(getReportViewComponentFactory());
+			designPerspective.setContextualViewComponentFactory(getContextualViewComponentFactory());
+			designPerspective.setGraphViewComponentFactory(getGraphViewComponentFactory());
+		}
+		return designPerspective;
 	}
 
 	private UIComponentFactorySPI getGraphViewComponentFactory() {
-		GraphViewComponentFactory f = new GraphViewComponentFactory();
-		f.setColourManager(getColourManager());
-		f.setEditManager(getEditManager());
-		f.setFileManager(getFileManager());
-		f.setGraphViewConfiguration(getGraphViewConfiguration());
-		f.setMenuManager(getMenuManager());
-		f.setSelectionManager(getSelectionManager());
-		f.setServiceRegistry(getServiceRegistry());
-		f.setWorkbenchConfiguration(getWorkbenchConfiguration());
-		return f;
+		if (graphViewComponentFactory == null) {
+			graphViewComponentFactory = new GraphViewComponentFactory();
+			graphViewComponentFactory.setColourManager(getColourManager());
+			graphViewComponentFactory.setEditManager(getEditManager());
+			graphViewComponentFactory.setFileManager(getFileManager());
+			graphViewComponentFactory.setGraphViewConfiguration(getGraphViewConfiguration());
+			graphViewComponentFactory.setMenuManager(getMenuManager());
+			graphViewComponentFactory.setSelectionManager(getSelectionManager());
+			graphViewComponentFactory.setServiceRegistry(getServiceRegistry());
+			graphViewComponentFactory.setWorkbenchConfiguration(getWorkbenchConfiguration());
+		}
+		return graphViewComponentFactory;
 	}
 
 	public GraphViewConfiguration getGraphViewConfiguration() {
@@ -468,9 +504,11 @@ public class WorkbenchTest {
 	}
 
 	public ActivityIconManager getActivityIconManager() {
-		ActivityIconManagerImpl activityIconManagerImpl = new ActivityIconManagerImpl();
-		activityIconManagerImpl.setActivityIcons(serviceLoader(ActivityIconSPI.class));
-		return activityIconManagerImpl;
+		if (activityIconManager == null) {		
+			activityIconManager = new ActivityIconManagerImpl();
+			activityIconManager.setActivityIcons(serviceLoader(ActivityIconSPI.class));
+		}
+		return activityIconManager;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -502,7 +540,11 @@ public class WorkbenchTest {
 	}
 
 	public ServiceRegistry getServiceRegistry() {
-		return new ServiceRegistryImpl();
+		if (serviceRegistry == null) {
+			serviceRegistry = new ServiceRegistryImpl();
+			serviceRegistry.setActivityService(getActivityService());
+		}
+		return serviceRegistry;
 	}
 
 	public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
@@ -514,10 +556,12 @@ public class WorkbenchTest {
 	}
 
 	public UIComponentFactorySPI getContextualViewComponentFactory() {
-		ContextualViewComponentFactory contextualViewComponentFactory = new ContextualViewComponentFactory();
-		contextualViewComponentFactory.setEditManager(getEditManager());
-		contextualViewComponentFactory.setSelectionManager(getSelectionManager());
-		contextualViewComponentFactory.setContextualViewFactoryRegistry(getContextualViewFactoryRegistry());
+		if (contextualViewComponentFactory == null) {
+			contextualViewComponentFactory = new ContextualViewComponentFactory();
+			contextualViewComponentFactory.setEditManager(getEditManager());
+			contextualViewComponentFactory.setSelectionManager(getSelectionManager());
+			contextualViewComponentFactory.setContextualViewFactoryRegistry(getContextualViewFactoryRegistry());
+		}
 		return contextualViewComponentFactory;
 	}
 
@@ -693,12 +737,15 @@ public class WorkbenchTest {
 		};
 	}
 
-	public List<StartupSPI> getStartupHooks() {
-		SetCredManAuthenticatorStartupHook credManAuthenticatorStartupHook = new SetCredManAuthenticatorStartupHook();
-		credManAuthenticatorStartupHook.setCredentialManager(getCredentialManager());
-		InitialiseSSLStartupHook initialiseSSLStartupHook = new InitialiseSSLStartupHook();
-		initialiseSSLStartupHook.setCredentialManager(getCredentialManager());
-		return Arrays.asList(initialiseSSLStartupHook, credManAuthenticatorStartupHook);
+	public List<StartupSPI> getStartupHooks() {	
+		if (startupHooks == null) {
+			SetCredManAuthenticatorStartupHook credManAuthenticatorStartupHook = new SetCredManAuthenticatorStartupHook();
+			credManAuthenticatorStartupHook.setCredentialManager(getCredentialManager());
+			InitialiseSSLStartupHook initialiseSSLStartupHook = new InitialiseSSLStartupHook();
+			initialiseSSLStartupHook.setCredentialManager(getCredentialManager());
+			startupHooks = Arrays.asList(initialiseSSLStartupHook, credManAuthenticatorStartupHook);
+		}
+		return startupHooks;
 	}
 
 	public CredentialManager getCredentialManager() {
@@ -707,6 +754,7 @@ public class WorkbenchTest {
 				credentialManager = new CredentialManagerImpl();			
 			} catch (CMException e) {
 				e.printStackTrace();
+				throw new IllegalStateException(e);
 			}
 		}
 		return credentialManager;
@@ -717,7 +765,10 @@ public class WorkbenchTest {
 	}
 
 	public ApplicationConfiguration getApplicationConfiguration() {
-		return new ApplicationConfigurationImpl();
+		if (appConfig == null) {
+			appConfig = new ApplicationConfigurationImpl(); 
+		}
+		return appConfig;
 	}
 	
 }

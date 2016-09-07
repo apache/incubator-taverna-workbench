@@ -86,6 +86,7 @@ import org.simplericity.macify.eawt.ApplicationAdapter;
 import org.simplericity.macify.eawt.ApplicationEvent;
 import org.simplericity.macify.eawt.ApplicationListener;
 import org.simplericity.macify.eawt.DefaultApplication;
+import org.springframework.stereotype.Component;
 
 /**
  * The main workbench frame.
@@ -93,6 +94,8 @@ import org.simplericity.macify.eawt.DefaultApplication;
  * @author David Withers
  * @author Stian Soiland-Reyes
  */
+
+@Component
 public class WorkbenchImpl extends JFrame implements Workbench {
 	private static final String NIMBUS = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
 	private static final String LAUNCHER_LOGO_PNG = "/launcher_logo.png";
