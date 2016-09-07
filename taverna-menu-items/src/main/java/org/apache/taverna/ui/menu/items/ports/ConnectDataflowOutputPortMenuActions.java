@@ -1,5 +1,3 @@
-/**********************************************************************
- **********************************************************************/
 package org.apache.taverna.ui.menu.items.ports;
 
 import org.apache.taverna.scufl2.api.core.Workflow;

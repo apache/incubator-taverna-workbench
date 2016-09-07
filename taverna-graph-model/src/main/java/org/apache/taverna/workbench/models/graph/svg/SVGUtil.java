@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.models.graph.svg;
 
 import static java.lang.Float.parseFloat;

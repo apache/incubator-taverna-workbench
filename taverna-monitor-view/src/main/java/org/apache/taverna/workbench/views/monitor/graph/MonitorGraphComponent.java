@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.views.monitor.graph;
 
 import static java.awt.BorderLayout.CENTER;

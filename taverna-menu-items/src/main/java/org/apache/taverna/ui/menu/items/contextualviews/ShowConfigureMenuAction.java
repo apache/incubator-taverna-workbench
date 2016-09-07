@@ -1,5 +1,3 @@
-/**********************************************************************
- **********************************************************************/
 package org.apache.taverna.ui.menu.items.contextualviews;
 
 import java.awt.KeyboardFocusManager;

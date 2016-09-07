@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.models.graph.svg;
 
 import static org.apache.taverna.workbench.models.graph.GraphElement.LineStyle.NONE;

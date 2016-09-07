@@ -1,11 +1,8 @@
-/*******************************************************************************
- ******************************************************************************/
 /*
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- ****************************************************************
  * Source code information
  * -----------------------
  * Filename           $RCSfile: PluginSiteFrame.java,v $
@@ -14,7 +11,6 @@
  * Last modified on   $Date: 2008/10/27 13:39:56 $
  *               by   $Author: stain $
  * Created on 29 Nov 2006
- *****************************************************************/
 package org.apache.taverna.raven.plugins.ui;
 
 import java.awt.Color;

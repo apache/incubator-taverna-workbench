@@ -1,7 +1,5 @@
 package org.apache.taverna.renderers;
 
-/*******************************************************************************
- ******************************************************************************/
 import org.apache.taverna.renderers.Renderer;
 import org.apache.taverna.renderers.RendererException;
 import java.awt.Desktop;

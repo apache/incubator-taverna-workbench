@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.loop.comparisons;
 
 public class NotMatches extends Comparison {

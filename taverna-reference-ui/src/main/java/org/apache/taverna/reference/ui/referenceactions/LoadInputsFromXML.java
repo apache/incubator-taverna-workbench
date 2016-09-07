@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.reference.ui.referenceactions;
 
 import static javax.swing.JFileChooser.APPROVE_OPTION;

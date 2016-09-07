@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.ui.activitypalette;
 
 import static org.junit.Assert.assertEquals;

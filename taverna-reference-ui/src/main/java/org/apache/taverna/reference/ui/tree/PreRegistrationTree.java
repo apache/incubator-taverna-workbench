@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.reference.ui.tree;
 
 import static javax.swing.SwingUtilities.invokeLater;

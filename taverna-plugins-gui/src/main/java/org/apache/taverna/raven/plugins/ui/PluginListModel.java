@@ -1,11 +1,8 @@
-/*******************************************************************************
- ******************************************************************************/
 /*
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- ****************************************************************
  * Source code information
  * -----------------------
  * Filename           $RCSfile: PluginListModel.java,v $
@@ -14,7 +11,6 @@
  * Last modified on   $Date: 2008/09/04 14:51:52 $
  *               by   $Author: sowen70 $
  * Created on 28 Nov 2006
- *****************************************************************/
 package org.apache.taverna.raven.plugins.ui;
 
 import javax.swing.AbstractListModel;

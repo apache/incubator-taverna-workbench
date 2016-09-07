@@ -1,11 +1,8 @@
-/*******************************************************************************
- ******************************************************************************/
 /*
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- ****************************************************************
  * Source code information
  * -----------------------
  * Filename           $RCSfile: ProfileVersionCellRenderer.java,v $
@@ -14,7 +11,6 @@
  * Last modified on   $Date: 2008/09/04 14:52:06 $
  *               by   $Author: sowen70 $
  * Created on 16 Jan 2007
- *****************************************************************/
 package org.apache.taverna.raven.profile.ui;
 
 import java.awt.BorderLayout;

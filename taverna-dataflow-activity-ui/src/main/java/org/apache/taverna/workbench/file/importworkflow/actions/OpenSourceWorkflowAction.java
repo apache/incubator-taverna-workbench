@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.file.importworkflow.actions;
 
 import java.awt.Component;

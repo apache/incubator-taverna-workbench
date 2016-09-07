@@ -21,8 +21,6 @@ import org.apache.taverna.activities.rest.ui.servicedescription.RESTActivityIcon
  * 
  * @author Sergejs Aleksejevs
  */
-/*******************************************************************************
- ******************************************************************************/
 public class RESTFromBioCatalogueServiceDescription extends ServiceDescription<RESTActivityConfigurationBean>
 {
   private static final int SHORT_DESCRIPTION_MAX_LENGTH = 200;

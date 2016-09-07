@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.views.monitor.progressreport;
 
 import static java.util.Collections.nCopies;

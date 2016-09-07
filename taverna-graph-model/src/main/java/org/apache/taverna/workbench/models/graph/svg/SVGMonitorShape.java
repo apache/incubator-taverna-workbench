@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.models.graph.svg;
 
 import org.apache.batik.dom.svg.SVGOMPolygonElement;

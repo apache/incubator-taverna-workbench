@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.servicedescriptions.impl;
 
 import static java.lang.System.currentTimeMillis;

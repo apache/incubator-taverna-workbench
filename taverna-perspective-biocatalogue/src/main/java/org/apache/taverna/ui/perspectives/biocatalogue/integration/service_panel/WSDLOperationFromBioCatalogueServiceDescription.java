@@ -12,8 +12,6 @@ import org.apache.taverna.activities.wsdl.servicedescriptions.WSDLActivityIcon;
 import org.apache.taverna.lang.beans.PropertyAnnotation;
 import org.apache.taverna.servicedescriptions.ServiceDescription;
 
-/*******************************************************************************
- ******************************************************************************/
 public class WSDLOperationFromBioCatalogueServiceDescription extends ServiceDescription<WSDLActivityConfigurationBean>
 {
   private static final int SHORT_DESCRIPTION_MAX_LENGTH = 200;

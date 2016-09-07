@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.loop.comparisons;
 
 import org.apache.taverna.workbench.loop.LoopConfigurationPanel;

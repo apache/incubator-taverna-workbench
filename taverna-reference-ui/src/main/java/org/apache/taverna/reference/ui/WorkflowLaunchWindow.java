@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.reference.ui;
 
 import static com.hp.hpl.jena.sparql.graph.GraphFactory.makeDefaultModel;

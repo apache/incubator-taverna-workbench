@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.views.results.workflow;
 
 import static java.awt.BorderLayout.CENTER;

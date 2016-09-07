@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.ui.servicepanel.config;
 
 import static java.awt.GridBagConstraints.HORIZONTAL;

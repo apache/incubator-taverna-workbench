@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 /**
  * A {@link net.sf.taverna.t2.workbench.edits.EditManager} that can manage
  * {@link net.sf.taverna.t2.workflowmodel.Edit}s performed from the UI.

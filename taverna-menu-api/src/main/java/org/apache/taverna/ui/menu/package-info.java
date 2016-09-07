@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 /**
  * An {@link net.sf.taverna.t2.spi.SPIRegistry SPI} based system for creating
  * {@link javax.swing.JMenuBar menues} and {@link javax.swing.JToolBar toolbars}.

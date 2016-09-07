@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.file.importworkflow.menu;
 
 import java.awt.event.InputEvent;

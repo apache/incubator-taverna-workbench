@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.ui.perspectives.biocatalogue.integration.service_panel;
 
 import java.io.IOException;

@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.views.results.saveactions;
 
 import static java.lang.Math.max;

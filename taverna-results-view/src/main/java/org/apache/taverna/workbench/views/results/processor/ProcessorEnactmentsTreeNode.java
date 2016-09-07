@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.views.results.processor;
 
 import static org.apache.taverna.workbench.views.results.processor.ProcessorEnactmentsTreeModel.iterationToIntegerList;

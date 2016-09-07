@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.models.graph;
 
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;

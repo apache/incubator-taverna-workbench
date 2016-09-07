@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.views.monitor.graph;
 
 import static org.apache.taverna.workbench.icons.WorkbenchIcons.closeIcon;

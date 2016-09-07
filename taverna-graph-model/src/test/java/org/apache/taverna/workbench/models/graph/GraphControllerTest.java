@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.models.graph;
 
 import org.apache.taverna.workbench.models.graph.GraphNode;

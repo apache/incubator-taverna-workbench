@@ -1,5 +1,3 @@
-/*******************************************************************************
- ******************************************************************************/
 package org.apache.taverna.workbench.models.graph.svg.event;
 
 import static org.apache.taverna.workbench.models.graph.svg.SVGUtil.screenToDocument;
