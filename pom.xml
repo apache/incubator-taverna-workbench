@@ -116,15 +116,26 @@
   </scm>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.rat</groupId>
+				<artifactId>apache-rat-plugin</artifactId>
+				<configuration combine.children="append" >
+					<useDefaultExcludes>true</useDefaultExcludes>
+					<excludes>
+						<!-- Following excludes needed for 
+						disabled subfolders that should be modules, but are commented out -->
+						<exclude>**/.classpath</exclude>
+						<exclude>**/.project</exclude>
+						<exclude>**/.settings/</exclude>
+						<exclude>**/target/</exclude>
+						<exclude>**/META-INF/services/</exclude>
+						<!-- No headers in JSON which haven't got comments ... -->
+						<exclude>**/*.json</exclude>
+
+					</excludes>
+				</configuration>
+</plugin>
+
         </plugins>
     </build>
     <repositories>
