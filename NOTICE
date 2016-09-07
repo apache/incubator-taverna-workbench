@@ -9,6 +9,14 @@ Portions of this software were originally based on the following:
 These have been licensed to the Apache Software Foundation under a software grant.
 
 ---------------------------------------------------------
+./taverna-ui/src/main/java/org/apache/taverna/lang/ui/TableMap.java
+
+TODO:
+ * Copied from code found at http://www.informit.com/guides/content.aspx?g=java&seqNum=57
+
+This is not open source - this file must be removed
+
+---------------------------------------------------------
 
 TODO: check license for
 src/main/jjtree/dotparser.jjt
@@ -59,4 +67,3 @@ taverna-ui/src/main/java/org/apache/taverna/lang/ui/treetable/
   for use in the design, construction, operation or maintenance of any
   nuclear facility.
 
----------------------------------------------------------
