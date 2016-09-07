@@ -1,3 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
 <workflow xmlns="http://taverna.sf.net/2008/xml/t2flow"><dataflow id="23f84bb1-4a04-47fa-8150-7063310db697" role="top"><name>nested_iteration</name><inputPorts /><outputPorts><port><name>concat</name></port><port><name>list</name></port><port><name>constant</name></port></outputPorts><processors><processor><name>constant</name><inputPorts /><outputPorts><port><name>value</name><depth>0</depth><granularDepth>0</granularDepth></port></outputPorts><annotations /><activities><activity><raven><group>net.sf.taverna.t2</group><artifact>stringconstant-activity</artifact><version>0.3-SNAPSHOT</version></raven><class>org.apache.taverna.activities.stringconstant.StringConstantActivity</class><inputMap /><outputMap><map from="value" to="value" /></outputMap><configBean encoding="xstream"><org.apache.taverna.activities.stringconstant.StringConstantConfigurationBean xmlns="">
   <value>constant</value>
 </org.apache.taverna.activities.stringconstant.StringConstantConfigurationBean></configBean></activity></activities><dispatchStack><dispatchLayer><raven><group>net.sf.taverna.t2</group><artifact>workflowmodel-impl</artifact><version>0.3-SNAPSHOT</version></raven><class>org.apache.taverna.workflowmodel.processor.dispatch.layers.Parallelize</class><configBean encoding="xstream"><org.apache.taverna.workflowmodel.processor.dispatch.layers.ParallelizeConfig xmlns="">
