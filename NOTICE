@@ -43,11 +43,26 @@ FIXME: Remove incompatible icons (but keep those we made ourselves)
 ---------------------------------------------------------
 
 
-TODO: check license for
+TODO: clarify license for
 src/main/jjtree/dotparser.jjt
 
   JavaCC grammar for parsing Graphviz DOT files.
   Written by Lynn Monson at lm@lmonson.com
+
+http://web.archive.org/web/20101110152804/http://lmonson.com/blog/?page_id=66
+says:
+
+> I’ve included all of the generated files in the download in case you don’t
+> want to run the JavaCC tools, but just realize that everthing was generated
+> from the single dotparser.jjt file.
+
+> There are no restrictions on the use of this software, but equally, it is
+provided with no warranty or support.
+
+FIXME: that is probably not a compatible open-source license - 
+we should contact the author - he already have an 
+ICLA on file:
+https://people.apache.org/unlistedclas.html
 
 ---------------------------------------------------------
 ./taverna-perspective-myexperiment/src/main/java/org/apache/taverna/ui/perspectives/myexperiment/model/Base64.java
