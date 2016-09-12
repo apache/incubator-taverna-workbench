@@ -131,7 +131,11 @@
 						<exclude>**/META-INF/services/</exclude>
 						<!-- No headers in JSON which haven't got comments ... -->
 						<exclude>**/*.json</exclude>
-
+						<!-- License details are mentioned in NOTICE ... -->
+						<exclude>**/src/main/jjtree/dotparser.jjt</exclude>
+						<!-- Can't add license headers to a text file -->
+						<exclude>**/src/main/help/Index-TOC-Map-Additions.txt</exclude>
+					<exclude>**/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/*/*.pdn</exclude>
 					</excludes>
 				</configuration>
 </plugin>
