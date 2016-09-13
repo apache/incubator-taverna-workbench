@@ -135,7 +135,7 @@
 						<exclude>**/src/main/jjtree/dotparser.jjt</exclude>
 						<!-- Can't add license headers to a text file -->
 						<exclude>**/src/main/help/Index-TOC-Map-Additions.txt</exclude>
-					<exclude>**/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/*/*.pdn</exclude>
+				    	<exclude>**/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/*/*.pdn</exclude>
 					</excludes>
 				</configuration>
 </plugin>
