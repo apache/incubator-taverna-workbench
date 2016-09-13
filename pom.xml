@@ -138,7 +138,7 @@
 				    	<exclude>**/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/*/*.pdn</exclude>
 					</excludes>
 				</configuration>
-</plugin>
+			</plugin>
 
         </plugins>
     </build>
