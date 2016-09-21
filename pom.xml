@@ -72,7 +72,6 @@
             <module>taverna-menu-impl</module>
             <module>taverna-menu-items</module>
             <module>taverna-parallelize-ui</module>
-            <module>taverna-perspective-biocatalogue</module>
             <module>taverna-perspective-design</module>
             <module>taverna-perspective-myexperiment</module>
             <module>taverna-plugin-manager</module>
@@ -133,9 +132,6 @@
 						<exclude>**/*.json</exclude>
 						<!-- License details are mentioned in NOTICE ... -->
 						<exclude>**/src/main/jjtree/dotparser.jjt</exclude>
-						<!-- Can't add license headers to a text file -->
-						<exclude>**/src/main/help/Index-TOC-Map-Additions.txt</exclude>
-				    	<exclude>**/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/*/*.pdn</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
