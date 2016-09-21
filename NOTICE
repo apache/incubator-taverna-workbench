@@ -118,3 +118,42 @@ taverna-ui/src/main/java/org/apache/taverna/lang/ui/treetable/
   for use in the design, construction, operation or maintenance of any
   nuclear facility.
 
+---------------------------------------------------------
+incubator-taverna-workbench/taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/service_icons/soap_rest_multitype_unknown.pdn
+
+TODO: License should be clarified
+
+---------------------------------------------------------
+incubator-taverna-workbench/taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/famfamfam_silk/
+
+Source: http://www.famfamfam.com/lab/icons/silk/
+
+Created by Mark James
+Licensed as Creative Commons Attribution 3.0 License
+http://creativecommons.org/licenses/by/3.0/
+
+---------------------------------------------------------
+
+taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/biocatalogue_styles.css
+taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/styles.css
+taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/test.html
+taverna-perspective-myexperiment/src/main/resources/org/apache/taverna/ui/perspectives/myexperiment/styles.css
+
+TODO: License should be clarified
+
+--------------
+taverna-perspective-biocatalogue/src/main/xsd/dcterms.xsd 
+taverna-perspective-biocatalogue/src/main/xsd/dc.xsd
+
+TODO: License should be clarified
+Derived from http://dublincore.org/schemas/xmls/qdc/2006/01/06/dc.xsd
+http://dublincore.org/schemas/xmls/qdc/2006/01/06/dcterms.xsd
+
+--------------
+
+taverna-perspective-biocatalogue/src/main/xsd/xlink.xsd
+
+From http://www.loc.gov/standards/mets/xlink.xsd
+
+TODO: License should be clarified
+
