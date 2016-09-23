@@ -119,13 +119,28 @@ taverna-ui/src/main/java/org/apache/taverna/lang/ui/treetable/
   nuclear facility.
 
 ---------------------------------------------------------
-incubator-taverna-workbench/taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/service_icons/soap_rest_multitype_unknown.pdn
+incubator-taverna-workbench/taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/*.gif
 
-TODO: License should be clarified
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
 
 ---------------------------------------------------------
-incubator-taverna-workbench/taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/famfamfam_silk/add - tick.pdn
+incubator-taverna-workbench/taverna-perspective-biocatalogue/src/main/resources/net/sf/taverna/t2/ui/perspectives/biocatalogue/famfamfam_silk/*.png
 
-TODO: License should be clarified
+ by Mark James is licensed under CC BY 2.5
+ 
+ https://creativecommons.org/licenses/by/2.5/
+ http://www.famfamfam.com/lab/icons/silk/
 
 ---------------------------------------------------------
