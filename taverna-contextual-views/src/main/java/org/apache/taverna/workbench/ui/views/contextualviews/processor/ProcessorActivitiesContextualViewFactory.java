@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.ui.views.contextualviews.processor;
 
 import java.util.ArrayList;
@@ -33,8 +31,6 @@ import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
 /**
  * SPI factory for creating a {@link ProcessorContextualView}.
  * 
- * @author Stian Soiland-Reyes
- * @author Alan R Williams
  */
 public class ProcessorActivitiesContextualViewFactory implements
 		ContextualViewFactory<Processor> {

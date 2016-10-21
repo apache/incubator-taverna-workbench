@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.edits.impl.toolbar;
 
 import static org.apache.taverna.ui.menu.DefaultToolBar.DEFAULT_TOOL_BAR;

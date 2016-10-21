@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.activities.unrecognized.views;
 
 import org.apache.taverna.workbench.configuration.colour.ColourManager;

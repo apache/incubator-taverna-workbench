@@ -14,13 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
 
 package org.apache.taverna.workbench.configuration.workbench.ui;
 
-/**
- * @author David Withers
- */
 public interface T2ConfigurationFrame {
 	void showFrame();
 

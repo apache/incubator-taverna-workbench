@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.views.graph.menu;
 
 import static org.apache.taverna.workbench.views.graph.menu.GraphDetailsMenuSection.GRAPH_DETAILS_MENU_SECTION;

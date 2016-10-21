@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.file.impl;
 
 import static org.apache.taverna.workbench.file.impl.WorkflowBundleFileType.APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE;

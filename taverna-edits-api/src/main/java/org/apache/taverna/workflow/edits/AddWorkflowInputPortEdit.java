@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workflow.edits;
 
 import static org.apache.taverna.scufl2.api.common.Scufl2Tools.NESTED_WORKFLOW;

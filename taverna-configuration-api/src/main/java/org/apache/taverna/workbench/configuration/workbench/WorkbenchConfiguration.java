@@ -14,15 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.configuration.workbench;
 
 import org.apache.taverna.configuration.Configurable;
 
-/**
- * @author David Withers
- */
 public interface WorkbenchConfiguration extends Configurable {
 	boolean getCaptureConsole();
 

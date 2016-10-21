@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.servicedescriptions;
 
 import java.util.Collection;
@@ -27,7 +25,6 @@ import org.apache.taverna.lang.beans.PropertyAnnotation;
 /**
  * A provider of service descriptions
  * 
- * @author Stian Soiland-Reyes
  */
 public interface ServiceDescriptionProvider {
 	/**

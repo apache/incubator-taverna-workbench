@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.run.actions;
 
 import static javax.swing.JFileChooser.APPROVE_OPTION;

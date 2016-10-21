@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.selection.events;
 
 import org.apache.taverna.lang.observer.Observer;

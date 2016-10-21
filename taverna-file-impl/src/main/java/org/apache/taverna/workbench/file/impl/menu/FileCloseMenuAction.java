@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.file.impl.menu;
 
 import static org.apache.taverna.workbench.file.impl.menu.FileOpenMenuSection.FILE_URI;

@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.ui.credentialmanager;
 
 import static javax.swing.JOptionPane.ERROR_MESSAGE;

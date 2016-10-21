@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-
 package org.apache.taverna.workbench.ui.impl.menu;
 
 import static java.awt.event.KeyEvent.VK_H;
