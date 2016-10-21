@@ -19,10 +19,14 @@ package org.apache.taverna.raven.plugins.ui;
 import java.io.File;
 import java.util.Date;
 
-import uk.org.taverna.commons.plugin.PluginManager;
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
-
+import org.apache.log4j.Logger;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.plugin.PluginException;
+import org.apache.taverna.plugin.PluginManager;
 import org.apache.taverna.workbench.StartupSPI;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventHandler;
 
 /**
  * Startup hook for checking if there are available updates for Taverna plugins.
@@ -31,24 +35,31 @@ import org.apache.taverna.workbench.StartupSPI;
  * @author Stian Soiland-Reyes
  * 
  */
-public class CheckForUpdatesStartupHook implements StartupSPI {
+public class CheckForUpdatesStartupHook implements StartupSPI, EventHandler {
+
+	public void setPluginManager(PluginManager pluginManager) {
+		this.pluginManager = pluginManager;
+	}
+
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
+	}
 
 	public static final String CHECK_FOR_UPDATES_DIRECTORY_NAME = "updates";
 	public static final String LAST_UPDATE_CHECK_FILE_NAME = "last_update_check";
 
+	private EventAdmin eventAdmin;
 	private PluginManager pluginManager;
 	private ApplicationConfiguration applicationConfiguration;
-
-	public static File checkForUpdatesDirectory = getCheckForUpdatesDirectory();
-	public static File lastUpdateCheckFile = new File(checkForUpdatesDirectory,
-			LAST_UPDATE_CHECK_FILE_NAME);
+	private Logger logger = Logger.getLogger(CheckForUpdatesStartupHook.class);
 
 	public int positionHint() {
 		return 90;
 	}
 
 	public boolean startup() {
-
+		File lastUpdateCheckFile = new File(getCheckForUpdatesDirectory(),
+				LAST_UPDATE_CHECK_FILE_NAME);
 		// Check if more than 2 weeks passed since we checked for updates.
 		if (lastUpdateCheckFile.exists()) {
 			long lastModified = lastUpdateCheckFile.lastModified();
@@ -56,35 +67,40 @@ public class CheckForUpdatesStartupHook implements StartupSPI {
 
 			if (now - lastModified < 14 * 24 * 3600 * 1000) { // 2 weeks have not passed since we
 																// last asked
-				return true;
-			} else { // Check again for updates
-				if (pluginManager.checkForUpdates()) {
-					CheckForUpdatesDialog dialog = new CheckForUpdatesDialog();
-					dialog.setVisible(true);
-				}
+				// No need to check for updates yet
 				return true;
 			}
-		} else {
-			// If we are here - then this is the first time to check for updates
-			if (pluginManager.checkForUpdates()) {
-				CheckForUpdatesDialog dialog = new CheckForUpdatesDialog();
-				dialog.setVisible(true);
-			}
-			return true;
 		}
+		try {
+			pluginManager.checkForUpdates();
+		} catch (PluginException e) {
+			logger.error("Can't check for updates", e);
+			return false;
+		}
+		return true;
 	}
+
 
 	/**
 	 * Gets the registration directory where info about registration will be saved to.
 	 */
 	public File getCheckForUpdatesDirectory() {
 
-		File home = applicationConfiguration.getApplicationHomeDir();
+		File home = applicationConfiguration.getApplicationHomeDir().toFile();
 
 		File registrationDirectory = new File(home, CHECK_FOR_UPDATES_DIRECTORY_NAME);
 		if (!registrationDirectory.exists()) {
 			registrationDirectory.mkdir();
 		}
 		return registrationDirectory;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		// TODO: Handle Plug
+		if (event.getTopic().equals(PluginManager.UPDATES_AVAILABLE) {
+			CheckForUpdatesDialog dialog = new CheckForUpdatesDialog();
+			dialog.setVisible(true);
+		}
 	}
 }

@@ -24,6 +24,15 @@
                       http://www.springframework.org/schema/osgi 
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="CheckForUpdatesStartupHook" interface="org.apache.taverna.workbench.StartupSPI" />
+	<service ref="CheckForUpdatesStartupHook" auto-export="interfaces">
+		<service-properties value-type="java.lang.String[]">
+			<beans:entry key="event.topics"
+				value="org/apache/taverna/platform/run/api/RunService/*" />
+		</service-properties>
+	</service>
 
+     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin" />
+     <reference id="pluginManager" interface="org.apache.taverna.plugin.PluginManager" />
+     <reference id="applicationConfiguration" interface="org.apache.taverna.configuration.app.ApplicationConfiguration" />
+	
 </beans:beans>
