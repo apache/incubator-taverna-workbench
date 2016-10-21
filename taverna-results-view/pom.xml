@@ -76,11 +76,6 @@
 			<artifactId>taverna-database-configuration-api</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-report-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
                 <dependency>
                         <groupId>${project.parent.groupId}</groupId>
                         <artifactId>taverna-renderers-api</artifactId>
