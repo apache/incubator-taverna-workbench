@@ -16,7 +16,6 @@ package org.apache.taverna.reference.ui;
  * limitations under the License.
  */
 
-import static com.hp.hpl.jena.sparql.graph.GraphFactory.makeDefaultModel;
 import static java.awt.BorderLayout.CENTER;
 import static java.awt.BorderLayout.EAST;
 import static java.awt.BorderLayout.SOUTH;
@@ -24,9 +23,9 @@ import static java.awt.BorderLayout.WEST;
 import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
-import static org.apache.taverna.workbench.icons.WorkbenchIcons.closeIcon;
 import static org.apache.jena.riot.Lang.TURTLE;
 import static org.apache.jena.riot.RDFLanguages.contentTypeToLang;
+import static org.apache.taverna.workbench.icons.WorkbenchIcons.closeIcon;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -61,10 +60,29 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import org.apache.batik.swing.JSVGCanvas;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RIOT;
+import org.apache.log4j.Logger;
+import org.apache.taverna.configuration.database.DatabaseConfiguration;
+import org.apache.taverna.databundle.DataBundles;
 import org.apache.taverna.lang.observer.Observable;
 import org.apache.taverna.lang.observer.Observer;
 import org.apache.taverna.lang.ui.DialogTextArea;
 import org.apache.taverna.reference.ui.referenceactions.ReferenceActionSPI;
+import org.apache.taverna.robundle.Bundle;
+import org.apache.taverna.scufl2.api.annotation.Annotation;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.common.URITools;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
 import org.apache.taverna.workbench.edits.EditManager;
 import org.apache.taverna.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import org.apache.taverna.workbench.edits.EditManager.EditManagerEvent;
@@ -73,27 +91,6 @@ import org.apache.taverna.workbench.file.events.ClosedDataflowEvent;
 import org.apache.taverna.workbench.file.events.FileManagerEvent;
 import org.apache.taverna.workbench.report.ReportManager;
 import org.apache.taverna.workbench.ui.Workbench;
-
-import org.apache.batik.swing.JSVGCanvas;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RIOT;
-import org.apache.log4j.Logger;
-
-import org.apache.taverna.configuration.database.DatabaseConfiguration;
-import org.apache.taverna.databundle.DataBundles;
-import org.apache.taverna.scufl2.api.annotation.Annotation;
-import org.apache.taverna.scufl2.api.common.Scufl2Tools;
-import org.apache.taverna.scufl2.api.common.URITools;
-import org.apache.taverna.scufl2.api.common.WorkflowBean;
-import org.apache.taverna.scufl2.api.container.WorkflowBundle;
-import org.apache.taverna.scufl2.api.core.Workflow;
-import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
-import org.apache.taverna.robundle.Bundle;
 
 /**
  * A simple workflow launch window, uses a tabbed layout to display a set of named RegistrationPanel
@@ -427,7 +424,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	private Model annotationsForBean(WorkflowBundle workflowBundle,
 			WorkflowBean bean) {
-		Model model = makeDefaultModel();
+		Model model = ModelFactory.createDefaultModel();
 		for (Annotation annotation : scufl2Tools.annotationsFor(bean,
 				workflowBundle)) {
 //            System.out.println(annotation.getBody());
