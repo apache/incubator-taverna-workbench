@@ -53,17 +53,6 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-disabled-activity-ui</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<!-- FIXME: Why are these needed here? -->
-		<dependency>
-			<groupId>org.apache.taverna.commonactivities</groupId>
-			<artifactId>taverna-wsdl-activity</artifactId>
-			<version>${taverna.commonactivities.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-dataflow-activity</artifactId>
 			<version>${taverna.engine.version}</version>
