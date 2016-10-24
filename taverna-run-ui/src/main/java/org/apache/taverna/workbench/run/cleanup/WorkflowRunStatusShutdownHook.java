@@ -16,17 +16,18 @@
  */
 package org.apache.taverna.workbench.run.cleanup;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.taverna.configuration.app.ApplicationConfiguration;
 
-import org.apache.taverna.workbench.ShutdownSPI;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.platform.execution.api.InvalidExecutionIdException;
 import org.apache.taverna.platform.run.api.InvalidRunIdException;
 import org.apache.taverna.platform.run.api.RunService;
 import org.apache.taverna.platform.run.api.RunStateException;
+import org.apache.taverna.workbench.ShutdownSPI;
 
 /**
  * Shutdown hook that detects running and paused workflows.
@@ -81,14 +82,14 @@ public class WorkflowRunStatusShutdownHook implements ShutdownSPI {
 						| InvalidExecutionIdException e) {
 				}
 			for (String workflowRun : workflowRuns) {
-				File runStore = new File(
-						applicationConfiguration.getApplicationHomeDir(),
+				Path runStore = applicationConfiguration.getApplicationHomeDir().resolve(
 						RUN_STORE_DIRECTORY);
 				try {
-					File file = new File(runStore,
+					Path runFile = runStore.resolve(
 							runService.getRunName(workflowRun) + ".wfRun");
-					if (!file.exists())
-						runService.save(workflowRun, file);
+					if (Files.notExists(runFile)) {
+						runService.save(workflowRun, runFile);
+					}
 				} catch (InvalidRunIdException | IOException e) {
 				}
 			}
