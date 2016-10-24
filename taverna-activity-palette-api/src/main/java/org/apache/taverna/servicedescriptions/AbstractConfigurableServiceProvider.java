@@ -16,6 +16,9 @@
  */
 package org.apache.taverna.servicedescriptions;
 
+import java.net.URI;
+
+import org.apache.taverna.scufl2.api.common.Visitor;
 import org.apache.taverna.scufl2.api.configurations.Configuration;
 
 public abstract class AbstractConfigurableServiceProvider extends
@@ -42,8 +45,12 @@ public abstract class AbstractConfigurableServiceProvider extends
 	}
 
 	@Override
+	public abstract AbstractConfigurableServiceProvider newInstance();
+
+	
+	@Override
 	public AbstractConfigurableServiceProvider clone() {
-		AbstractConfigurableServiceProvider provider = (AbstractConfigurableServiceProvider) newInstance();
+		AbstractConfigurableServiceProvider provider = newInstance();
 		Configuration configuration = getConfiguration();
 		if (configuration != null)
 			provider.configure(configuration);
@@ -66,4 +73,22 @@ public abstract class AbstractConfigurableServiceProvider extends
 	public String toString() {
 		return getName() + " " + getConfiguration();
 	}
+
+	@Override
+	public boolean accept(Visitor visitor) {
+		if (visitor.visitEnter(this)) {
+			getConfiguration().accept(visitor);
+		}
+		return visitor.visitLeave(this);
+	}
+
+	@Override
+	public void setType(URI type) {
+		if (! type.equals(getType())) {
+			throw new IllegalArgumentException(
+					"Unsupported change of fixed type " + getType() + " to " + getType());
+		}
+	}
+
+	
 }
