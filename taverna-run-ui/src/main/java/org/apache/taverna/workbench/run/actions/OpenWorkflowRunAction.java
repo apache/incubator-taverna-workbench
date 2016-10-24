@@ -96,7 +96,7 @@ public class OpenWorkflowRunAction extends AbstractAction {
 				public Void doInBackground() {
 					for (File file : selectedFiles)
 						try {
-							runService.open(file);
+							runService.open(file.toPath());
 						} catch (IOException e) {
 							showErrorMessage(parentComponent, file, e);
 						}
