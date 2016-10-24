@@ -48,6 +48,13 @@
 			<artifactId>org.osgi.compendium</artifactId>
 			<version>${osgi.core.version}</version>
 		</dependency>
+                <dependency>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                        <version>${log4j.version}</version>
+                </dependency>
+
+
 
 		<!-- <dependency>
 			<groupId>org.apache.taverna.osgi</groupId>
