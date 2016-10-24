@@ -25,6 +25,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
@@ -48,9 +49,9 @@ public class OpenWorkflowRunAction extends AbstractAction {
 	private static final String OPEN_WORKFLOW_RUN = "Open workflow run...";
 
 	private final RunService runService;
-	private final File runStore;
+	private final Path runStore;
 
-	public OpenWorkflowRunAction(RunService runService, File runStore) {
+	public OpenWorkflowRunAction(RunService runService, Path runStore) {
 		super(OPEN_WORKFLOW_RUN, WorkbenchIcons.openIcon);
 		this.runService = runService;
 		this.runStore = runStore;
@@ -82,7 +83,7 @@ public class OpenWorkflowRunAction extends AbstractAction {
 			}
 		});
 
-		fileChooser.setCurrentDirectory(runStore);
+		fileChooser.setCurrentDirectory(runStore.toFile());
 		fileChooser.setMultiSelectionEnabled(true);
 
 		if (fileChooser.showOpenDialog(parentComponent) == APPROVE_OPTION) {

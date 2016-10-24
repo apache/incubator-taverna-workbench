@@ -18,12 +18,12 @@ package org.apache.taverna.workbench.run.menu;
 
 import static org.apache.taverna.workbench.run.menu.FileRunMenuSection.FILE_RUN_SECTION_URI;
 
-import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
 
 import javax.swing.Action;
-import org.apache.taverna.configuration.app.ApplicationConfiguration;
 
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
 import org.apache.taverna.platform.run.api.RunService;
 import org.apache.taverna.ui.menu.AbstractMenuAction;
 import org.apache.taverna.workbench.run.actions.OpenWorkflowRunAction;
@@ -42,9 +42,7 @@ public class FileOpenRunMenuAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		File runStore = new File(
-				applicationConfiguration.getApplicationHomeDir(),
-				RUN_STORE_DIRECTORY);
+		Path runStore = applicationConfiguration.getApplicationHomeDir().resolve(RUN_STORE_DIRECTORY);
 		return new OpenWorkflowRunAction(runService, runStore);
 	}
 
