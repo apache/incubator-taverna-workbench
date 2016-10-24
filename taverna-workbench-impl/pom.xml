@@ -261,12 +261,6 @@
 			<version>${taverna.commonactivities.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.taverna.commonactivities</groupId>					
-			<artifactId>taverna-cwl-activity-ui</artifactId>
-			<version>2.1.1-incubating-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
