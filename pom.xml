@@ -71,16 +71,17 @@
             <module>taverna-menu-api</module>
             <module>taverna-menu-impl</module>
             <module>taverna-menu-items</module>
+            <module>taverna-monitor-view</module>
             <module>taverna-parallelize-ui</module>
             <module>taverna-perspective-design</module>
             <module>taverna-perspective-myexperiment</module>
+            <module>taverna-perspective-results</module>
             <module>taverna-plugin-manager</module>
             <module>taverna-reference-ui</module>
             <module>taverna-renderers-api</module>
             <module>taverna-renderers-exts</module>
             <module>taverna-renderers-impl</module>
             <module>taverna-report-api</module>
-            <module>taverna-report-explainer</module>
             <module>taverna-results-view</module>
             <module>taverna-retry-ui</module>
             <module>taverna-run-ui</module>
@@ -102,15 +103,15 @@
 	    e.g. using SCUFL2 Workflow instead of Dataflow, or using the
             taverna-engine Report instead of WorkflowInstanceFacade
 
-            <module>taverna-perspective-results</module>
-            <module>taverna-monitor-view</module>
             <module>taverna-report-impl</module>
             <module>taverna-report-view</module>
+            <module>taverna-report-explainer</module>
 	    -->
+
 <!--
-     The below contains outdated code which should be updated
-to use Taverna OSGi - it is provided for reference as some 
-of the functionality (e.g. update on startup chec) should be moved to its
+     The below contains Taverna 2-ish code which should be updated
+to use Taverna OSGi Plugin Manager - it is kept for reference as some
+of the functionality (e.g. update on startup check) should be moved to its
 replacement, taverna-plugin-manager
             <module>taverna-plugins-gui</module>
 -->
