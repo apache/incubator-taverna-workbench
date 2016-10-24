@@ -31,9 +31,6 @@ import org.osgi.service.event.EventHandler;
 /**
  * Startup hook for checking if there are available updates for Taverna plugins.
  * 
- * @author Alex Nenadic
- * @author Stian Soiland-Reyes
- * 
  */
 public class CheckForUpdatesStartupHook implements StartupSPI, EventHandler {
 

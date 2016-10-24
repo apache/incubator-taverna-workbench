@@ -24,15 +24,19 @@
                       http://www.springframework.org/schema/osgi 
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="CheckForUpdatesStartupHook" auto-export="interfaces">
+	<service ref="CheckForUpdatesStartupHook" auto-export="interfaces"> <!-- multiple interfaces -->
 		<service-properties value-type="java.lang.String[]">
+			<!-- subscribe to notifications from Plugin Manager -->
 			<beans:entry key="event.topics"
-				value="org/apache/taverna/platform/run/api/RunService/*" />
+				value="org/apache/taverna/plugin/PluginManager/*" />
 		</service-properties>
 	</service>
 
+	<service ref="CheckForNoticeStartupHook" interface="org.apache.taverna.workbench.StartupSPI" />
+
      <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin" />
      <reference id="pluginManager" interface="org.apache.taverna.plugin.PluginManager" />
+     <reference id="downloadManager" interface="org.apache.taverna.download.DownloadManager" />
      <reference id="applicationConfiguration" interface="org.apache.taverna.configuration.app.ApplicationConfiguration" />
 	
 </beans:beans>

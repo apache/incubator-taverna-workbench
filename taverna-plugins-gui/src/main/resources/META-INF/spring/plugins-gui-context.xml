@@ -21,10 +21,14 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="CheckForUpdatesStartupHook" class="net.sf.taverna.raven.plugins.ui.CheckForUpdatesStartupHook">
+	<bean id="CheckForUpdatesStartupHook" class="org.apache.taverna.raven.plugins.ui.CheckForUpdatesStartupHook">
 		<property name="eventAdmin" ref="eventAdmin" />
 		<property name="pluginManager" ref="pluginManager" />
 		<property name="applicationConfiguration" ref="applicationConfiguration" />		
+	</bean>
+	<bean id="CheckForNoticeStartupHook" class="org.apache.taverna.raven.plugins.ui.CheckForNoticeStartupHook">
+		<property name="applicationConfiguration" ref="applicationConfiguration" />		
+		<property name="downloadManager" ref="downloadManager" />
 	</bean>
 
 </beans>

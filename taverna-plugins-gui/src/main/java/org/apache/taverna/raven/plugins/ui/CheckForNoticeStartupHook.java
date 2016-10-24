@@ -17,140 +17,141 @@
 package org.apache.taverna.raven.plugins.ui;
 
 import java.awt.GraphicsEnvironment;
-import java.io.File;
+import java.awt.HeadlessException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 
 import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
-
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.io.FileUtils;
-
-import net.sf.taverna.raven.appconfig.ApplicationConfig;
-import net.sf.taverna.raven.plugins.PluginManager;
-import net.sf.taverna.raven.spi.Profile;
-import net.sf.taverna.raven.spi.ProfileFactory;
+import org.apache.taverna.configuration.app.ApplicationConfiguration;
+import org.apache.taverna.download.DownloadException;
+import org.apache.taverna.download.DownloadManager;
 import org.apache.taverna.workbench.StartupSPI;
 import org.apache.taverna.workbench.icons.WorkbenchIcons;
 
 /**
  * 
- * This class looks for a notice on the myGrid website that is later than the
+ * This class looks for a notice on the Taverna website that is later than the
  * one (if any) in the application directory. It then displays the notice. This
  * is intended to allow simple messages to be sent to all users.
- * 
- * @author alanrw
  * 
  */
 public class CheckForNoticeStartupHook implements StartupSPI {
 
+	private static final String UPDATES = "updates";
+	private static final String LAST_NOTICE = "last_notice";
+	private static final String NOTICE = "notice";
+
 	private static Logger logger = Logger
 			.getLogger(CheckForNoticeStartupHook.class);
 
-	private static final String LAST_NOTICE_CHECK_FILE_NAME = "last_notice";
+	private DownloadManager downloadManager;
 
-
-	private static File checkForUpdatesDirectory = CheckForUpdatesStartupHook
-			.getCheckForUpdatesDirectory();
-	private static File lastNoticeCheckFile = new File(checkForUpdatesDirectory,
-			LAST_NOTICE_CHECK_FILE_NAME);
-
-	private static String pattern = "EEE, dd MMM yyyy HH:mm:ss Z";
-	private static SimpleDateFormat format = new SimpleDateFormat(pattern);
-
-	private static Profile profile = ProfileFactory.getInstance().getProfile();
-	private static String version = profile.getVersion();
-
-	private static String BASE_URL = "https://taverna.apache.org/updates";
-	private static String SUFFIX = "notice";
+	private ApplicationConfiguration applicationConfiguration;
 	
-	private static int TIMEOUT = 5000;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.sf.taverna.t2.workbench.StartupSPI#positionHint()
-	 */
 	public int positionHint() {
 		return 95;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.sf.taverna.t2.workbench.StartupSPI#startup()
-	 */
 	public boolean startup() {
-
 		if (GraphicsEnvironment.isHeadless()) {
-			return true; // if we are running headlessly just return
+			return true; // if we are running without graphics we won't check for notices
 		}
 
-		long noticeTime = -1;
-		long lastCheckedTime = -1;
+		FileTime previousLastModified = FileTime.fromMillis(0);		
+		Path lastNoticeCheckFile = applicationConfiguration.getApplicationHomeDir().resolve(UPDATES).resolve(LAST_NOTICE);
+		
+		if (Files.exists(lastNoticeCheckFile)) {
+			try {
+				previousLastModified = Files.getLastModifiedTime(lastNoticeCheckFile);
+			} catch (IOException e) {
+				logger.error("Could not check " + lastNoticeCheckFile, e);
+				return false;
+			}
+		} else {
+			// Prepare the folder so we can download to it later
+			Path parent = lastNoticeCheckFile.getParent();
+			try {
+				Files.createDirectories(parent);
+			} catch (IOException e) {
+				logger.error("Could not create folders " + parent, e);
+				return false;
+			}
+		}
 
-		HttpClient client = new HttpClient();
-		client.setConnectionTimeout(TIMEOUT);
-		client.setTimeout(TIMEOUT);
-		PluginManager.setProxy(client);
-		String message = null;
+		
+		URI noticeURI;
+		try {
+			// e.g. https://taverna.incubator.apache.org/updates/workbench/3.1.0.incubating/notice
+			noticeURI = new URI(updateSite()).resolve(version() + "/").resolve(NOTICE);
+			
+		} catch (URISyntaxException e) {
+			logger.error("Invalid plugin site URL: " + updateSite(), e);
+			return true;
+		}
 
 		try {
-			URI noticeURI = new URI(BASE_URL + "/" + version + "/" + SUFFIX);
-			HttpMethod method = new GetMethod(noticeURI.toString());
-			int statusCode = client.executeMethod(method);
-			if (statusCode != HttpStatus.SC_OK) {
-				logger.warn("HTTP status " + statusCode + " while getting "
-						+ noticeURI);
-				return true;
-			}
-			String noticeTimeString = null;
-			Header h = method.getResponseHeader("Last-Modified");
-			message = method.getResponseBodyAsString();
-			if (h != null) {
-				noticeTimeString = h.getValue();
-				noticeTime = format.parse(noticeTimeString).getTime();
-				logger.info("NoticeTime is " + noticeTime);
-			}
-
-		} catch (URISyntaxException e) {
-			logger.error("URI problem", e);
+			downloadManager.download(noticeURI, lastNoticeCheckFile);
+		} catch (DownloadException e) {
+			logger.error("Could not download from " + noticeURI, e);
 			return true;
-		} catch (IOException e) {
-			logger.info("Could not read notice", e);
-		} catch (ParseException e) {
-			logger.error("Could not parse last-modified time", e);
 		}
 
-		if (lastNoticeCheckFile.exists()) {
-			lastCheckedTime = lastNoticeCheckFile.lastModified();
-		}
-
-		if ((message != null) && (noticeTime != -1)) {
-			if (noticeTime > lastCheckedTime) {
+		// After successful download the file should exist, so if we 
+		// get an IOException below we bail out early (e.g. disk error)		
+		try {
+			FileTime newLastModified = Files.getLastModifiedTime(lastNoticeCheckFile);
+			 if (hasMessage(lastNoticeCheckFile) && 
+					 isNewer(newLastModified, previousLastModified)) {
+				// Our "API" is that the file should always be in UTF8.. 
+				String message = new String(Files.readAllBytes(lastNoticeCheckFile), StandardCharsets.UTF_8);
 				// Show the notice dialog
-				JOptionPane.showMessageDialog(null, message, "Taverna notice",
-						JOptionPane.INFORMATION_MESSAGE,
-						WorkbenchIcons.tavernaCogs64x64Icon);
-				try {
-					FileUtils.touch(lastNoticeCheckFile);
-				} catch (IOException e) {
-					logger.error("Unable to touch file", e);
-				}
+				JOptionPane.showMessageDialog(null, message, product(),
+							JOptionPane.INFORMATION_MESSAGE,
+							WorkbenchIcons.tavernaCogs64x64Icon);
 			}
+			return true;
+		} catch (HeadlessException e) {
+			// but we already checked for GraphicsEnvironment.isHeadless above..!
+			logger.error("Can't initialize GUI", e);
+			return false;
+		} catch (IOException e) {
+			logger.error("Can't read " + lastNoticeCheckFile, e);
+			return false;
 		}
-		return true;
+	}
+
+	private boolean isNewer(FileTime newLastModified, FileTime previousLastModified) {
+		return newLastModified.compareTo(previousLastModified) > 0;
+	}
+
+	private boolean hasMessage(Path lastNoticeCheckFile) throws IOException {
+		return Files.size(lastNoticeCheckFile) > 0;
+	}
+
+	private String updateSite() {
+		return applicationConfiguration.getApplicationProfile().getUpdates().getUpdateSite();
+	}
+
+	private String version() {
+		return applicationConfiguration.getApplicationProfile().getVersion();
+	}
+	private String product() {
+		return applicationConfiguration.getApplicationProfile().getName();
+	}
+
+	public void setDownloadManager(DownloadManager downloadManager) {
+		this.downloadManager = downloadManager;
+	}
+
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
 	}
 
 }
