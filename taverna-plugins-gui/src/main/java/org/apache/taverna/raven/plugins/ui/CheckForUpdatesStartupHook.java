@@ -1,4 +1,3 @@
-package org.apache.taverna.raven.plugins.ui;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,6 +14,7 @@ package org.apache.taverna.raven.plugins.ui;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.taverna.raven.plugins.ui;
 
 import java.io.File;
 import java.util.Date;
@@ -98,7 +98,7 @@ public class CheckForUpdatesStartupHook implements StartupSPI, EventHandler {
 	@Override
 	public void handleEvent(Event event) {
 		// TODO: Handle Plug
-		if (event.getTopic().equals(PluginManager.UPDATES_AVAILABLE) {
+		if (event.getTopic().equals(PluginManager.UPDATES_AVAILABLE)) {
 			CheckForUpdatesDialog dialog = new CheckForUpdatesDialog();
 			dialog.setVisible(true);
 		}

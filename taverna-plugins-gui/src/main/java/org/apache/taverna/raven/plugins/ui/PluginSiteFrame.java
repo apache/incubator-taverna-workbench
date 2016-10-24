@@ -1,18 +1,4 @@
 /*
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA.
- *
- * Source code information
- * -----------------------
- * Filename           $RCSfile: PluginSiteFrame.java,v $
- * Revision           $Revision: 1.3 $
- * Release status     $State: Exp $
- * Last modified on   $Date: 2008/10/27 13:39:56 $
- *               by   $Author: stain $
- * Created on 29 Nov 2006
-package org.apache.taverna.raven.plugins.ui;
-/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -28,6 +14,7 @@ package org.apache.taverna.raven.plugins.ui;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.taverna.raven.plugins.ui;
 
 import java.awt.Color;
 import java.awt.Font;

@@ -1,7 +1,3 @@
-/**
- * 
- */
-package org.apache.taverna.raven.plugins.ui;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +14,7 @@ package org.apache.taverna.raven.plugins.ui;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.taverna.raven.plugins.ui;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
@@ -75,7 +72,7 @@ public class CheckForNoticeStartupHook implements StartupSPI {
 	private static Profile profile = ProfileFactory.getInstance().getProfile();
 	private static String version = profile.getVersion();
 
-	private static String BASE_URL = "http://www.mygrid.org.uk/taverna/updates";
+	private static String BASE_URL = "https://taverna.apache.org/updates";
 	private static String SUFFIX = "notice";
 	
 	private static int TIMEOUT = 5000;

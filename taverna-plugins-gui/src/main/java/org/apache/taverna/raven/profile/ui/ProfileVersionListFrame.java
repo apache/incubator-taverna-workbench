@@ -1,18 +1,4 @@
 /*
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA.
- *
- * Source code information
- * -----------------------
- * Filename           $RCSfile: ProfileVersionListFrame.java,v $
- * Revision           $Revision: 1.3 $
- * Release status     $State: Exp $
- * Last modified on   $Date: 2008/09/04 14:52:06 $
- *               by   $Author: sowen70 $
- * Created on 16 Jan 2007
-package org.apache.taverna.raven.profile.ui;
-/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -28,6 +14,7 @@ package org.apache.taverna.raven.profile.ui;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.taverna.raven.profile.ui;
 
 import java.awt.Frame;
 import java.awt.GridBagConstraints;

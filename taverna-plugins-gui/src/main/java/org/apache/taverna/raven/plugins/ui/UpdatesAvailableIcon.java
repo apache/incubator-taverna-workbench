@@ -1,18 +1,4 @@
 /*
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA.
- *
- * Source code information
- * -----------------------
- * Filename           $RCSfile: UpdatesAvailableIcon.java,v $
- * Revision           $Revision: 1.5 $
- * Release status     $State: Exp $
- * Last modified on   $Date: 2008/12/01 12:32:40 $
- *               by   $Author: alaninmcr $
- * Created on 12 Dec 2006
-package org.apache.taverna.raven.plugins.ui;
-/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -28,6 +14,7 @@ package org.apache.taverna.raven.plugins.ui;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.taverna.raven.plugins.ui;
 
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
@@ -50,8 +37,6 @@ import org.apache.log4j.Logger;
  *
  * Also acts as a pluginmanager listener to refresh itself whenever a new plugin
  * is added.
- *
- * @author Stuart Owen
  *
  */
 

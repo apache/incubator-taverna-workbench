@@ -1,4 +1,3 @@
-package org.apache.taverna.raven.plugins.ui;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,6 +14,7 @@ package org.apache.taverna.raven.plugins.ui;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.taverna.raven.plugins.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -42,8 +42,6 @@ import org.apache.log4j.Logger;
 /**
  * Dialog that lets user know that there are updates available.
  * 
- * @author Alex Nenadic
- *
  */
 @SuppressWarnings("serial")
 public class CheckForUpdatesDialog extends HelpEnabledDialog {
