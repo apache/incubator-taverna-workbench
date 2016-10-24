@@ -42,6 +42,12 @@
 			<artifactId>taverna-app-configuration-api</artifactId>
 			<version>${taverna.osgi.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <version>${osgi.core.version}</version>
+        </dependency>
+
 		<dependency>
 			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-plugin-api</artifactId>
@@ -53,6 +59,12 @@
 			<artifactId>commons-io</artifactId>
 			<version>${commons.io.version}</version>
 		</dependency>
+         <dependency>
+                 <groupId>org.osgi</groupId>
+                 <artifactId>org.osgi.core</artifactId>
+                 <version>${osgi.core.version}</version>
+         </dependency>
+		
 
 	</dependencies>
 </project>
