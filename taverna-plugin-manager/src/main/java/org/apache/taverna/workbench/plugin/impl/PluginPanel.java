@@ -36,9 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-/**
- * @author David Withers
- */
+
 @SuppressWarnings("serial")
 public abstract class PluginPanel extends JPanel {
 	@SuppressWarnings("unused")

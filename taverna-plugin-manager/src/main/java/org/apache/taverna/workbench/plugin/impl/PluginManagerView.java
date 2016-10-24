@@ -24,9 +24,6 @@ import org.apache.taverna.plugin.PluginManager;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-/**
- * @author David Withers
- */
 public class PluginManagerView implements EventHandler {
 	private JDialog dialog;
 	private PluginManagerPanel pluginManagerPanel;
