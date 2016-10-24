@@ -46,15 +46,11 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
-import uk.org.taverna.commons.plugin.PluginManager;
-
+import org.apache.taverna.plugin.PluginManager;
+import org.apache.taverna.plugin.PluginSite;
 import org.apache.taverna.workbench.helper.HelpEnabledDialog;
 
 
-/**
- *
- * @author David Withers
- */
 public class PluginSiteFrame extends HelpEnabledDialog {
 
 	private static final long serialVersionUID = 1L;

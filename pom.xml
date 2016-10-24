@@ -75,7 +75,6 @@
             <module>taverna-perspective-design</module>
             <module>taverna-perspective-myexperiment</module>
             <module>taverna-plugin-manager</module>
-            <module>taverna-plugins-gui</module>
             <module>taverna-reference-ui</module>
             <module>taverna-renderers-api</module>
             <module>taverna-renderers-exts</module>
@@ -108,6 +107,13 @@
             <module>taverna-report-impl</module>
             <module>taverna-report-view</module>
 	    -->
+<!--
+     The below contains outdated code which should be updated
+to use Taverna OSGi - it is provided for reference as some 
+of the functionality (e.g. update on startup chec) should be moved to its
+replacement, taverna-plugin-manager
+            <module>taverna-plugins-gui</module>
+-->
 
         </modules>
   <scm>

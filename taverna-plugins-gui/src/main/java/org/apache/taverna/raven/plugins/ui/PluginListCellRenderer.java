@@ -30,12 +30,9 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.AbstractBorder;
 
-import uk.org.taverna.commons.plugin.PluginManager;
+import org.apache.taverna.plugin.Plugin;
+import org.apache.taverna.plugin.PluginManager;
 
-/**
- *
- * @author David Withers
- */
 public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 
 	private static final long serialVersionUID = 1L;
@@ -157,7 +154,7 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		if (value instanceof Plugin) {
 			Plugin plugin = (Plugin) value;
 			name.setText(plugin.getName());
-			version.setText(plugin.getVersion());
+			version.setText(plugin.getVersion().toString());
 			description.setText("<html>"+plugin.getDescription());
 
 			status2.setText("");

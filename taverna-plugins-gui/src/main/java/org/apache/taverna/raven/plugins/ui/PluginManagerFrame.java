@@ -37,8 +37,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import uk.org.taverna.commons.plugin.PluginManager;
-
+import org.apache.taverna.plugin.PluginManager;
 import org.apache.taverna.workbench.helper.HelpEnabledDialog;
 
 /**
@@ -69,8 +68,6 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 	private JButton findUpdatesButton = null;
 	
 	private JButton closeButton = null;
-	
-	private PluginManagerListener managerListener;
 	
 	/**
 	 * This is the default constructor

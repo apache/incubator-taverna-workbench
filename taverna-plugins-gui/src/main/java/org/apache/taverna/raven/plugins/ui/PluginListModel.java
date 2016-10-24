@@ -19,11 +19,8 @@ package org.apache.taverna.raven.plugins.ui;
 import javax.swing.AbstractListModel;
 
 import org.apache.log4j.Logger;
+import org.apache.taverna.plugin.PluginManager;
 
-/**
- *
- * @author David Withers
- */
 @SuppressWarnings("serial")
 public class PluginListModel extends AbstractListModel implements PluginManagerListener {
 	private PluginManager pluginManager;

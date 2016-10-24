@@ -25,19 +25,20 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import org.apache.taverna.workbench.helper.HelpEnabledDialog;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.apache.taverna.workbench.helper.HelpEnabledDialog;
 
 /**
  * Dialog that lets user know that there are updates available.
@@ -47,15 +48,17 @@ import org.apache.log4j.Logger;
 public class CheckForUpdatesDialog extends HelpEnabledDialog {
 	
 	private Logger logger = Logger.getLogger(CheckForUpdatesDialog.class);
+	private Path lastUpdateCheckFile;
 
-	public CheckForUpdatesDialog(){
+	public CheckForUpdatesDialog(Path lastUpdateCheckFile){
 		super((Frame)null, "Updates available", true);
+		this.lastUpdateCheckFile = lastUpdateCheckFile;
 		initComponents();
 	}
 	
 	// For testing
-	public static void main (String[] args){
-		CheckForUpdatesDialog dialog = new CheckForUpdatesDialog();
+	public static void main (String[] args) throws IOException{
+		CheckForUpdatesDialog dialog = new CheckForUpdatesDialog(Files.createTempFile("update", ".tmp"));
 		dialog.setVisible(true);
 	}
 
@@ -98,16 +101,17 @@ public class CheckForUpdatesDialog extends HelpEnabledDialog {
 				(dimension.height - abounds.height) / 2);
 		setSize(getPreferredSize());
 	}
-	
+
 	protected void okPressed() {
-	       try {
-	            FileUtils.touch(CheckForUpdatesStartupHook.lastUpdateCheckFile);
-	        } catch (IOException ioex) {
-	        	logger.error("Failed to touch the 'Last update check' file for Taverna updates.", ioex);
-	        }
-		closeDialog();		
+		try {
+			FileTime time = FileTime.from(Instant.now());
+			Files.setLastModifiedTime(lastUpdateCheckFile, time);
+		} catch (IOException ioex) {
+			logger.error("Failed to update file " + lastUpdateCheckFile, ioex);
+		}
+		closeDialog();
 	}
-	
+
 	private void closeDialog() {
 		setVisible(false);
 		dispose();

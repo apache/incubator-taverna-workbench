@@ -29,6 +29,7 @@ import javax.swing.SwingUtilities;
 
 
 import org.apache.log4j.Logger;
+import org.osgi.service.event.EventHandler;
 
 /**
  * A JLabel that periodically checks for updates, running on a daemon thread. If
@@ -41,7 +42,7 @@ import org.apache.log4j.Logger;
  */
 
 @SuppressWarnings("serial")
-public class UpdatesAvailableIcon extends JLabel implements PluginManagerListener {
+public class UpdatesAvailableIcon extends JLabel implements EventHandler {
 
 	private UpdatePluginsMouseAdaptor updatePluginMouseAdaptor = new UpdatePluginsMouseAdaptor();
 	private static Logger logger = Logger.getLogger(UpdatesAvailableIcon.class);
