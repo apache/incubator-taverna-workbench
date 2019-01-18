@@ -142,6 +142,8 @@ replacement, taverna-plugin-manager
 						<exclude>**/*.json</exclude>
 						<!-- License details are mentioned in NOTICE ... -->
 						<exclude>**/src/main/jjtree/dotparser.jjt</exclude>
+						<!-- taverna-renderers-impl ASF-created test-files for media-file detection -->
+						<exclude>**/src/test/resources/test.*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
