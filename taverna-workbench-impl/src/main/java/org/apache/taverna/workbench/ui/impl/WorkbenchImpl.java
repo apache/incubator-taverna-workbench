@@ -16,6 +16,7 @@
  */
 package org.apache.taverna.workbench.ui.impl;
 
+import javax.swing.*;
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.HORIZONTAL;
@@ -471,23 +472,32 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 				 */
 				return;
 			}
-			final String message;
-			final String title;
+			final JTextArea message;
+			final JTextArea title;
 			final int style;
 			if (t.getClass().getName().equals("java.awt.EventDispatchThread")) {
-				message = "The user action could not be completed due to an unexpected error:\n"
-						+ e;
-				title = "Could not complete user action";
+				final String msg = "The user action could not be completed due to an unexpected error:\n"+ e;
+				message= new JTextArea(msg);
+ 				message.setEditable(true);
+
+				final String ttl = "Could not complete user action";
+				title= new JTextArea(ttl);
+ 				title.setEditable(true);
 				style = ERROR_MESSAGE;
 			} else {
-				message = "An unexpected internal error occured in \n" + t + ":\n" + e;
-				title = "Unexpected internal error";
+				final String msg = "An unexpected internal error occured in \n" + t + ":\n" + e;
+				message= new JTextArea(msg);
+ 				message.setEditable(true);
+
+				final String ttl = "Unexpected internal error";
+				title= new JTextArea(ttl);
+ 				title.setEditable(true);
 				style = WARNING_MESSAGE;
 			}
 			invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					showMessageDialog(WorkbenchImpl.this, message, title, style);
+					showMessageDialog(WorkbenchImpl.this, message, String.valueOf(title), style);
 				}
 			});
 		}
